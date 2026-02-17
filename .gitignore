@@ -1,0 +1,52 @@
+*venv
+*.pdf
+*.docx
+
+# Byte-code files
+*.pyc
+__pycache__/
+*.whl
+
+# Distributions and packaging
+.Python
+build/
+dist/
+*.egg-info/
+.env
+.venv
+env/
+venv/
+
+# Environment variables
+.env
+.flaskenv
+
+# IDE-specific files (optional, depending on your IDE)
+# Exclude the entire .idea folder if you want to ignore all IDE settings (e.g., for PyCharm)
+.idea/
+
+# VS Code personal workspace file
+.vscode/settings.json
+
+# Test and coverage reports
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+
+# Sphinx documentation build
+docs/_build/
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# OS-specific files
+.DS_Store
+Thumbs.db
