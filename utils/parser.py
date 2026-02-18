@@ -39,8 +39,6 @@ def parse_resume_structured(text):
     # returns the section header and content between each section
     sections = identify_sections(text)
 
-    print(sections, flush=True)
-
     resume_data = {
         "header": "",
         "summary": "",
