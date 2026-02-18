@@ -1,5 +1,5 @@
 import pdfplumber
-from docx import Document
+import docx2txt
 import spacy
 import re
 from utils.constants import (
@@ -29,9 +29,7 @@ def parse_pdf(filepath):
 
 def parse_docx(filepath):
     """Extract text from Word document"""
-    doc = Document(filepath)
-    text = '\n'.join([para.text for para in doc.paragraphs])
-    
+    text = docx2txt.process(filepath)
     return text.strip()
 
 def parse_resume_structured(text):
