@@ -1,9 +1,15 @@
 import pdfplumber
 import docx2txt
-import spacy
 import re
 from utils.constants import (
     SECTION_PATTERNS
+)
+from utils.functions import (
+    extract_email,
+    extract_phone_number,
+    extract_name,
+    extract_location,
+    extract_urls,
 )
 
 def parse_resume(filepath):
@@ -38,6 +44,11 @@ def parse_resume_structured(text):
     # Step 1: Identify sections
     # returns the section header and content between each section
     sections = identify_sections(text)
+
+    # Step 2: Extract Header
+    header = extract_header(text, sections)
+
+    print("header: ", header, flush = True)
 
     resume_data = {
         "header": "",
@@ -93,3 +104,36 @@ def identify_sections(text):
     sections["_meta"] = {"section_start_line": section_start_line}
 
     return sections
+
+# Header Extraction
+def extract_header(text, sections):
+    # Get text before first section (usually contact info)
+    lines = text.split("\n")
+    header_lines = []
+
+    # Find where first section starts
+    meta = sections.get("_meta", {})
+    section_starts = meta.get("section_start_line", {})
+    # find the first section
+    first_section_line = min(section_starts.values() if section_starts else len(lines))
+
+    # Get lines before first section (typically first 5-10 lines)
+    header_text = "\n".join(lines[:min(first_section_line, 15)])
+
+    # Extract components
+    email = extract_email(header_text)
+    phone = extract_phone_number(header_text)
+    name_parts = extract_name(header_text)
+    city, state, country = extract_location(header_text).values()
+    urls = extract_urls(header_text)
+
+    return {
+        "first_name": name_parts.get("first_name", ""),
+        "last_name": name_parts.get("last_name", ""),
+        "phone": phone,
+        "email": email,
+        "city": city,
+        "state": state,
+        "country": country,
+        "urls": urls
+    }
