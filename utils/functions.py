@@ -6,7 +6,6 @@ from utils.constants import (
     EMAIL_PATTERN, 
     PHONE_NUMBER_PATTERNS,
     URL_PATTERN,
-    NAME_SKIP_PATTERNS,
 )
 
 def extract_email(text):
@@ -31,51 +30,34 @@ def extract_name(text):
     matcher.add("FULL_NAME", [FULLNAME_PATTERN])
     doc = NLP(text)
     matches = matcher(doc)
+    match_id, start, end = matches[0]
+    span = doc[start:end]
+    fullname = span.text
+    parts = fullname.split()
 
-    # separate the first and last name
-    for (match_id, start, end) in matches:
-        span = doc[start:end]
-        fullname = span.text
-        parts = fullname.split()
-
-        if len(parts) >= 2:
-            return {
-                "first_name": parts[0],
-                # if the text includes a middle name, include that as part of the last name for display purposes
-                "last_name": " ".join(parts[1:]),
-            }
-        elif len(parts) == 1:
-            return {
-                "first_name": parts[0],
-                "last_name": ""
-            }
+    if len(parts) >= 2:
+        return {
+            "first_name": parts[0],
+            # if the text includes a middle name, include that as part of the last name for display purposes
+            "last_name": " ".join(parts[1:]),
+        }
+    elif len(parts) == 1:
+        return {
+            "first_name": parts[0],
+            "last_name": ""
+        }
 
     return {"first_name": "", "last_name": ""}
 
 def extract_urls(text):
-    """ Extract all URLs from header text """
-
-    urls = []
-
-    # Pattern 1: Full URLs without protocol
-    full_matches = re.findall(URL_PATTERN, text, re.IGNORECASE)
-
-    # skip any emails
-    emails = re.findall(EMAIL_PATTERN, text)
-    email_domains = [email.split('@')[1] for email in emails]
-
-    for match in full_matches:
-        # Add https:// prefix to domain-only URLs
-        full_url = match if match.startswith("http") else f"https://{match}"
-        # Remove trailing slashes
-        full_url = full_url.rstrip("/")
-
-        # note that if the domain is from an email domain (i.e gmail.com), ignore it
-        domain = match.replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0]
-        if domain in email_domains:
-            continue
-
-        if full_url not in urls:
-            urls.append(full_url)
+    """ Extract all URLs from header text, ignoring any emails """
+    # Step 1: Broadly match potential URLs/emails.
+    # This pattern looks for sequences of non-whitespace characters that contain a dot,
+    # and might have common URL characters (:, /, @, ., -).
+    # It tries to capture things that look like domains or URLs.
+    potential_matches = re.findall(r'\S+\.\S+', text) #
+    
+    # Step 2: Filter out matches that contain an "@" symbol, thus ignoring emails.
+    urls = [match for match in potential_matches if '@' not in match]
     
     return urls

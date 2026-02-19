@@ -33,8 +33,4 @@ PHONE_NUMBER_PATTERNS = [
 ADDRESS_PATTERN = r'([A-Z][a-z\s]+(?:\s+[A-Z][a-z]+)*)\s*,\s*([A-Z]{2}|[A-Z][a-z\s]+)\s*,?\s*([A-Z][a-z\s]+)?'
 
 # capture URLs with http/https
-URL_PATTERN = r'(?:https?://)?(?:www\.)?[\w\-]+\.[\w\-]+(?:/[\w\-._~:/?#[\]@!$&\'()*+,;=%]*)?'
-
-# if the first line of the resume has any of the following, it's likely not the first name/last name
-NAME_SKIP_PATTERNS = ['@', 'http', 'www.', '(', ')', '+', 'engineer', 'developer', 
-                     'designer', 'manager', 'analyst', 'scientist', 'consultant']
+URL_PATTERN = r'(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})'
