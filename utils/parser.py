@@ -8,7 +8,6 @@ from utils.functions import (
     extract_email,
     extract_phone_number,
     extract_name,
-    extract_location,
     extract_urls,
 )
 
@@ -48,10 +47,8 @@ def parse_resume_structured(text):
     # Step 2: Extract Header
     header = extract_header(text, sections)
 
-    print("header: ", header, flush = True)
-
     resume_data = {
-        "header": "",
+        "header": header,
         "summary": "",
         "experiences": "",
         "education": "",
@@ -124,7 +121,6 @@ def extract_header(text, sections):
     email = extract_email(header_text)
     phone = extract_phone_number(header_text)
     name_parts = extract_name(header_text)
-    city, state, country = extract_location(header_text).values()
     urls = extract_urls(header_text)
 
     return {
@@ -132,8 +128,5 @@ def extract_header(text, sections):
         "last_name": name_parts.get("last_name", ""),
         "phone": phone,
         "email": email,
-        "city": city,
-        "state": state,
-        "country": country,
         "urls": urls
     }
