@@ -5,7 +5,6 @@ from utils.constants import (
     FULLNAME_PATTERN,
     EMAIL_PATTERN, 
     PHONE_NUMBER_PATTERNS,
-    URL_PATTERN,
 )
 
 def extract_email(text):
