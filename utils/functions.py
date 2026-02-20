@@ -5,7 +5,34 @@ from utils.constants import (
     FULLNAME_PATTERN,
     EMAIL_PATTERN, 
     PHONE_NUMBER_PATTERNS,
+    DATE_RANGE_PATTERN,
 )
+
+def clean_text(text):
+    """Remove or replace problematic Unicode characters"""
+    
+    replacements = {
+        '\u25cf': '-',  # ● 
+        '\u25cb': '-',  # ○
+        '\u25a0': '-',  # ■
+        '\u2022': '-',  # •
+        '\u2023': '-',  # ‣
+        '\u2043': '-',  # ⁃
+        '\u2013': '-',  # –
+        '\u2014': '-',  # —
+        '\u2019': "'",  # '
+        '\u201c': '"',  # "
+        '\u201d': '"',  # "
+        '\u2026': '...',  # …
+    }
+    
+    for unicode_char, replacement in replacements.items():
+        text = text.replace(unicode_char, replacement)
+    
+    # Remove any remaining problematic characters
+    text = text.encode('ascii', 'ignore').decode('ascii')
+    
+    return text
 
 def extract_email(text):
     """ Extract email address from text """
@@ -60,3 +87,24 @@ def extract_urls(text):
     urls = [match for match in potential_matches if '@' not in match]
     
     return urls
+
+def split_experience_entries(text):
+    """Split experience section into individual jobs"""
+    
+    lines = text.split('\n')
+    entries = []
+    current_entry = []
+    
+    for line in lines:
+        # Check if line contains a date range (likely start of new entry)
+        if re.search(DATE_RANGE_PATTERN, line, re.IGNORECASE) and current_entry:
+            entries.append('\n'.join(current_entry))
+            current_entry = [line]
+        else:
+            current_entry.append(line)
+    
+    # Add last entry
+    if current_entry:
+        entries.append('\n'.join(current_entry))
+    
+    return entries

@@ -5,10 +5,12 @@ from utils.constants import (
     SECTION_PATTERNS
 )
 from utils.functions import (
+    clean_text,
     extract_email,
     extract_phone_number,
     extract_name,
     extract_urls,
+    split_experience_entries,
 )
 
 def parse_resume(filepath):
@@ -19,7 +21,8 @@ def parse_resume(filepath):
         text = parse_docx(filepath)
     else:
         raise ValueError('Unsupported file format')
-    
+
+    text = clean_text(text) 
     structured_data = parse_resume_structured(text)
     return structured_data
 
@@ -47,10 +50,16 @@ def parse_resume_structured(text):
     # Step 2: Extract Header
     header = extract_header(text, sections)
 
+    # Step 3: Extract Summary
+    summary = extract_summary(sections.get("summary", ""))
+
+    # Step 4: Extract Experiences
+    experiences = extract_experience(sections.get("experience", ""))
+
     resume_data = {
         "header": header,
-        "summary": "",
-        "experiences": "",
+        "summary": summary,
+        "experiences": experiences,
         "education": "",
         "skills": ""
     }
@@ -130,3 +139,25 @@ def extract_header(text, sections):
         "email": email,
         "urls": urls
     }
+
+# Summary Extraction
+def extract_summary(text):
+    if not text:
+        return ""
+    return text.strip().replace("\n", " ")
+
+# Experience Extraction
+def extract_experience(text):
+    """ 
+    Parse experience section into structured objects containing 
+    company, date range and bullet points 
+    """
+    if not text:
+        return []
+
+    experiences = []
+    entries = split_experience_entries(text)
+    # TODO: just for debugging
+    experiences = entries
+
+    return experiences
