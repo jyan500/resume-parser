@@ -8,10 +8,11 @@ from utils.parser import parse_resume as parse_resume_helper
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
 
-# Enable UTF-8 only in debug mode
-if sys.platform == 'win32' and app.debug:
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+# Replace stdout with an unbuffered version
+if app.debug:
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding='utf-8', line_buffering=True
+    )
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
