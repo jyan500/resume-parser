@@ -1,6 +1,7 @@
 import pdfplumber
 import docx2txt
 import re
+import traceback
 from utils.constants import (
     SECTION_PATTERNS
 )
@@ -21,8 +22,7 @@ def parse_resume(filepath):
         text = parse_docx(filepath)
     else:
         raise ValueError('Unsupported file format')
-
-    text = clean_text(text) 
+    text = clean_text(text)
     structured_data = parse_resume_structured(text)
     return structured_data
 
@@ -42,27 +42,30 @@ def parse_docx(filepath):
 
 def parse_resume_structured(text):
     """ Main function to parse resume into structured format """
+    resume_data = {}
+    try:
+        # Step 1: Identify sections
+        # returns the section header and content between each section
+        sections = identify_sections(text)
 
-    # Step 1: Identify sections
-    # returns the section header and content between each section
-    sections = identify_sections(text)
+        # Step 2: Extract Header
+        header = extract_header(text, sections)
 
-    # Step 2: Extract Header
-    header = extract_header(text, sections)
+        # Step 3: Extract Summary
+        summary = extract_summary(sections.get("summary", ""))
 
-    # Step 3: Extract Summary
-    summary = extract_summary(sections.get("summary", ""))
+        # Step 4: Extract Experiences
+        experiences = extract_experience(sections.get("experience", ""))
 
-    # Step 4: Extract Experiences
-    experiences = extract_experience(sections.get("experience", ""))
-
-    resume_data = {
-        "header": header,
-        "summary": summary,
-        "experiences": experiences,
-        "education": "",
-        "skills": ""
-    }
+        resume_data = {
+            "header": header,
+            "summary": summary,
+            "experiences": experiences,
+            "education": "",
+            "skills": ""
+        }
+    except Exception as e:
+        print(traceback.print_exc())
 
     return resume_data 
 

@@ -1,6 +1,7 @@
 import spacy
 
 NLP = spacy.load('en_core_web_sm')
+LOCATION_PATTERN = r'^[A-Z][a-zA-Z\s]+,\s*[A-Z]{2,3}$'
 
 # Match exact words to categorize as a section
 SECTION_PATTERNS = {

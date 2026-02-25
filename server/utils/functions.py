@@ -211,56 +211,6 @@ def is_body_line(line: str) -> bool:
 
     return False
 
-def is_header_line(line: str) -> bool:
-    """
-    Positively identifies a line as a header element.
-    Returns True if the line is a date range, location, company name,
-    or job title. Everything that isn't a header is assumed to be
-    bullet point content.
-    """
-    line = line.strip()
-    if not line:
-        return False
-
-    # 1. Date range — highest confidence signal
-    if re.search(DATE_RANGE_PATTERN, line, re.IGNORECASE):
-        return True
-
-    # 2. Location pattern — "City, XX" or "City, XXX"
-    if re.match(LOCATION_PATTERN, line):
-        return True
-
-    # 3. Combined company + location line — "Shopify Inc., Ottawa, ON"
-    #    Has a location pattern at the end after a comma
-    if re.search(r',\s*[A-Z][a-zA-Z\s]+,\s*[A-Z]{2,3}$', line):
-        return True
-
-    # 4. Company indicators
-    if re.search(COMPANY_INDICATORS, line, re.IGNORECASE):
-        # Extra guard — a bullet could mention a company in passing,
-        # so only treat as header if the line is short
-        doc = NLP(line)
-        words = [t for t in doc if not t.is_punct and not t.is_space]
-        if len(words) <= 8:
-            return True
-
-    # 5. Job title — short line, no verb morphology on first token,
-    #    no terminal punctuation
-    if not line[-1] in {'.', '!', '?'}:
-        doc = NLP(line)
-        words = [t for t in doc if not t.is_punct and not t.is_space]
-        if len(words) <= 6:
-            has_verb = any(
-                t.tag_ in BULLET_VERB_TAGS 
-                or "Tense=Past" in t.morph 
-                or "VerbForm=Part" in t.morph
-                for t in doc[:3]
-            )
-            if not has_verb:
-                return True
-
-    return False
-
 class ParserState(Enum):
     # set auto() to make sure each enum key has a unique value, but the value
     # itself is not relevant

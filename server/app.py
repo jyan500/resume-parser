@@ -9,10 +9,9 @@ app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
 
 # Replace stdout with an unbuffered version
-if app.debug:
-    sys.stdout = io.TextIOWrapper(
-        sys.stdout.buffer, encoding='utf-8', line_buffering=True
-    )
+sys.stdout = io.TextIOWrapper(
+    sys.stdout.buffer, encoding='utf-8', line_buffering=True
+)
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
