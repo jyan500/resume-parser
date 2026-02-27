@@ -3,6 +3,7 @@
 *.docx
 
 *test-resumes/
+*models/
 
 # Byte-code files
 *.pyc

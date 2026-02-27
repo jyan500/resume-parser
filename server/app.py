@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 import sys
 import io
-from utils.parser import parse_resume as parse_resume_helper
+from utils.parser import ResumeParser
 
 app = Flask(__name__)
 CORS(app)  # Allow frontend to make requests
@@ -16,6 +16,7 @@ sys.stdout = io.TextIOWrapper(
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+parser = ResumeParser()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -37,7 +38,7 @@ def parse_resume():
     
     try:
         # Parse the resume
-        resume_data = parse_resume_helper(filepath)
+        resume_data = parser.parse_resume(filepath)
         
         # Clean up file
         os.remove(filepath)

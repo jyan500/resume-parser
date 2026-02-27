@@ -1,6 +1,8 @@
-import spacy
+COMPANY_OVERRIDES = {"self-employed", "contractor", "freelance", "career development", "independent", "independent projects"}
+WORK_MODES = {"hybrid", "remote", "onsite", "on-site"}
+SPACY_HEADER_SELF_EMPLOYED = "SELF_EMPLOYED"
+SPACY_HEADER_WORK_MODE = "WORK_MODE"
 
-NLP = spacy.load('en_core_web_sm')
 LOCATION_PATTERN = r'^[A-Z][a-zA-Z\s]+,\s*[A-Z]{2,3}$'
 
 # Match exact words to categorize as a section
@@ -15,16 +17,6 @@ SECTION_PATTERNS = {
     'certifications': r'(?i)^(certifications)$',
     'languages': r'(?i)^(languages|foreign languages)$',
 }
-
-# Patterns that strongly indicate a header line, not a bullet (within the experience section)
-HEADER_PATTERNS = [
-    r'\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b',  # month names
-    r'\d{4}\s*[-–—]\s*(\d{4}|present)',                         # year ranges
-    r'^(january|february|march|april|may|june|july|august|september|october|november|december)',
-    r'^\+?[\d\s\(\)\-]{7,}$',                                   # phone numbers
-    r'^[\w\.-]+@[\w\.-]+\.\w+$',                                # email
-    r'https?://',                                                # URLs
-]
 
 # Firstname Lastname
 FULLNAME_PATTERN = [{"POS": "PROPN"}, {"POS": "PROPN"}]
