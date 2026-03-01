@@ -19,8 +19,17 @@ lines = [
     "Self-Employed Remote",
     "Rhumbix San Francisco, CA - Remote",
     "Home Campus Costa Mesa, CA - Remote",
-    "- Initiated redesign of legacy Android/iOS application into a hybrid mobile application using Ionic 3 and Angular 2."
-
+    "- Initiated redesign of legacy Android/iOS application into a hybrid mobile application using Ionic 3 and Angular 2.",
+    "Atlassian, Sydney, NSW",
+    "Freshbooks, Toronto, ON",
+    "February 2021 - Present",
+    "Bell Canada, Montreal, QC",
+    "N26 Bank GmbH, Berlin, Germany",
+    "4/05/2021 - Present",
+    "XING SE, Hamburg, Germany",
+    "8-16-2018 - 3-20-2021",
+    "Otto Group, Hamburg, Germany",
+    "Deployed services across New York and London"
 ]
 for i in range(len(lines)):
     print(f"****** Test #{i+1} ******")

@@ -7,6 +7,8 @@ from utils.constants import (
     EMAIL_PATTERN,
     PHONE_NUMBER_PATTERNS,
     SECTION_PATTERNS,
+    DATE_PATTERNS,
+    DATE_RANGE_PATTERN,
     COMPANY_OVERRIDES,
     WORK_MODES,
     SPACY_HEADER_SELF_EMPLOYED,
@@ -27,7 +29,6 @@ class ResumeParser:
         else:
             raise ValueError('Unsupported file format')
         text = self._clean_text(text)
-        print("text: ", text)
         structured_data = self._parse_resume_structured(text)
         return structured_data
 
@@ -241,7 +242,6 @@ class ResumeParser:
         
         entryId = 0
         for line in lines:
-            print("line: ", line)
             is_header = self._is_header_line(line)
             if is_header:
                 # If our current_header was empty before this, that means that
@@ -282,13 +282,17 @@ class ResumeParser:
         if not line.strip():
             return False
 
+        # If a date exists in the line, it's almost certainly a header
+        if re.search(DATE_RANGE_PATTERN, line, re.IGNORECASE):
+            return True
+
         # --- Stage 1: POS filter (same logic as the repo) ---
         doc = self.predictions.get_spacy_doc(line)
         spacy_entities = {ent.label_ for ent in doc.ents}
 
         # TODO: remove
-        for ent in doc.ents:
-            print(f"word: {ent} label: {ent.label_}")
+        # for ent in doc.ents:
+        #     print(f"word: {ent} label: {ent.label_}")
 
         self_employment_exists = SPACY_HEADER_SELF_EMPLOYED in spacy_entities
         work_mode_exists = SPACY_HEADER_WORK_MODE in spacy_entities
@@ -304,26 +308,24 @@ class ResumeParser:
         # catch an edge case where our special cases get marked as adjectives or other tags,
         # so need to not reject these cases here.
         if not self_employment_exists and (has_verb or most_common_tag not in ("NNP", "NN")):
-            print("failing in the verbiage check")
+            # print("fails on verbiage check")
             return False
 
         # --- Stage 2: NER confirmation ---
         ner_results = self.predictions.ner(line)
-        print("ner_results: ", ner_results)
+        # print("ner_results: ", ner_results)
         
         header_entities = {"Designation", "ORG", "DATE", "GPE"}
         
         found_entities = {result["entity_group"] for result in ner_results}
 
-
-        header_entities = {"Designation", "ORG", "DATE", "GPE"}
-
         # perform set intersection
         header_entity_exists = any(e in header_entities for e in found_entities) 
+        spacy_header_entities = {"SELF_EMPLOYED", "WORK_MODE", "GPE", "LOC", "DATE"}
 
         if header_entity_exists:
             return True
-        if self_employment_exists or work_mode_exists: 
+        if any(e in spacy_header_entities for e in spacy_entities): 
             return True
 
         return False

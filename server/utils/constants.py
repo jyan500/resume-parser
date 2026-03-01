@@ -31,6 +31,14 @@ PHONE_NUMBER_PATTERNS = [
     r'\+?\d{1,3}[-.\s]?\d{2,4}[-.\s]?\d{2,4}[-.\s]?\d{2,4}'  # International
 ]
 
+DATE_PATTERNS = [
+    r'\d{1,2}[-/]\d{1,2}[-/]\d{2,4}',  # 8-16-2018, 4/05/2021
+    r'\d{4}[-/]\d{1,2}[-/]\d{1,2}',    # 2021-04-05
+    r'(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}',  # February 2021
+    r'\d{1,2}\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{4}',
+    r'\d{4}\s*[-–]\s*(\d{4}|present)',  # 2018 - 2021
+]
+
 DATE_RANGE_PATTERN = (
     # START DATE
     r'(?:'
