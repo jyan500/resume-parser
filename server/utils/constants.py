@@ -9,12 +9,12 @@ LOCATION_PATTERN = r'^[A-Z][a-zA-Z\s]+,\s*[A-Z]{2,3}$'
 SECTION_PATTERNS = {
     'summary': r'(?i)^(summary|profile|objective|about|professional summary)$',
     'experience': r'(?i)^(experience|work history|employment|professional experience|work experience)$',
-    'education': r'(?i)^(education|academic background|academic)$',
+    'education': r'(?i)^(education|academic background|academic|education & certificates|education and certifications|education & certifications)$',
     'skills': r'(?i)^(skills|technical skills|competencies|core competencies)$',
     'projects': r'(?i)^(projects)$',
     'interests': r'(?i)^(interests|hobbies)$',
     'accomplishments': r'(?i)^(accomplishments|achievements)$',
-    'certifications': r'(?i)^(certifications)$',
+    'certifications': r'(?i)^(certifications|certificates)$',
     'languages': r'(?i)^(languages|foreign languages)$',
 }
 
@@ -89,3 +89,18 @@ DATE_RANGE_PATTERN = (
         r'(?:Present|Current|Now|Ongoing|Today|present|current|PRESENT|CURRENT)'
     r')'
 )
+
+US_STATES = {
+    "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+    "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+    "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+    "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+    "DC"
+}
+
+CA_PROVINCES = {
+    "AB", "BC", "MB", "NB", "NL", "NS", "NT", "NU", "ON", "PE", "QC", "SK", "YT"
+}
+
+REGION_ABBREVIATIONS = US_STATES | CA_PROVINCES

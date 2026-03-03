@@ -12,7 +12,7 @@ from utils.constants import (
 
 class Models:
     def __init__(self):
-        self.ner, self.nlp = self.load_models()
+        self.ner, self.nlp, self.zero_shot_classifier = self.load_models()
 
     def load_models(self):
         # Resume NER
@@ -30,7 +30,15 @@ class Models:
         self.nlp = spacy.load("en_core_web_lg")
         self._add_entity_ruler()
 
-        return self.ner, self.nlp
+        # Zero Shot Classifier
+        zsc_model_path = snapshot_download("valhalla/distilbart-mnli-12-6", cache_dir="./models")
+        # uses AutoModelForSequenceClassification by default here (instead of token classification like the NER)
+        self.zero_shot_classifier = pipeline(
+            "zero-shot-classification",
+            model=zsc_model_path
+        )
+
+        return self.ner, self.nlp, self.zero_shot_classifier
 
     def _add_entity_ruler(self):
         ruler = self.nlp.add_pipe("entity_ruler", after="ner", config={"overwrite_ents": True})

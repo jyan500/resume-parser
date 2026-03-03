@@ -3,6 +3,9 @@ import docx2txt
 import re
 import traceback
 from utils.models import Models
+from utils.functions import (
+    capitalize_clean_text
+)
 from utils.constants import (
     EMAIL_PATTERN,
     PHONE_NUMBER_PATTERNS,
@@ -13,8 +16,10 @@ from utils.constants import (
     WORK_MODES,
     SPACY_HEADER_SELF_EMPLOYED,
     SPACY_HEADER_WORK_MODE,
+    REGION_ABBREVIATIONS,
 )
 from collections import defaultdict
+from string import punctuation
 
 class ResumeParser:
     def __init__(self):
@@ -221,14 +226,20 @@ class ResumeParser:
 
     def _extract_urls(self, text: str) -> [str]:
         """ Extract all URLs from header text, ignoring any emails """
-        # Step 1: Broadly match potential URLs/emails.
-        # This pattern looks for sequences of non-whitespace characters that contain a dot,
-        # and might have common URL characters (:, /, @, ., -).
-        # It tries to capture things that look like domains or URLs.
-        potential_matches = re.findall(r'\S+\.\S+', text) #
+        pattern = re.compile(
+        r'\b'
+        r'(?<![@\w])'               # negative lookbehind: not preceded by @ or word char
+        r'(?:https?://)?'           # optional protocol
+        r'(?:www\.)?'               # optional www
+        r'[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]'  # domain (min 3 chars, no single letters)
+        r'\.[a-zA-Z]{2,}'           # TLD (at least 2 letters, rules out "U.S" since S is 1 char)
+        r'(?:/[^\s]*)?'             # optional path
+        r'\b'
+    )
+        matches = re.findall(pattern, text)
         
         # Step 2: Filter out matches that contain an "@" symbol, thus ignoring emails.
-        urls = [match for match in potential_matches if '@' not in match]
+        urls = [match for match in matches if '@' not in match]
         
         return urls
 
@@ -271,6 +282,12 @@ class ResumeParser:
         if len(current_body_block) > 0:
             entries[entryId]["bullets"] = current_body_block
 
+        # after splitting off the headers and bullets, change the header from array to
+        # object containing each entity (i.e "job_title", "date_range", etc)
+        for entryId in entries:
+            entry = entries[entryId]
+            entities = self._extract_entities_from_job_header(entry["header"])
+            entries[entryId]["header"] = entities
         return list(entries.values())
     
         
@@ -330,3 +347,105 @@ class ResumeParser:
 
         return False
 
+    def _run_zero_shot_classification_on_results(self, tokens, classes):
+        element = ""
+        confidence = 0
+        for token in tokens:
+            res = self.predictions.zero_shot_classifier(token, classes)
+            print("res: ", res)
+            class_score = zip(res["labels"], res["scores"])
+            print("class_score: ", class_score)
+            highest = sorted(class_score, key=lambda x: x[1])[-1]
+            print("*******************")
+            print("highest: ", highest)
+            print("token: ", token)
+            if highest[1] > confidence:
+                if (highest[0] in classes):
+                    element = token.strip()
+                    confidence = highest[1]
+        return element
+
+    def _extract_entities_from_job_header(self, header_array):
+        """
+        Extract Job Title, Company, Location, Date Range, Work Type from the 
+        header of each job section within the work experiences
+        """
+        # Combine the lines to give the classifier a better chance
+        # of identifying each entity with the additional context of being
+        # analyzed all together as opposed to line-by-line
+        # the array placeholders are to collect potential tokens to run the zero shot classifier on,
+        # as NER and spacy struggle to correctly distinguish the company/location on their own.
+        result = {
+            "job_title": "",
+            "company": [],
+            "date_range": "",
+            "location": [],
+            "work_mode": ""
+        }
+        header_line = " ".join(header_array)
+        ner_results = self.predictions.group_entities(header_line) 
+        # found_entities = {result["entity_group"] for result in ner_results}
+        doc = self.predictions.get_spacy_doc(header_line)
+        date = re.search(DATE_RANGE_PATTERN, header_line, re.IGNORECASE)
+        self_employed = "" 
+        if date:
+            result["date_range"] = date.group(0)
+        # spacy_entities = {ent.label_ for ent in doc.ents}
+        # print("found entities: ", found_entities)
+        # print("date: ", date)
+        # print("spacy_entities: ", spacy_entities)
+        print(ner_results)
+        for entity_group in ner_results:
+            # find the top result of each entity group, where the
+            # top result is the highest match score, should already be in descending order
+            results = ner_results[entity_group]
+            if len(results):
+                top_result = capitalize_clean_text(results[0]["word"])
+                if entity_group == "Designation":
+                    print("top_result: ", top_result)
+                    result["job_title"] = top_result
+                # NER sometimes correctly identifies the ORG and sometimes doesn't,
+                # so need to add both types to the to company list
+                if entity_group == "ORG" or entity_group == "GPE":
+                    print("top_result: ", top_result)
+                    result["company"].append(top_result)
+
+        for ent in doc.ents:
+            print("ent: ", ent, " ", ent.label_)
+            # spacy sometimes identifies the org and location but not correctly labeled,
+            # thus adding to both lists
+            if ent.label_ == "ORG" or ent.label_ == "GPE" or ent.label_ == "LOC":
+                result["company"].append(ent.text)
+                result["location"].append(ent.text)
+            # note that if self employed is found, this is likely the company,
+            # and we skip the zero shot classification here for this edge case
+            if ent.label_ == "SELF_EMPLOYED":
+                self_employed = ent.text
+                print("self_employed found; ", self_employed)
+            if ent.label_ == "WORK_MODE":
+                result["work_mode"] = ent.text
+        
+        # run zero shot classification to distinguish company and location,
+        # skip if company classification if self employed 
+        print("results before zero shot: ", result)
+        result["company"] = self._run_zero_shot_classification_on_results(
+            result["company"], 
+            ["company", "organization", "institution"]
+        ) if self_employed == "" else self_employed 
+        result["location"] = self._run_zero_shot_classification_on_results(
+            result["location"], 
+            ["location"]
+        )
+        # look for a region abbreviation immediately after the location in the original line
+        # handles "San Francisco, CA" or "San Francisco CA"
+        pattern = re.compile(
+            rf'{re.escape(result["location"])}\s*,?\s*([A-Z]{{2}})\b'
+        )
+        match = re.search(pattern, header_line)
+        if match:
+            abbrev = match.group(1)
+            if abbrev in REGION_ABBREVIATIONS:
+                result["location"] = f"{result['location']}, {abbrev}"
+        print("res: ", result)
+        return result
+        
