@@ -1,3 +1,4 @@
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
@@ -5,7 +6,11 @@ import sys
 import io
 from utils.parser import ResumeParser
 
+load_dotenv()
+
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY")
 CORS(app)  # Allow frontend to make requests
 
 # Replace stdout with an unbuffered version
