@@ -4,8 +4,7 @@ from flask_cors import CORS
 import os
 import sys
 import io
-# from utils.parser import ResumeParser
-from leverparser import ResumeParser
+from utils.parser import ResumeParser
 
 load_dotenv()
 
