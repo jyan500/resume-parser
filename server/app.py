@@ -4,7 +4,8 @@ from flask_cors import CORS
 import os
 import sys
 import io
-from utils.parser import ResumeParser
+# from utils.parser import ResumeParser
+from leverparser import ResumeParser
 
 load_dotenv()
 
@@ -21,7 +22,7 @@ sys.stdout = io.TextIOWrapper(
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-parser = ResumeParser()
+# parser = ResumeParser()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -43,12 +44,15 @@ def parse_resume():
     
     try:
         # Parse the resume
-        resume_data = parser.parse_resume(filepath)
+        resume_data = ResumeParser(filepath)
         
         # Clean up file
         os.remove(filepath)
         
         return jsonify(resume_data)
+    # validation errors
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 422
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

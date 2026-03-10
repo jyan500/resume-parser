@@ -27,6 +27,10 @@ class Experience(BaseModel):
     date_range: str
     bullets: List[str]
 
+class Project(BaseModel):
+    title: str
+    bullets: List[str]
+
 class ResumeSchema(BaseModel):
     first_name: str
     last_name: str
@@ -39,4 +43,6 @@ class ResumeSchema(BaseModel):
     certifications: List[Certification]
     experience: List[Experience]
     skills: List[str]
-    projects: List[str]
+    projects: List[Project]
+    languages: List[str]    
+    interests: List[str]
