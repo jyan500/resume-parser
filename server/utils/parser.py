@@ -53,3 +53,20 @@ class ResumeParser:
         """Extract text from Word document"""
         text = docx2txt.process(filepath)
         return text.strip()
+
+    def _clean_text(self, text: str) -> str:
+        """ 
+            Replace bullet points, convert curly to straight quotes and
+            converts a single triple dot char into three individual dots
+        """
+        replacements = {
+            '\u25cf': '-', '\u25cb': '-', '\u25a0': '-',
+            '\u2022': '-', '\u2023': '-', '\u2043': '-',
+            '\u2013': '-', '\u2014': '-', '\u2019': "'",
+            '\u201c': '"', '\u201d': '"', '\u2026': '...',
+        }
+        for unicode_char, replacement in replacements.items():
+            text = text.replace(unicode_char, replacement)
+
+        return text
+
