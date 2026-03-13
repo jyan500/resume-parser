@@ -24,7 +24,8 @@ class Experience(BaseModel):
     location: str
     work_type: WorkType
     job_title: str
-    date_range: str
+    start_date: str
+    end_date: str
     bullets: List[str]
 
 class Project(BaseModel):

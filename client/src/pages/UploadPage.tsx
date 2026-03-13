@@ -1,5 +1,5 @@
 import React from "react";
-import { UploadPanel } from "../components/editor/UploadPanel";
+import { UploadPanel } from "../components/upload/UploadPanel";
 
 export const UploadPage: React.FC = () => {
     return (

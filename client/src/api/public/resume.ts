@@ -1,8 +1,15 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Resume } from "../types/resume";
+import { ANALYZE_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
+import type { Resume } from "../../types/resume";
+import type { ServerResumeSchema } from "../../types/serverResume";
+import { mapServerResumeToClient } from "../../types/serverResume";
+import { publicApi } from "../public"
 
 // ─── Request / Response Types ─────────────────────────────────────────────────
 
+// Raw server response matches `ResumeSchema` in `server/utils/schema.py`
+export type ParseResumeServerResponse = ServerResumeSchema;
+
+// Client-facing response exposed by RTK Query
 export interface ParseResumeResponse {
     resume: Resume;
 }
@@ -23,11 +30,7 @@ export interface HealthResponse {
 
 // ─── API Service ──────────────────────────────────────────────────────────────
 
-export const resumeApi = createApi({
-    reducerPath: "resumeApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: import.meta.env.VITE_API_URL,
-    }),
+export const resumeApi = publicApi.injectEndpoints({
     endpoints: (builder) => ({
 
         // POST /parse-resume — multipart/form-data with a "resume" file field
@@ -36,19 +39,22 @@ export const resumeApi = createApi({
                 const formData = new FormData();
                 formData.append("resume", file);
                 return {
-                    url: "/parse-resume",
+                    url: PARSE_RESUME_URL,
                     method: "POST",
                     body: formData,
                     // Do NOT set Content-Type manually — fetch sets it automatically
                     // with the correct multipart boundary when body is FormData.
                 };
             },
+            transformResponse: (raw: ParseResumeServerResponse) => ({
+                resume: mapServerResumeToClient(raw),
+            }),
         }),
 
         // POST /analyze — JSON body with resume_text + job_description
         analyzeResume: builder.mutation<AnalyzeResponse, AnalyzeRequest>({
             query: (body) => ({
-                url: "/analyze",
+                url: ANALYZE_RESUME_URL,
                 method: "POST",
                 body,
                 headers: {

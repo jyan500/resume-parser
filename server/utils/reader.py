@@ -7,7 +7,7 @@ import fitz
 
 class ResumeReader:
 
-    def convert_docx_to_txt(self):
+    def convert_docx_to_txt(self, filepath):
         """
             A utility function to convert a Microsoft docx files to raw text.
 

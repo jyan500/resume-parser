@@ -241,9 +241,11 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
         vis.header.phone ? { value: header.phone } : null,
         vis.header.location ? { value: header.location } : null,
         { value: header.email, isLink: false },
-        vis.header.linkedin ? { value: header.linkedin, isLink: true } : null,
-        vis.header.github ? { value: header.github, isLink: true } : null,
-        vis.header.website ? { value: header.website, isLink: true } : null,
+        ...(vis.header.urls ? header.urls.map((url) => {
+            return {
+                value: url, isLink: true
+            }
+        }) : [])
     ].filter(Boolean) as { value?: string; isLink?: boolean }[];
 
     const enabledExperience = experience.filter((e) => e.enabled);
@@ -367,7 +369,10 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
                                 </View>
                                 <View style={{ alignItems: "flex-end" }}>
                                     <Text style={styles.entryDate}>
-                                        {edu.startDate} – {edu.endDate}
+                                        {
+                                            edu.startDate ? `${edu.startDate}-` : ""
+                                        }
+                                        {edu.endDate}
                                     </Text>
                                     {edu.location && (
                                         <Text style={styles.entryLocation}>{edu.location}</Text>

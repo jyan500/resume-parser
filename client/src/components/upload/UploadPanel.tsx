@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useParseResumeMutation } from "../../api/resumeApi";
+import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";
 

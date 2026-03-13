@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PreviewPanel } from "../components/preview/PreviewPanel";
 import { useAppSelector, selectParseStatus } from "../store";
+import { EditorPanel } from "../components/editor/EditorPanel";
 
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
@@ -59,7 +60,7 @@ export const EditorPage: React.FC = () => {
             <main className="flex-1 flex overflow-hidden">
 
                 {/* Left — editor panel */}
-                <div className="w-[480px] flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
+                <div className="w-[720px] flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
                     <div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                             Editor
@@ -67,9 +68,9 @@ export const EditorPage: React.FC = () => {
                     </div>
                     <div className="flex-1 overflow-y-auto px-5 py-4">
                         {/* Editor section components go here */}
-                        <p className="text-sm text-slate-400 text-center mt-12">
-                            Editor sections coming soon
-                        </p>
+                        <div className="flex-1 overflow-y-auto px-4 py-4">
+                            <EditorPanel/>
+                        </div>
                     </div>
                 </div>
 

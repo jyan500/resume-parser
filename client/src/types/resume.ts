@@ -5,9 +5,7 @@ export interface ResumeHeader {
     email: string;
     phone: string;
     location: string;
-    linkedin?: string;
-    github?: string;
-    website?: string;
+    urls: Array<string>
   }
   
   export interface ExperienceBullet {
@@ -56,6 +54,14 @@ export interface ResumeHeader {
     enabled: boolean;
   }
   
+  export interface CertificationEntry {
+    id: string;
+    name: string;
+    organization: string;
+    date: string;
+    enabled: boolean;
+  }
+  
   // ─── Root Resume ──────────────────────────────────────────────────────────────
   
   export interface Resume {
@@ -63,8 +69,11 @@ export interface ResumeHeader {
     summary?: string;
     experience: ExperienceEntry[];
     education: EducationEntry[];
+    certifications: CertificationEntry[];
     skills: SkillCategory[];
     projects?: ProjectEntry[];
+    languages: string[];
+    interests: string[];
   }
   
   // ─── Visibility Toggles ───────────────────────────────────────────────────────
@@ -78,9 +87,7 @@ export interface ResumeHeader {
     header: {
       phone: boolean;
       location: boolean;
-      linkedin: boolean;
-      github: boolean;
-      website: boolean;
+      urls: boolean;
     };
   }
   

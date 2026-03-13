@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import resumeReducer from "./slices/resumeSlice";
-import { resumeApi } from "./api/resumeApi";
+import { publicApi } from "./api/public";
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
@@ -10,12 +10,12 @@ export const store = configureStore({
     reducer: {
         resume: resumeReducer,
         // RTK Query manages its own slice of state under the reducerPath key
-        [resumeApi.reducerPath]: resumeApi.reducer,
+        [publicApi.reducerPath]: publicApi.reducer,
     },
     // resumeApi.middleware enables caching, invalidation, polling, and other
     // RTK Query features. It must be added here or they won't work.
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(resumeApi.middleware),
+        getDefaultMiddleware().concat(publicApi.middleware),
 });
 
 // ─── Types ────────────────────────────────────────────────────────────────────
