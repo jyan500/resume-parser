@@ -4,10 +4,9 @@ import React from "react"
 interface ToggleProps {
     enabled: boolean;
     onChange: () => void;
-    label?: string;
 }
 
-export const Toggle: React.FC<ToggleProps> = ({ enabled, onChange, label }) => (
+export const Toggle: React.FC<ToggleProps> = ({ enabled, onChange }) => (
     <button
         onClick={onChange}
         className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none ${

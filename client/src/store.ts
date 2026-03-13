@@ -1,29 +1,62 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
+import {
+    persistStore,
+    persistReducer,
+    FLUSH,
+    REHYDRATE,
+    PAUSE,
+    PERSIST,
+    PURGE,
+    REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage"; // localStorage
 import resumeReducer from "./slices/resumeSlice";
 import { publicApi } from "./api/public";
+
+// ─── Persist Config ───────────────────────────────────────────────────────────
+// Only the `resume` slice is persisted. The RTK Query cache is intentionally
+// excluded — it should always re-fetch fresh data on startup.
+
+const resumePersistConfig = {
+    key: "resume",
+    version: 1,
+    storage,
+};
+
+const persistedResumeReducer = persistReducer(resumePersistConfig, resumeReducer);
+
+// ─── Root Reducer ─────────────────────────────────────────────────────────────
+
+const rootReducer = combineReducers({
+    resume: persistedResumeReducer,
+    [publicApi.reducerPath]: publicApi.reducer,
+});
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const store = configureStore({
-    reducer: {
-        resume: resumeReducer,
-        // RTK Query manages its own slice of state under the reducerPath key
-        [publicApi.reducerPath]: publicApi.reducer,
-    },
-    // resumeApi.middleware enables caching, invalidation, polling, and other
-    // RTK Query features. It must be added here or they won't work.
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(publicApi.middleware),
+        getDefaultMiddleware({
+            // redux-persist dispatches plain objects that aren't fully
+            // serializable (e.g. FLUSH, REHYDRATE). Ignoring these specific
+            // action types suppresses the RTK serialization warning.
+            serializableCheck: {
+                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+            },
+        }).concat(publicApi.middleware),
 });
+
+export const persistor = persistStore(store);
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
-// ─── Typed Hooks ─────────────────────────────────────────────────────────────
+// ─── Typed Hooks ──────────────────────────────────────────────────────────────
 
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

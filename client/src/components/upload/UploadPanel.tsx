@@ -13,7 +13,11 @@ export const UploadPanel: React.FC = () => {
 
     const handleFile = useCallback(
         async (file: File) => {
-            if (!file || file.type !== "application/pdf") return;
+            const validTypes = [
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+              ];
+            if (!file || !validTypes.includes(file.type)) return;
 
             setFileName(file.name);
             dispatch(setParseStatus({ status: "parsing" }));
@@ -78,7 +82,7 @@ export const UploadPanel: React.FC = () => {
             <label className="block cursor-pointer">
                 <input
                     type="file"
-                    accept="application/pdf"
+                    accept=".pdf, .docx, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     className="sr-only"
                     onChange={handleInputChange}
                     disabled={isLoading}
@@ -147,7 +151,7 @@ export const UploadPanel: React.FC = () => {
                                     <span className="text-blue-600">Click to upload</span>
                                     {" "}or drag and drop
                                 </p>
-                                <p className="mt-0.5 text-xs text-slate-400">PDF only</p>
+                                <p className="mt-0.5 text-xs text-slate-400">PDF or DOCX only</p>
                             </div>
                         </div>
                     )}

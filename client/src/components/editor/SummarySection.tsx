@@ -2,6 +2,7 @@ import React from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import { setSummary, toggleSectionVisibility } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
+import { TextArea } from "./TextArea"
  
 export const SummarySection: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -14,9 +15,9 @@ export const SummarySection: React.FC = () => {
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("summary"))}
         >
-            <textarea
-                value={summary}
-                onChange={(e) => dispatch(setSummary(e.target.value))}
+            <TextArea
+                value={summary ?? ""}
+                onChange={(v) => dispatch(setSummary(v))}
                 placeholder="Write a concise summary about your professional background, key skills, and career goals..."
                 rows={5}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors resize-none leading-relaxed"

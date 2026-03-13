@@ -1,12 +1,77 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility } from "../../store";
+
+// How long (ms) to keep the overlay visible after the PDF starts re-rendering.
+// react-pdf typically finishes within 600–1 000 ms; 1 200 ms gives a safe buffer.
+const RENDER_SETTLE_MS = 1200;
 
 export const PreviewPanel: React.FC = () => {
     const resume = useAppSelector(selectResume);
     const visibility = useAppSelector(selectVisibility);
 
+    // ── Loading overlay ───────────────────────────────────────────────────────
+    // We track a stable "render token" — a number that bumps every time either
+    // `resume` or `visibility` changes.  The overlay appears immediately on the
+    // bump and disappears once the PDFViewer's inner <iframe> fires its `load`
+    // event *or* the settle timeout elapses, whichever comes first.
+    const [isRendering, setIsRendering] = useState(false);
+    const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const iframeWrapperRef = useRef<HTMLDivElement>(null);
+
+    // Skip the very first mount (nothing "changed"; the PDF just loaded).
+    const mountedRef = useRef(false);
+
+    useEffect(() => {
+        if (!mountedRef.current) {
+            mountedRef.current = true;
+            return;
+        }
+
+        // Show overlay.
+        setIsRendering(true);
+
+        // Clear any previous settle timer.
+        if (settleTimer.current) clearTimeout(settleTimer.current);
+
+        // --- Strategy 1: listen for the iframe's load event ----------------
+        // PDFViewer renders an <iframe> inside its wrapper div.  When react-pdf
+        // finishes writing the new PDF into the iframe it triggers a `load`.
+        let iframeCleanup: (() => void) | null = null;
+
+        const attachIframeListener = () => {
+            const iframe = iframeWrapperRef.current?.querySelector("iframe");
+            if (!iframe) return;
+            const onLoad = () => {
+                if (settleTimer.current) clearTimeout(settleTimer.current);
+                // Small trailing delay so the PDF paints before we remove the overlay.
+                settleTimer.current = setTimeout(() => setIsRendering(false), 150);
+            };
+            iframe.addEventListener("load", onLoad);
+            iframeCleanup = () => iframe.removeEventListener("load", onLoad);
+        };
+
+        // The iframe may not exist yet if this is the first render cycle —
+        // try immediately, then fall back to a short rAF retry.
+        attachIframeListener();
+        const raf = requestAnimationFrame(attachIframeListener);
+
+        // --- Strategy 2: hard timeout fallback -----------------------------
+        // If for any reason the iframe load event doesn't fire (e.g. same-doc
+        // reload quirk), remove the overlay after RENDER_SETTLE_MS anyway.
+        settleTimer.current = setTimeout(() => {
+            setIsRendering(false);
+        }, RENDER_SETTLE_MS);
+
+        return () => {
+            if (settleTimer.current) clearTimeout(settleTimer.current);
+            cancelAnimationFrame(raf);
+            iframeCleanup?.();
+        };
+    }, [resume, visibility]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Download ──────────────────────────────────────────────────────────────
     const handleDownload = useCallback(async () => {
         const blob = await pdf(
             <ResumeDocument resume={resume} visibility={visibility} />
@@ -35,8 +100,9 @@ export const PreviewPanel: React.FC = () => {
                 </button>
             </div>
 
-            {/* PDF Viewer */}
-            <div className="flex-1 overflow-hidden">
+            {/* PDF Viewer + overlay wrapper */}
+            <div ref={iframeWrapperRef} className="flex-1 overflow-hidden relative">
+
                 {/*
                     PDFViewer re-renders on every resume/visibility change.
                     Not SSR-compatible — use next/dynamic with ssr: false if moving to Next.js.
@@ -44,6 +110,50 @@ export const PreviewPanel: React.FC = () => {
                 <PDFViewer width="100%" height="100%" showToolbar={false}>
                     <ResumeDocument resume={resume} visibility={visibility} />
                 </PDFViewer>
+
+                {/* Loading overlay — sits on top of the iframe while react-pdf re-renders */}
+                <div
+                    className={`
+                        absolute inset-0 z-10 flex flex-col items-center justify-center
+                        bg-white/90 backdrop-blur-[2px]
+                        transition-opacity duration-300
+                        ${isRendering ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
+                    `}
+                    aria-hidden={!isRendering}
+                >
+                    {/* Spinner */}
+                    <div className="relative w-9 h-9">
+                        {/* Track ring */}
+                        <svg
+                            className="w-9 h-9 text-slate-200"
+                            viewBox="0 0 36 36"
+                            fill="none"
+                        >
+                            <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="3" />
+                        </svg>
+                        {/* Spinning arc */}
+                        <svg
+                            className="w-9 h-9 text-blue-600 absolute inset-0 animate-spin"
+                            viewBox="0 0 36 36"
+                            fill="none"
+                            style={{ animationDuration: "0.75s" }}
+                        >
+                            <circle
+                                cx="18"
+                                cy="18"
+                                r="15"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeDasharray="28 66"
+                                strokeDashoffset="0"
+                            />
+                        </svg>
+                    </div>
+                    <p className="mt-3 text-xs font-medium text-slate-400 tracking-wide">
+                        Updating preview…
+                    </p>
+                </div>
             </div>
 
         </div>
