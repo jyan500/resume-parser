@@ -18,4 +18,3 @@ export const EditorPanel: React.FC = () => {
         </div>
     );
 };
- 

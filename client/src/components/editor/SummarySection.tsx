@@ -28,4 +28,3 @@ export const SummarySection: React.FC = () => {
         </SectionWrapper>
     );
 };
- 
