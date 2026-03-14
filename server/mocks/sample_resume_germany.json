@@ -1,0 +1,98 @@
+{
+  "certifications": [],
+  "education": [
+    {
+      "degree": "Master of Science",
+      "graduation_date": "2017",
+      "major": "Computer Science",
+      "school_name": "Technische Universit\u00e4t Hamburg"
+    },
+    {
+      "degree": "Bachelor of Science",
+      "graduation_date": "2015",
+      "major": "Software Engineering",
+      "school_name": "Universit\u00e4t Hamburg"
+    }
+  ],
+  "email": "max.schmidt@protonmail.com",
+  "experience": [
+    {
+      "bullets": [
+        "Developed and maintained banking microservices handling millions of transactions daily.",
+        "Implemented event-driven architecture using Kafka and RabbitMQ.",
+        "Optimized database queries reducing response time by 50%.",
+        "Participated in on-call rotation ensuring 99.9% uptime SLA."
+      ],
+      "company": "N26 Bank GmbH",
+      "end_date": "Present",
+      "job_title": "Senior Backend Engineer",
+      "location": "Berlin, Germany",
+      "start_date": "4/05/2021",
+      "work_type": "Onsite"
+    },
+    {
+      "bullets": [
+        "Built RESTful APIs for professional networking platform.",
+        "Integrated third-party payment systems and authentication providers.",
+        "Implemented caching strategies using Redis to improve performance.",
+        "Wrote comprehensive unit and integration tests."
+      ],
+      "company": "XING SE",
+      "end_date": "3-20-2021",
+      "job_title": "Backend Software Engineer",
+      "location": "Hamburg, Germany",
+      "start_date": "8-16-2018",
+      "work_type": "Onsite"
+    },
+    {
+      "bullets": [
+        "Developed features for e-commerce platform serving 10M+ customers.",
+        "Fixed bugs and improved legacy codebase.",
+        "Participated in code reviews and pair programming sessions."
+      ],
+      "company": "Otto Group",
+      "end_date": "July 29th 2018",
+      "job_title": "Junior Software Developer",
+      "location": "Hamburg, Germany",
+      "start_date": "June 5th 2017",
+      "work_type": "Onsite"
+    }
+  ],
+  "first_name": "Maximilian",
+  "interests": [],
+  "languages": [
+    "German (Native)",
+    "English (Fluent)",
+    "Spanish (Intermediate)"
+  ],
+  "last_name": "Schmidt",
+  "location": "Hamburg, Germany",
+  "phone_number": "+49 40 98765432",
+  "projects": [],
+  "skills": [
+    "Java",
+    "Kotlin",
+    "Spring Boot",
+    "Microservices",
+    "Kafka",
+    "RabbitMQ",
+    "PostgreSQL",
+    "MongoDB",
+    "Redis",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "REST APIs",
+    "GraphQL",
+    "JUnit",
+    "Git",
+    "CI/CD",
+    "Agile"
+  ],
+  "summary": "Backend Software Engineer specializing in distributed systems andhigh-performance applications. 5+ years experience with Java, Kotlin, and microservices architecture. Passionate about clean code and software craftsmanship.",
+  "urls": [
+    "github.com/maxschmidt",
+    "maxschmidt.io"
+  ]
+}
+

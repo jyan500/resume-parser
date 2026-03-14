@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 import os
 import requests
 import json
+import time
 from pathlib import Path
 
 # Configuration
@@ -20,6 +19,8 @@ def test_resume(filepath):
         with open(filepath, 'rb') as f:
             files = {'resume': (filename, f)}
             response = requests.post(API_URL, files=files)
+            ## HACK: add sleep to get around rate limit while testing
+            time.sleep(60)
         
         if response.status_code == 200:
             print("**** SUCCESS ****")

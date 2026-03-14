@@ -1,20 +1,37 @@
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
-from utils.parser import parse_resume as parse_resume_helper
+import sys
+import io
+from utils.parser import ResumeParser
+import json
+from utils.routes import ( PARSE_RESUME_URL, ANALYZE_RESUME_URL )
+
+load_dotenv()
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY")
 CORS(app)  # Allow frontend to make requests
+
+# Replace stdout with an unbuffered version
+sys.stdout = io.TextIOWrapper(
+    sys.stdout.buffer, encoding='utf-8', line_buffering=True
+)
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MOCKS_FOLDER'] = 'mocks'
+MOCK_RESUME = os.path.join(app.config["MOCKS_FOLDER"], "sample_resume_germany.json")
+parser = ResumeParser()
 
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'ok'})
 
-@app.route('/parse-resume', methods=['POST'])
+@app.route(PARSE_RESUME_URL, methods=['POST'])
 def parse_resume():
     # Handle file upload
     if 'resume' not in request.files:
@@ -27,19 +44,28 @@ def parse_resume():
     # Save file temporarily
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
     file.save(filepath)
+
+    resume_data = {}
     
     try:
         # Parse the resume
-        resume_data = parse_resume_helper(filepath)
-        
+        resume_data = parser.parse_resume(filepath)
+        # TODO: for debugging 
+        # with open(MOCK_RESUME, 'r') as f:
+        #     resume_data = json.load(f)
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 422
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
         # Clean up file
         os.remove(filepath)
         
-        return jsonify(resume_data)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    return jsonify(resume_data)
 
-@app.route('/analyze', methods=['POST'])
+
+@app.route(ANALYZE_RESUME_URL, methods=['POST'])
 def analyze():
     data = request.json
     
@@ -59,3 +85,4 @@ def analyze():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+

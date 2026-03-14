@@ -1,0 +1,3 @@
+MAX_PAGES = 3
+MAX_WORDS = 1500
+GEMINI_FLASH_LITE_MODEL = "gemini-2.5-flash-lite"
