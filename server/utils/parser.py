@@ -34,17 +34,6 @@ class ResumeParser:
         if not is_valid:
             raise ValueError(error)
 
-        # prompt = f"""
-        #     Please parse the following resume text into the requested structured JSON format.
-            
-        #     Specific instructions:
-        #     1. Experience bullets: Must be complete sentences.
-        #     2. Skills: Extract individual technologies only; ignore category headers (e.g., ignore 'Frontend').
-            
-        #     Resume Text:
-        #     {text}
-        # """
-
         prompt = self.template.render(text=text)
 
         response = self.client.models.generate_content(
