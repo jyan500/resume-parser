@@ -3,6 +3,7 @@ import docx2txt
 import re
 import traceback
 import json
+import os
 from jinja2 import Template
 from google import genai
 from utils.schema import ResumeSchema
@@ -10,6 +11,7 @@ from utils.functions import load_prompt
 from utils.constants import (
     MAX_PAGES,
     MAX_WORDS,
+    GEMINI_FLASH_LITE_MODEL
 )
 
 class ResumeParser:
@@ -46,7 +48,7 @@ class ResumeParser:
         prompt = self.template.render(text=text)
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash-lite", 
+            model=GEMINI_FLASH_LITE_MODEL, 
             contents={prompt},
             config={
                 "response_mime_type": "application/json",
