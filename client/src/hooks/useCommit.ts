@@ -14,7 +14,7 @@ import React, {useState, useRef, useEffect} from "react"
 export const useCommit = (
     reduxValue: string,
     onChange: (v: string) => void,
-    delay = 400
+    delay = 600
 ) => {
     const [local, setLocal] = useState(reduxValue);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);

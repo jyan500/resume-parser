@@ -1,88 +1,71 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { PDFViewer, pdf } from "@react-pdf/renderer";
+import React, { useCallback, useEffect, useState } from "react";
+import { usePDF } from "@react-pdf/renderer";
+/* 
+Note the react-pdf imports below belongs to the library wojtekmaj/react-pdf, which is
+different from @react-pdf/renderer
+*/
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility } from "../../store";
 
-// How long (ms) to keep the overlay visible after the PDF starts re-rendering.
-// react-pdf typically finishes within 600–1 000 ms; 1 200 ms gives a safe buffer.
-const RENDER_SETTLE_MS = 1200;
+/* 
+    Sets up a PDF within a web worker (a separate browser thread) 
+    so the parsing work does not cause lag within the UI 
+*/
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    "pdfjs-dist/build/pdf.worker.min.mjs",
+    import.meta.url
+).toString();
 
 export const PreviewPanel: React.FC = () => {
     const resume = useAppSelector(selectResume);
     const visibility = useAppSelector(selectVisibility);
 
-    // ── Loading overlay ───────────────────────────────────────────────────────
-    // We track a stable "render token" — a number that bumps every time either
-    // `resume` or `visibility` changes.  The overlay appears immediately on the
-    // bump and disappears once the PDFViewer's inner <iframe> fires its `load`
-    // event *or* the settle timeout elapses, whichever comes first.
-    const [isRendering, setIsRendering] = useState(false);
-    const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const iframeWrapperRef = useRef<HTMLDivElement>(null);
-
-    // Skip the very first mount (nothing "changed"; the PDF just loaded).
-    const mountedRef = useRef(false);
+    /* usePDF hook exposes the lifecycle for the PDF render from react-pdf/renderer*/
+    const [instance, updateInstance] = usePDF({
+        document: <ResumeDocument resume={resume} visibility={visibility} />,
+    });
 
     useEffect(() => {
-        if (!mountedRef.current) {
-            mountedRef.current = true;
-            return;
-        }
-
-        // Show overlay.
-        setIsRendering(true);
-
-        // Clear any previous settle timer.
-        if (settleTimer.current) clearTimeout(settleTimer.current);
-
-        // --- Strategy 1: listen for the iframe's load event ----------------
-        // PDFViewer renders an <iframe> inside its wrapper div.  When react-pdf
-        // finishes writing the new PDF into the iframe it triggers a `load`.
-        let iframeCleanup: (() => void) | null = null;
-
-        const attachIframeListener = () => {
-            const iframe = iframeWrapperRef.current?.querySelector("iframe");
-            if (!iframe) return;
-            const onLoad = () => {
-                if (settleTimer.current) clearTimeout(settleTimer.current);
-                // Small trailing delay so the PDF paints before we remove the overlay.
-                settleTimer.current = setTimeout(() => setIsRendering(false), 150);
-            };
-            iframe.addEventListener("load", onLoad);
-            iframeCleanup = () => iframe.removeEventListener("load", onLoad);
-        };
-
-        // The iframe may not exist yet if this is the first render cycle —
-        // try immediately, then fall back to a short rAF retry.
-        attachIframeListener();
-        const raf = requestAnimationFrame(attachIframeListener);
-
-        // --- Strategy 2: hard timeout fallback -----------------------------
-        // If for any reason the iframe load event doesn't fire (e.g. same-doc
-        // reload quirk), remove the overlay after RENDER_SETTLE_MS anyway.
-        settleTimer.current = setTimeout(() => {
-            setIsRendering(false);
-        }, RENDER_SETTLE_MS);
-
-        return () => {
-            if (settleTimer.current) clearTimeout(settleTimer.current);
-            cancelAnimationFrame(raf);
-            iframeCleanup?.();
-        };
+        updateInstance(<ResumeDocument resume={resume} visibility={visibility} />);
     }, [resume, visibility]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // ── Download ──────────────────────────────────────────────────────────────
-    const handleDownload = useCallback(async () => {
-        const blob = await pdf(
-            <ResumeDocument resume={resume} visibility={visibility} />
-        ).toBlob();
-        const url = URL.createObjectURL(blob);
+    // The last blob URL that successfully finished rendering.
+    // While a new render is in-flight, this stays visible so there's
+    // never a blank or black frame between updates.
+    const [previousUrl, setPreviousUrl] = useState<string | null>(null);
+
+    const [numPages, setNumPages] = useState(1);
+    const [containerWidth, setContainerWidth] = useState(0);
+    /* Make sure PDF always fills the size of its container with the resize observer*/
+    const containerRef = useCallback((node: HTMLDivElement | null) => {
+        if (!node) return;
+        const observer = new ResizeObserver(([entry]) =>
+            setContainerWidth(entry.contentRect.width)
+        );
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
+
+    const handleDownload = useCallback(() => {
+        if (!instance.url) return;
         const a = document.createElement("a");
-        a.href = url;
+        a.href = instance.url;
         a.download = `${resume.header.name || "resume"}.pdf`;
         a.click();
-        URL.revokeObjectURL(url);
-    }, [resume, visibility]);
+    }, [instance.url, resume.header.name]);
+
+    const isFirstRender = previousUrl === null;
+    const isNewUrlReady = instance.url !== null;
+    const isBusy = instance.loading || instance.url !== previousUrl;
+
+    // Show the previous document while the new one is rendering behind it.
+    const showPreviousDocument = !isFirstRender && isBusy && previousUrl !== null;
+
+    const pageWidth = containerWidth > 48 ? containerWidth - 48 : containerWidth;
 
     return (
         <div className="flex flex-col h-full">
@@ -91,7 +74,8 @@ export const PreviewPanel: React.FC = () => {
             <div className="flex-none flex items-center justify-end gap-2 px-4 py-2.5 bg-white border-b border-slate-200">
                 <button
                     onClick={handleDownload}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors duration-150"
+                    disabled={!instance.url}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors duration-150"
                 >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
@@ -100,60 +84,86 @@ export const PreviewPanel: React.FC = () => {
                 </button>
             </div>
 
-            {/* PDF Viewer + overlay wrapper */}
-            <div ref={iframeWrapperRef} className="flex-1 overflow-hidden relative">
-
-                {/*
-                    PDFViewer re-renders on every resume/visibility change.
-                    Not SSR-compatible — use next/dynamic with ssr: false if moving to Next.js.
-                */}
-                <PDFViewer width="100%" height="100%" showToolbar={false}>
-                    <ResumeDocument resume={resume} visibility={visibility} />
-                </PDFViewer>
-
-                {/* Loading overlay — sits on top of the iframe while react-pdf re-renders */}
-                <div
-                    className={`
-                        absolute inset-0 z-10 flex flex-col items-center justify-center
-                        bg-white/90 backdrop-blur-[2px]
-                        transition-opacity duration-300
-                        ${isRendering ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
-                    `}
-                    aria-hidden={!isRendering}
-                >
-                    {/* Spinner */}
-                    <div className="relative w-9 h-9">
-                        {/* Track ring */}
-                        <svg
-                            className="w-9 h-9 text-slate-200"
-                            viewBox="0 0 36 36"
-                            fill="none"
-                        >
-                            <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="3" />
-                        </svg>
-                        {/* Spinning arc */}
-                        <svg
-                            className="w-9 h-9 text-blue-600 absolute inset-0 animate-spin"
-                            viewBox="0 0 36 36"
-                            fill="none"
-                            style={{ animationDuration: "0.75s" }}
-                        >
-                            <circle
-                                cx="18"
-                                cy="18"
-                                r="15"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                strokeLinecap="round"
-                                strokeDasharray="28 66"
-                                strokeDashoffset="0"
-                            />
-                        </svg>
+            {/* Viewer */}
+            <div
+                ref={containerRef}
+                className="flex-1 overflow-y-auto bg-slate-700 relative"
+            >
+                {/* First-load message — only shown before any render has completed */}
+                {isFirstRender && instance.loading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <p className="text-sm text-slate-400">Rendering PDF…</p>
                     </div>
-                    <p className="mt-3 text-xs font-medium text-slate-400 tracking-wide">
-                        Updating preview…
-                    </p>
-                </div>
+                )}
+
+                {containerWidth > 0 && (
+                    <div className="relative flex flex-col items-center py-6 gap-4">
+
+                        {/*
+                            Previous document — stays fully visible while the next
+                            render is in flight. Fades slightly to hint at the update.
+                        */}
+                        {showPreviousDocument && (
+                            <Document
+                                key={previousUrl}
+                                file={previousUrl}
+                                loading={null}
+                                className="flex flex-col items-center gap-4"
+                            >
+                                {Array.from({ length: numPages }, (_, i) => (
+                                    <Page
+                                        key={i + 1}
+                                        pageNumber={i + 1}
+                                        width={pageWidth}
+                                        renderTextLayer={false}
+                                        renderAnnotationLayer={false}
+                                        className="shadow-2xl opacity-80 transition-opacity duration-300"
+                                        loading={null}
+                                    />
+                                ))}
+                            </Document>
+                        )}
+
+                        {/*
+                            Incoming document — renders invisibly (position:absolute,
+                            opacity-0) until onRenderSuccess fires, at which point
+                            setPreviousUrl promotes it to the visible slot above and
+                            this one takes over as the new visible document.
+                        */}
+                        {isNewUrlReady && (
+                            <Document
+                                key={instance.url}
+                                file={instance.url}
+                                loading={null}
+                                onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                                className={`flex flex-col items-center gap-4 ${
+                                    showPreviousDocument
+                                        ? "absolute top-6 opacity-0 pointer-events-none"
+                                        : ""
+                                }`}
+                            >
+                                {Array.from({ length: numPages }, (_, i) => (
+                                    <Page
+                                        key={i + 1}
+                                        pageNumber={i + 1}
+                                        width={pageWidth}
+                                        renderTextLayer={true}
+                                        renderAnnotationLayer={true}
+                                        className="shadow-2xl"
+                                        loading={null}
+                                        onRenderSuccess={
+                                            // Only the last page firing promotes the URL,
+                                            // so multi-page resumes don't swap mid-render.
+                                            i + 1 === numPages
+                                                ? () => setPreviousUrl(instance.url)
+                                                : undefined
+                                        }
+                                    />
+                                ))}
+                            </Document>
+                        )}
+                    </div>
+                )}
             </div>
 
         </div>
