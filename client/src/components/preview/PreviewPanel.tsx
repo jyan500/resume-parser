@@ -1,3 +1,7 @@
+/* 
+    The two document render strategy was found within:
+    https://github.com/diegomura/react-pdf-site/blob/master/src/components/Repl/PDFViewer.js
+*/
 import React, { useCallback, useEffect, useState } from "react";
 import { usePDF } from "@react-pdf/renderer";
 /* 
