@@ -22,3 +22,4 @@ export const Toggle: React.FC<ToggleProps> = ({ enabled, onChange }) => (
         />
     </button>
 );
+

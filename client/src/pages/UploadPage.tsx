@@ -27,3 +27,4 @@ export const UploadPage: React.FC = () => {
         </div>
     );
 };
+

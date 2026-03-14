@@ -8,9 +8,6 @@ from google import genai
 from utils.schema import ResumeSchema
 from utils.functions import load_prompt
 from utils.constants import (
-    SECTION_PATTERNS,
-    EMAIL_PATTERN,
-    PHONE_NUMBER_PATTERNS,
     MAX_PAGES,
     MAX_WORDS,
 )
@@ -98,4 +95,3 @@ class ResumeParser:
             return (False, f"Document is too long to be a resume ({word_count} words). Please upload a 1–2 page resume.")
 
         return (True, "")
-

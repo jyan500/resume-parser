@@ -148,5 +148,4 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
             <p className="text-xs text-slate-400 mt-1">Press Enter or comma to add · Paste comma-separated list</p>
         </div>
     );
-}
-;
+};

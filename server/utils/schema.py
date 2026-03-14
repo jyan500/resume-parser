@@ -45,5 +45,6 @@ class ResumeSchema(BaseModel):
     experience: List[Experience]
     skills: List[str]
     projects: List[Project]
-    languages: List[str]    
+    languages: List[str]
     interests: List[str]
+
