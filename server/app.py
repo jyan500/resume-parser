@@ -4,9 +4,7 @@ from flask_cors import CORS
 import os
 import sys
 import io
-# from utils.parser import ResumeParser
-from utils.ner_parser import NerResumeParser
-from utils.read_and_parse import MainParser
+from utils.parser import ResumeParser
 import json
 from utils.routes import ( PARSE_RESUME_URL, ANALYZE_RESUME_URL )
 
@@ -26,9 +24,8 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MOCKS_FOLDER'] = 'mocks'
-# ner_parser = MainParser()
-# parser = ResumeParser()
 MOCK_RESUME = os.path.join(app.config["MOCKS_FOLDER"], "sample_resume_germany.json")
+parser = ResumeParser()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -52,11 +49,10 @@ def parse_resume():
     
     try:
         # Parse the resume
-        # resume_data = ner_parser.parse_cv(filepath)
-        # resume_data = parser.parse_resume(filepath)
+        resume_data = parser.parse_resume(filepath)
         # TODO: for debugging 
-        with open(MOCK_RESUME, 'r') as f:
-            resume_data = json.load(f)
+        # with open(MOCK_RESUME, 'r') as f:
+        #     resume_data = json.load(f)
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 422
