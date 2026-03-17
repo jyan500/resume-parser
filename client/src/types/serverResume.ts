@@ -5,6 +5,11 @@ import { v4 as uuid } from "uuid";
 
 export type WorkType = "Onsite" | "Hybrid" | "Remote" | "";
 
+export interface ServerSkill {
+    category: string;
+    skills: string[];
+}
+
 export interface ServerEducation {
     school_name: string;
     major: string;
@@ -44,7 +49,7 @@ export interface ServerResumeSchema {
     education: ServerEducation[];
     certifications: ServerCertification[];
     experience: ServerExperience[];
-    skills: string[];
+    skills: ServerSkill[];
     projects: ServerProject[];
     languages: string[];
     interests: string[];
@@ -103,18 +108,17 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
         })
     );
 
-    // Skills – group all into a single category for now
+    // Skills – group by category
     const skills: SkillCategory[] =
         server.skills && server.skills.length
-            ? [
+            ? server.skills.map((skill) => (
                   {
                       id: uuid(),
-                      category: "Skills",
-                      items: server.skills,
+                      category: skill.category,
+                      items: skill.skills,
                       enabled: true,
-                  },
-              ]
-            : [];
+                  }
+            )) : [];
 
     // Projects
     const projects: ProjectEntry[] =
