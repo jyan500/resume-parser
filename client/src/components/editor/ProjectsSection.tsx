@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
+    type ContainsBullets,
     addProject,
     updateProject,
     removeProject,
@@ -34,25 +35,31 @@ export const ProjectsSection: React.FC = () => {
                 <p className="text-sm text-slate-400 text-center py-4">No projects added yet.</p>
             )}
             <div className="flex flex-col gap-3">
-                {projects.map((proj) => (
-                    <ProjectRow
-                        key={proj.id}
-                        project={proj}
-                        onUpdate={(patch) => dispatch(updateProject({ id: proj.id, patch }))}
-                        onRemove={() => dispatch(removeProject(proj.id))}
-                        onToggle={() => dispatch(toggleProject(proj.id))}
-                        onAddBullet={() => dispatch(addBullet({ experienceId: proj.id }))}
-                        onUpdateBullet={(bulletId, text) =>
-                            dispatch(updateBullet({ experienceId: proj.id, bulletId, text }))
-                        }
-                        onRemoveBullet={(bulletId) =>
-                            dispatch(removeBullet({ experienceId: proj.id, bulletId }))
-                        }
-                        onToggleBullet={(bulletId) =>
-                            dispatch(toggleBullet({ experienceId: proj.id, bulletId }))
-                        }
-                    />
-                ))}
+                {projects.map((proj) => {
+                    const payload = {
+                        section: "projects" as ContainsBullets,
+                        entryId: proj.id,
+                    }
+                    return (
+                        <ProjectRow
+                            key={proj.id}
+                            project={proj}
+                            onUpdate={(patch) => dispatch(updateProject({ id: proj.id, patch }))}
+                            onRemove={() => dispatch(removeProject(proj.id))}
+                            onToggle={() => dispatch(toggleProject(proj.id))}
+                            onAddBullet={() => dispatch(addBullet(payload))}
+                            onUpdateBullet={(bulletId, text) =>
+                                dispatch(updateBullet({ ...payload, bulletId, text }))
+                            }
+                            onRemoveBullet={(bulletId) =>
+                                dispatch(removeBullet({ ...payload, bulletId }))
+                            }
+                            onToggleBullet={(bulletId) =>
+                                dispatch(toggleBullet({ ...payload, bulletId }))
+                            }
+                        />
+                    )
+                })}
             </div>
         </SectionWrapper>
     );

@@ -10,10 +10,12 @@ import type {
     EducationEntry,
     SkillCategory,
     ProjectEntry,
-    ExperienceBullet,
+    Bullet,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
+
+export type ContainsBullets = "projects" | "experience"
 
 const DEFAULT_RESUME: Resume = {
     header: {
@@ -145,68 +147,96 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
-        // ── Bullets ─────────────────────────────────────────────────────────────
-        addBullet(state, action: PayloadAction<{ experienceId: string }>) {
-            const entry = state.resume.experience.find(
-                (e) => e.id === action.payload.experienceId
-            );
-            if (entry) {
-                entry.bullets.push({ id: uuid(), text: "", enabled: true });
+        // ── Experience & Projects Bullets ─────────────────────────────────────────────────────────────
+        addBullet(state, action: PayloadAction<{ section: ContainsBullets, entryId: string }>) {
+            if (action.payload.section in state.resume){
+                const entry = state.resume[action.payload.section]
+                if (entry && Array.isArray(entry)){
+                    const entity = entry.find(
+                        (e) => e.id === action.payload.entryId
+                    );
+                    if (entity) {
+                        entity.bullets.push({ id: uuid(), text: "", enabled: true });
+                    }
+                }
+                state.isDirty = true;
             }
-            state.isDirty = true;
         },
 
         updateBullet(
             state,
-            action: PayloadAction<{ experienceId: string; bulletId: string; text: string }>
+            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string; text: string }>
         ) {
-            const { experienceId, bulletId, text } = action.payload;
-            const entry = state.resume.experience.find((e) => e.id === experienceId);
-            const bullet = entry?.bullets.find((b: ExperienceBullet) => b.id === bulletId);
-            if (bullet) bullet.text = text;
-            state.isDirty = true;
+            const { section, entryId, bulletId, text } = action.payload;
+            if (section in state.resume){
+                const entry = state.resume[section]
+                if (entry && Array.isArray(entry)){
+                    const entity = entry.find((e) => e.id === entryId);
+                    if (entity){
+                        const bullet = entity?.bullets.find((b: Bullet) => b.id === bulletId);
+                        if (bullet) bullet.text = text;
+                        state.isDirty = true;
+                    }
+                }
+            }
         },
 
         removeBullet(
             state,
-            action: PayloadAction<{ experienceId: string; bulletId: string }>
+            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string }>
         ) {
-            const { experienceId, bulletId } = action.payload;
-            const entry = state.resume.experience.find((e) => e.id === experienceId);
-            if (entry) {
-                entry.bullets = entry.bullets.filter(
-                    (b: ExperienceBullet) => b.id !== bulletId
-                );
+            const { section, entryId, bulletId } = action.payload;
+            if (section in state.resume){
+                const entry = state.resume[section]
+                if (entry && Array.isArray(entry)) {
+                    const entity = entry.find((e) => e.id === entryId);
+                    if (entity){
+                        entity.bullets = entity.bullets.filter(
+                            (b: Bullet) => b.id !== bulletId
+                        );
+                    }
+                }
+                state.isDirty = true;
             }
-            state.isDirty = true;
         },
 
         toggleBullet(
             state,
-            action: PayloadAction<{ experienceId: string; bulletId: string }>
+            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string }>
         ) {
-            const { experienceId, bulletId } = action.payload;
-            const entry = state.resume.experience.find((e) => e.id === experienceId);
-            const bullet = entry?.bullets.find((b: ExperienceBullet) => b.id === bulletId);
-            if (bullet) bullet.enabled = !bullet.enabled;
-            state.isDirty = true;
+            const { section, entryId, bulletId } = action.payload;
+            if (section in state.resume){
+                const entry = state.resume[section]
+                if (entry && Array.isArray(entry)){
+                    const entity = entry.find((e) => e.id === entryId);
+                    const bullet = entity?.bullets.find((b: Bullet) => b.id === bulletId);
+                    if (bullet) bullet.enabled = !bullet.enabled;
+                    state.isDirty = true;
+                }
+            }
         },
 
         reorderBullets(
             state,
             action: PayloadAction<{
-                experienceId: string;
+                section: ContainsBullets
+                entryId: string;
                 fromIndex: number;
                 toIndex: number;
             }>
         ) {
-            const { experienceId, fromIndex, toIndex } = action.payload;
-            const entry = state.resume.experience.find((e) => e.id === experienceId);
-            if (entry) {
-                const [moved] = entry.bullets.splice(fromIndex, 1);
-                entry.bullets.splice(toIndex, 0, moved);
+            const { section, entryId, fromIndex, toIndex } = action.payload;
+            if (section in state.resume){
+                const entry = state.resume[section]
+                if (entry){
+                    const entity = entry.find((e) => e.id === entryId);
+                    if (entity) {
+                        const [moved] = entity.bullets.splice(fromIndex, 1);
+                        entity.bullets.splice(toIndex, 0, moved);
+                    }
+                    state.isDirty = true;
+                }
             }
-            state.isDirty = true;
         },
 
         // ── Education ───────────────────────────────────────────────────────────

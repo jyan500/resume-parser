@@ -1,3 +1,4 @@
+from optparse import OptionContainer
 from typing import List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -32,19 +33,23 @@ class Project(BaseModel):
     title: str
     bullets: List[str]
 
+class Skill(BaseModel):
+    category: Optional[str] = "Skills"
+    skills: List[str]
+
 class ResumeSchema(BaseModel):
     first_name: str
     last_name: str
-    location: str
+    location: Optional[str]
     phone_number: str
-    summary: str
+    summary: Optional[str]
     email: str
-    urls: List[str]
+    urls: Optional[List[str]]
     education: List[Education]
-    certifications: List[Certification]
+    certifications: Optional[List[Certification]]
     experience: List[Experience]
-    skills: List[str]
-    projects: List[Project]
-    languages: List[str]
-    interests: List[str]
+    skills: Optional[List[Skill]]
+    projects: Optional[List[Project]]
+    languages: Optional[List[str]]
+    interests: Optional[List[str]]
 

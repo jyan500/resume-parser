@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
+    type ContainsBullets,
     addExperience,
     updateExperience,
     removeExperience,
@@ -36,25 +37,31 @@ export const ExperienceSection: React.FC = () => {
                 </p>
             )}
             <div className="flex flex-col gap-3">
-                {experience.map((exp, idx) => (
-                    <ExperienceEntry
-                        key={exp.id}
-                        entry={exp}
-                        onUpdate={(patch) => dispatch(updateExperience({ id: exp.id, patch }))}
-                        onRemove={() => dispatch(removeExperience(exp.id))}
-                        onToggle={() => dispatch(toggleExperience(exp.id))}
-                        onAddBullet={() => dispatch(addBullet({ experienceId: exp.id }))}
-                        onUpdateBullet={(bulletId, text) =>
-                            dispatch(updateBullet({ experienceId: exp.id, bulletId, text }))
-                        }
-                        onRemoveBullet={(bulletId) =>
-                            dispatch(removeBullet({ experienceId: exp.id, bulletId }))
-                        }
-                        onToggleBullet={(bulletId) =>
-                            dispatch(toggleBullet({ experienceId: exp.id, bulletId }))
-                        }
-                    />
-                ))}
+                {experience.map((exp, idx) => {
+                    const payload = {
+                        section: "experience" as ContainsBullets,
+                        entryId: exp.id,
+                    }
+                    return (
+                        <ExperienceEntry
+                            key={exp.id}
+                            entry={exp}
+                            onUpdate={(patch) => dispatch(updateExperience({ id: exp.id, patch }))}
+                            onRemove={() => dispatch(removeExperience(exp.id))}
+                            onToggle={() => dispatch(toggleExperience(exp.id))}
+                            onAddBullet={() => dispatch(addBullet(payload))}
+                            onUpdateBullet={(bulletId, text) =>
+                                dispatch(updateBullet({ ...payload, bulletId, text }))
+                            }
+                            onRemoveBullet={(bulletId) =>
+                                dispatch(removeBullet({ ...payload, bulletId }))
+                            }
+                            onToggleBullet={(bulletId) =>
+                                dispatch(toggleBullet({ ...payload, bulletId }))
+                            }
+                        />
+                    )
+                })}
             </div>
         </SectionWrapper>
     );
