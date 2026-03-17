@@ -4,6 +4,7 @@ Specific instructions:
 1. Experience bullets: Must be complete sentences.
 2. If the field is optional, do not generate a value for that field. 
 3. If the resume does not have a skills section, do not parse any skills into the skills field.
+4. If no skills category is present (i.e Frontend: Skill A, Skill B), default the category to "Skills"
 
 Resume Text:
 {{text}}

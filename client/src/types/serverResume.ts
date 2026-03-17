@@ -1,4 +1,4 @@
-import type { Resume, ExperienceEntry, EducationEntry, SkillCategory, ProjectEntry, ExperienceBullet, CertificationEntry } from "./resume";
+import type { Resume, ExperienceEntry, EducationEntry, SkillCategory, ProjectEntry, Bullet, CertificationEntry } from "./resume";
 import { v4 as uuid } from "uuid";
 
 // ─── Server-side Schema Mirrors (from server/utils/schema.py) ───────────────────
@@ -57,7 +57,7 @@ export interface ServerResumeSchema {
 
 // ─── Mapping: Server → Client Resume ─────────────────────────────────────────────
 
-function mapBulletsToExperienceBullets(bullets: string[]): ExperienceBullet[] {
+function mapBulletsToClientBullets(bullets: string[]): Bullet[] {
     return bullets.map((text) => ({
         id: uuid(),
         text,
@@ -79,7 +79,7 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
             location: exp.location ?? "",
             startDate: exp.start_date ?? "",
             endDate: exp.end_date ?? "",
-            bullets: mapBulletsToExperienceBullets(exp.bullets ?? []),
+            bullets: mapBulletsToClientBullets(exp.bullets ?? []),
             enabled: true,
         };
     });
@@ -114,7 +114,7 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
             ? server.skills.map((skill) => (
                   {
                       id: uuid(),
-                      category: skill.category,
+                      category: skill.category !== "" ? skill.category : "Skills",
                       items: skill.skills,
                       enabled: true,
                   }
@@ -128,7 +128,7 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
             description: "",
             url: "",
             technologies: [],
-            bullets: mapBulletsToExperienceBullets(proj.bullets ?? []),
+            bullets: mapBulletsToClientBullets(proj.bullets ?? []),
             enabled: true,
         })) ?? [];
 

@@ -8,7 +8,7 @@ export interface ResumeHeader {
     urls: Array<string>
   }
   
-  export interface ExperienceBullet {
+  export interface Bullet {
     id: string;
     text: string;
     enabled: boolean;
@@ -21,7 +21,7 @@ export interface ResumeHeader {
     location?: string;
     startDate: string;
     endDate: string; // "Present" or date string
-    bullets: ExperienceBullet[];
+    bullets: Bullet[];
     enabled: boolean;
   }
   
@@ -50,7 +50,7 @@ export interface ResumeHeader {
     description: string;
     url?: string;
     technologies?: string[];
-    bullets: ExperienceBullet[];
+    bullets: Bullet[];
     enabled: boolean;
   }
   
