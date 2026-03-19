@@ -153,7 +153,9 @@ const SortableExperienceEntry: React.FC<ExperienceEntryProps> = (props) => {
     } = useSortable({ id: props.entry.id });
  
     const style: React.CSSProperties = {
-        transform: CSS.Transform.toString(transform),
+        // translation only, ignoring scaleX/scaleY to avoid stretching when 
+        // when dragging the element over variable sized elements)
+        transform: CSS.Translate.toString(transform),
         transition,
         zIndex: isDragging ? 10 : undefined,
         opacity: isDragging ? 0.5 : 1,
