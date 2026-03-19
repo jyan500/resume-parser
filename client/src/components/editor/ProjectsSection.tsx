@@ -11,11 +11,14 @@ import {
     removeBullet,
     toggleBullet,
     toggleSectionVisibility,
+    reorderProjects,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "./AddButton";
 import type { ProjectEntry } from "../../types/resume";
+import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
+import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 
 export const ProjectsSection: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -34,33 +37,42 @@ export const ProjectsSection: React.FC = () => {
             {projects.length === 0 && (
                 <p className="text-sm text-slate-400 text-center py-4">No projects added yet.</p>
             )}
-            <div className="flex flex-col gap-3">
+            <DndSortableWrapper<ProjectEntry>
+                elements={projects}
+                dragEndAction={(fromIndex: number, toIndex: number) => {
+                    dispatch(reorderProjects({fromIndex, toIndex}))
+                }}
+            >
                 {projects.map((proj) => {
                     const payload = {
                         section: "projects" as ContainsBullets,
                         entryId: proj.id,
                     }
                     return (
-                        <ProjectRow
+                        <DndSortableWrapperPreview
                             key={proj.id}
-                            project={proj}
-                            onUpdate={(patch) => dispatch(updateProject({ id: proj.id, patch }))}
-                            onRemove={() => dispatch(removeProject(proj.id))}
-                            onToggle={() => dispatch(toggleProject(proj.id))}
-                            onAddBullet={() => dispatch(addBullet(payload))}
-                            onUpdateBullet={(bulletId, text) =>
-                                dispatch(updateBullet({ ...payload, bulletId, text }))
-                            }
-                            onRemoveBullet={(bulletId) =>
-                                dispatch(removeBullet({ ...payload, bulletId }))
-                            }
-                            onToggleBullet={(bulletId) =>
-                                dispatch(toggleBullet({ ...payload, bulletId }))
-                            }
+                            elementId={proj.id}
+                            childComponent={ProjectRow}
+                            childProps={{
+                                project: proj,
+                                onUpdate:(patch) => dispatch(updateProject({ id: proj.id, patch })),
+                                onRemove:() => dispatch(removeProject(proj.id)),
+                                onToggle:() => dispatch(toggleProject(proj.id)),
+                                onAddBullet:() => dispatch(addBullet(payload)),
+                                onUpdateBullet:(bulletId, text) => {
+                                    dispatch(updateBullet({ ...payload, bulletId, text }))
+                                },
+                                onRemoveBullet:(bulletId) =>{
+                                    dispatch(removeBullet({ ...payload, bulletId }))
+                                },
+                                onToggleBullet:(bulletId) =>{
+                                    dispatch(toggleBullet({ ...payload, bulletId }))
+                                }
+                            } as ProjectRowProps}
                         />
                     )
                 })}
-            </div>
+            </DndSortableWrapper>
         </SectionWrapper>
     );
 };
@@ -74,10 +86,12 @@ interface ProjectRowProps {
     onUpdateBullet: (bulletId: string, text: string) => void;
     onRemoveBullet: (bulletId: string) => void;
     onToggleBullet: (bulletId: string) => void;
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 const ProjectRow: React.FC<ProjectRowProps> = ({
     project, onUpdate, onRemove, onToggle, onAddBullet, onUpdateBullet, onRemoveBullet, onToggleBullet,
+    dragHandleProps,
 }) => {
     const [expanded, setExpanded] = useState(true);
     const [techInput, setTechInput] = useState("");
@@ -100,11 +114,27 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
         <div className={`rounded-xl border transition-colors duration-150 ${project.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
             {/* Header */}
             <div className="flex items-center gap-2 px-3 py-2.5">
-                <span className="text-slate-300 cursor-grab flex-shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                {/* Drag handle — listeners scoped here so clicking other
+                    buttons in the card never accidentally starts a drag. */}
+                <button
+                    className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+                    aria-label="Drag to reorder"
+                    {...dragHandleProps}
+                >
+                    <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 9h16.5m-16.5 6.75h16.5"
+                        />
                     </svg>
-                </span>
+                </button>
                 <button
                     onClick={onToggle}
                     className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${

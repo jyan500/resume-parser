@@ -13,50 +13,17 @@ import {
     toggleBullet,
     toggleSectionVisibility,
 } from "../../slices/resumeSlice";
-import {
-    DndContext,
-    closestCenter,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    type DragEndEvent
-} from "@dnd-kit/core"
-import {
-    SortableContext,
-    useSortable,
-    verticalListSortingStrategy,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "./AddButton";
 import type { ExperienceEntry } from "../../types/resume";
+import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
+import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview"
 
 export const ExperienceSection: React.FC = () => {
     const dispatch = useAppDispatch();
     const experience = useAppSelector(selectResume).experience;
     const visible = useAppSelector(selectVisibility).experience;
-
-    // PointerSensor requires the user to move 8px before a drag starts,
-    // which prevents accidental drags when clicking buttons inside the card.
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
-    );
-    
-    /* 
-        When the user releases the mouseclick, get the new index based on the location
-        where the user dropped the mouse click and update the indices internally
-    */
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
- 
-        const oldIndex = experience.findIndex((e) => e.id === active.id);
-        const newIndex = experience.findIndex((e) => e.id === over.id);
-        if (oldIndex !== -1 && newIndex !== -1) {
-            dispatch(reorderExperience({ fromIndex: oldIndex, toIndex: newIndex }));
-        }
-    };
 
     return (
         <SectionWrapper
@@ -79,95 +46,45 @@ export const ExperienceSection: React.FC = () => {
                 from the center point of the dragged item to the center of every droppable target,
                 and picks the target with the closest distance. 
             */}
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
+            <DndSortableWrapper<ExperienceEntry>
+                elements={experience}
+                dragEndAction={(fromIndex: number, toIndex: number) => {
+                    dispatch(reorderExperience({fromIndex, toIndex}))
+                }}
             >
-                <SortableContext
-                    items={experience.map((e) => e.id)}
-                    /* 
-                        verticalListSortingStrategy means
-                        items are shifted up/down as swapping happens after
-                        an item is dragged and dropped
-                    */
-                    strategy={verticalListSortingStrategy}
-                >
-                    <div className="flex flex-col gap-3">
-                        {experience.map((exp) => {
-                            const payload = {
-                                section: "experience" as ContainsBullets,
-                                entryId: exp.id,
-                            };
-                            return (
-                                <SortableExperienceEntry
-                                    key={exp.id}
-                                    entry={exp}
-                                    onUpdate={(patch) =>
-                                        dispatch(updateExperience({ id: exp.id, patch }))
-                                    }
-                                    onRemove={() => dispatch(removeExperience(exp.id))}
-                                    onToggle={() => dispatch(toggleExperience(exp.id))}
-                                    onAddBullet={() => dispatch(addBullet(payload))}
-                                    onUpdateBullet={(bulletId, text) =>
-                                        dispatch(updateBullet({ ...payload, bulletId, text }))
-                                    }
-                                    onRemoveBullet={(bulletId) =>
-                                        dispatch(removeBullet({ ...payload, bulletId }))
-                                    }
-                                    onToggleBullet={(bulletId) =>
-                                        dispatch(toggleBullet({ ...payload, bulletId }))
-                                    }
-                                />
-                            );
-                        })}
-                    </div>
-                </SortableContext>
-            </DndContext>
+                {experience.map((exp) => {
+                    const payload = {
+                        section: "experience" as ContainsBullets,
+                        entryId: exp.id,
+                    };
+                    return (
+                        <DndSortableWrapperPreview
+                            key={exp.id}
+                            elementId={exp.id}
+                            childComponent={ExperienceEntryCard}
+                            childProps={{
+                                entry: exp,
+                                onUpdate: (patch) => {
+                                    dispatch(updateExperience({ id: exp.id, patch }))
+                                },
+                                onRemove: () => dispatch(removeExperience(exp.id)),
+                                onToggle: () => dispatch(toggleExperience(exp.id)),
+                                onAddBullet: () => dispatch(addBullet(payload)),
+                                onUpdateBullet: (bulletId, text) => {
+                                    dispatch(updateBullet({ ...payload, bulletId, text }))
+                                },
+                                onRemoveBullet: (bulletId) => {
+                                    dispatch(removeBullet({ ...payload, bulletId }))
+                                },
+                                onToggleBullet: (bulletId) => {
+                                    dispatch(toggleBullet({ ...payload, bulletId }))
+                                },
+                            } as ExperienceEntryProps}
+                        />
+                    );
+                })}
+            </DndSortableWrapper>
         </SectionWrapper>
-    );
-};
-
-interface ExperienceEntryProps {
-    entry: ExperienceEntry;
-    onUpdate: (patch: Partial<ExperienceEntry>) => void;
-    onRemove: () => void;
-    onToggle: () => void;
-    onAddBullet: () => void;
-    onUpdateBullet: (bulletId: string, text: string) => void;
-    onRemoveBullet: (bulletId: string) => void;
-    onToggleBullet: (bulletId: string) => void;
-}
-
-// ─── Sortable wrapper ─────────────────────────────────────────────────────────
-// Thin shell that calls useSortable and passes drag handle props down.
- 
-const SortableExperienceEntry: React.FC<ExperienceEntryProps> = (props) => {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: props.entry.id });
- 
-    const style: React.CSSProperties = {
-        // translation only, ignoring scaleX/scaleY to avoid stretching when 
-        // when dragging the element over variable sized elements)
-        transform: CSS.Translate.toString(transform),
-        transition,
-        zIndex: isDragging ? 10 : undefined,
-        opacity: isDragging ? 0.5 : 1,
-    };
- 
-    return (
-        <div ref={setNodeRef} style={style}>
-            <ExperienceEntryCard
-                {...props}
-                dragHandleProps={{ ...attributes, ...listeners }}
-            />
-        </div>
     );
 };
 

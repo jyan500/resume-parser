@@ -373,6 +373,23 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        reorderProjects(
+            state,
+            action: PayloadAction<{ fromIndex: number; toIndex: number }>
+        ) {
+            const { fromIndex, toIndex } = action.payload;
+            // remove element at fromIndex
+            if (state.resume.projects?.length){
+                const temp = [...state.resume.projects]
+                const from = temp[fromIndex];
+                temp.splice(fromIndex, 1)
+                // insert element at toIndex
+                temp.splice(toIndex, 0, from);
+                state.resume.projects = temp
+                state.isDirty = true;
+            }
+        },
+
         // ── Visibility ──────────────────────────────────────────────────────────
         setVisibility(state, action: PayloadAction<Partial<ResumeVisibility>>) {
             Object.assign(state.visibility, action.payload);
@@ -435,6 +452,7 @@ export const {
     updateProject,
     removeProject,
     toggleProject,
+    reorderProjects,
     setVisibility,
     toggleSectionVisibility,
     toggleHeaderField,
