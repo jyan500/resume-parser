@@ -131,13 +131,37 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        /* 
+            i.e if you move an item from index 0 to index 2 (and there are 3 items in the list) 
+
+            i = 0  *A*  
+            i = 1  *B*
+            i = 2  *C*
+            i = 3  *D*
+
+            remove i = 0 first
+            so now the other indices are shifted
+            i = 0 *B*
+            i = 1 *C*
+            i = 2 *D*
+
+            now A would need to be inserted between C and D,
+            so after index 1. Note that before we deleted "A",
+            "C" used to be index 2, so we'd insert at index 2,
+            so now "D" gets pushed to index 3 after the insert
+        */
         reorderExperience(
             state,
             action: PayloadAction<{ fromIndex: number; toIndex: number }>
         ) {
             const { fromIndex, toIndex } = action.payload;
-            const [moved] = state.resume.experience.splice(fromIndex, 1);
-            state.resume.experience.splice(toIndex, 0, moved);
+            // remove element at fromIndex
+            const temp = [...state.resume.experience]
+            const from = temp[fromIndex];
+            temp.splice(fromIndex, 1)
+            // insert element at toIndex
+            temp.splice(toIndex, 0, from);
+            state.resume.experience = temp
             state.isDirty = true;
         },
 

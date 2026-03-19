@@ -60,7 +60,7 @@ export const EditorPage: React.FC = () => {
             <main className="flex-1 flex overflow-hidden">
 
                 {/* Left — editor panel */}
-                <div className="w-[720px] flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
+                <div className="w-4/10 flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
                     <div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                             Editor

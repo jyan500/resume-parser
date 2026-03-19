@@ -5,6 +5,7 @@ import {
     addExperience,
     updateExperience,
     removeExperience,
+    reorderExperience,
     toggleExperience,
     addBullet,
     updateBullet,
@@ -12,6 +13,20 @@ import {
     toggleBullet,
     toggleSectionVisibility,
 } from "../../slices/resumeSlice";
+import {
+    DndContext,
+    closestCenter,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent
+} from "@dnd-kit/core"
+import {
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "./AddButton";
@@ -21,6 +36,27 @@ export const ExperienceSection: React.FC = () => {
     const dispatch = useAppDispatch();
     const experience = useAppSelector(selectResume).experience;
     const visible = useAppSelector(selectVisibility).experience;
+
+    // PointerSensor requires the user to move 8px before a drag starts,
+    // which prevents accidental drags when clicking buttons inside the card.
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
+    
+    /* 
+        When the user releases the mouseclick, get the new index based on the location
+        where the user dropped the mouse click and update the indices internally
+    */
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+ 
+        const oldIndex = experience.findIndex((e) => e.id === active.id);
+        const newIndex = experience.findIndex((e) => e.id === over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+            dispatch(reorderExperience({ fromIndex: oldIndex, toIndex: newIndex }));
+        }
+    };
 
     return (
         <SectionWrapper
@@ -36,33 +72,58 @@ export const ExperienceSection: React.FC = () => {
                     No experience added yet.
                 </p>
             )}
-            <div className="flex flex-col gap-3">
-                {experience.map((exp, idx) => {
-                    const payload = {
-                        section: "experience" as ContainsBullets,
-                        entryId: exp.id,
-                    }
-                    return (
-                        <ExperienceEntry
-                            key={exp.id}
-                            entry={exp}
-                            onUpdate={(patch) => dispatch(updateExperience({ id: exp.id, patch }))}
-                            onRemove={() => dispatch(removeExperience(exp.id))}
-                            onToggle={() => dispatch(toggleExperience(exp.id))}
-                            onAddBullet={() => dispatch(addBullet(payload))}
-                            onUpdateBullet={(bulletId, text) =>
-                                dispatch(updateBullet({ ...payload, bulletId, text }))
-                            }
-                            onRemoveBullet={(bulletId) =>
-                                dispatch(removeBullet({ ...payload, bulletId }))
-                            }
-                            onToggleBullet={(bulletId) =>
-                                dispatch(toggleBullet({ ...payload, bulletId }))
-                            }
-                        />
-                    )
-                })}
-            </div>
+
+            {/* 
+                closestCenter means that when the user drags an item over a list of
+                droppable targets, dnd will determine the dropping target based on the distance
+                from the center point of the dragged item to the center of every droppable target,
+                and picks the target with the closest distance. 
+            */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={experience.map((e) => e.id)}
+                    /* 
+                        verticalListSortingStrategy means
+                        items are shifted up/down as swapping happens after
+                        an item is dragged and dropped
+                    */
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="flex flex-col gap-3">
+                        {experience.map((exp) => {
+                            const payload = {
+                                section: "experience" as ContainsBullets,
+                                entryId: exp.id,
+                            };
+                            return (
+                                <SortableExperienceEntry
+                                    key={exp.id}
+                                    entry={exp}
+                                    onUpdate={(patch) =>
+                                        dispatch(updateExperience({ id: exp.id, patch }))
+                                    }
+                                    onRemove={() => dispatch(removeExperience(exp.id))}
+                                    onToggle={() => dispatch(toggleExperience(exp.id))}
+                                    onAddBullet={() => dispatch(addBullet(payload))}
+                                    onUpdateBullet={(bulletId, text) =>
+                                        dispatch(updateBullet({ ...payload, bulletId, text }))
+                                    }
+                                    onRemoveBullet={(bulletId) =>
+                                        dispatch(removeBullet({ ...payload, bulletId }))
+                                    }
+                                    onToggleBullet={(bulletId) =>
+                                        dispatch(toggleBullet({ ...payload, bulletId }))
+                                    }
+                                />
+                            );
+                        })}
+                    </div>
+                </SortableContext>
+            </DndContext>
         </SectionWrapper>
     );
 };
@@ -78,55 +139,152 @@ interface ExperienceEntryProps {
     onToggleBullet: (bulletId: string) => void;
 }
 
-const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
-    entry, onUpdate, onRemove, onToggle, onAddBullet, onUpdateBullet, onRemoveBullet, onToggleBullet,
+// ─── Sortable wrapper ─────────────────────────────────────────────────────────
+// Thin shell that calls useSortable and passes drag handle props down.
+ 
+const SortableExperienceEntry: React.FC<ExperienceEntryProps> = (props) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: props.entry.id });
+ 
+    const style: React.CSSProperties = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : undefined,
+        opacity: isDragging ? 0.5 : 1,
+    };
+ 
+    return (
+        <div ref={setNodeRef} style={style}>
+            <ExperienceEntryCard
+                {...props}
+                dragHandleProps={{ ...attributes, ...listeners }}
+            />
+        </div>
+    );
+};
+
+interface ExperienceEntryProps {
+    entry: ExperienceEntry;
+    onUpdate: (patch: Partial<ExperienceEntry>) => void;
+    onRemove: () => void;
+    onToggle: () => void;
+    onAddBullet: () => void;
+    onUpdateBullet: (bulletId: string, text: string) => void;
+    onRemoveBullet: (bulletId: string) => void;
+    onToggleBullet: (bulletId: string) => void;
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+ 
+const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
+    entry,
+    onUpdate,
+    onRemove,
+    onToggle,
+    onAddBullet,
+    onUpdateBullet,
+    onRemoveBullet,
+    onToggleBullet,
+    dragHandleProps,
 }) => {
     const [expanded, setExpanded] = useState(true);
-
+ 
     return (
-        <div className={`rounded-xl border transition-colors duration-150 ${entry.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
+        <div
+            className={`rounded-xl border transition-colors duration-150 ${
+                entry.enabled
+                    ? "border-slate-200 bg-white"
+                    : "border-slate-100 bg-slate-50 opacity-60"
+            }`}
+        >
             {/* Entry header */}
             <div className="flex items-center gap-2 px-3 py-2.5">
-                {/* Drag handle */}
-                <span className="text-slate-300 cursor-grab flex-shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                {/* Drag handle — listeners scoped here so clicking other
+                    buttons in the card never accidentally starts a drag. */}
+                <button
+                    className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+                    aria-label="Drag to reorder"
+                    {...dragHandleProps}
+                >
+                    <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M3.75 9h16.5m-16.5 6.75h16.5"
+                        />
                     </svg>
-                </span>
-
+                </button>
+ 
                 {/* Enable toggle */}
                 <button
                     onClick={onToggle}
                     className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
-                        entry.enabled ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300"
+                        entry.enabled
+                            ? "bg-blue-600 border-blue-600"
+                            : "bg-white border-slate-300"
                     }`}
                 >
                     {entry.enabled && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        <svg
+                            className="w-2.5 h-2.5 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={3}
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M4.5 12.75l6 6 9-13.5"
+                            />
                         </svg>
                     )}
                 </button>
-
+ 
                 {/* Title / company summary */}
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800 truncate">
-                        {entry.title || <span className="text-slate-400 font-normal italic">Untitled role</span>}
+                        {entry.title || (
+                            <span className="text-slate-400 font-normal italic">
+                                Untitled role
+                            </span>
+                        )}
                     </p>
                     {entry.company && (
                         <p className="text-xs text-slate-500 truncate">{entry.company}</p>
                     )}
                 </div>
-
-                {/* Expand/collapse */}
+ 
+                {/* Actions */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                         onClick={onRemove}
                         className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
                         title="Remove"
                     >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                        <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2.5}
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18 18 6M6 6l12 12"
+                            />
                         </svg>
                     </button>
                     <button
@@ -134,15 +292,24 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                         className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors"
                     >
                         <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-0" : "-rotate-90"}`}
-                            fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                                expanded ? "rotate-0" : "-rotate-90"
+                            }`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={2.5}
+                            stroke="currentColor"
                         >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                            />
                         </svg>
                     </button>
                 </div>
             </div>
-
+ 
             {/* Expanded fields */}
             {expanded && (
                 <div className="px-3 pb-3 border-t border-slate-100">
@@ -180,35 +347,52 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                             />
                         </div>
                     </div>
-
+ 
                     {/* Bullets */}
                     <div className="mt-3">
-                        <label className="text-xs font-medium text-slate-500 mb-2 block">Bullet Points</label>
+                        <label className="text-xs font-medium text-slate-500 mb-2 block">
+                            Bullet Points
+                        </label>
                         <div className="flex flex-col gap-1.5">
                             {entry.bullets.map((bullet) => (
                                 <div key={bullet.id} className="flex items-start gap-2">
-                                    {/* Bullet toggle */}
                                     <button
                                         onClick={() => onToggleBullet(bullet.id)}
                                         className={`mt-2 w-3.5 h-3.5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
-                                            bullet.enabled ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300"
+                                            bullet.enabled
+                                                ? "bg-blue-600 border-blue-600"
+                                                : "bg-white border-slate-300"
                                         }`}
                                     />
                                     <textarea
                                         value={bullet.text}
-                                        onChange={(e) => onUpdateBullet(bullet.id, e.target.value)}
+                                        onChange={(e) =>
+                                            onUpdateBullet(bullet.id, e.target.value)
+                                        }
                                         placeholder="Describe an achievement or responsibility..."
                                         rows={2}
                                         className={`flex-1 rounded-lg border bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors resize-none leading-relaxed ${
-                                            bullet.enabled ? "border-slate-200" : "border-slate-100 opacity-60"
+                                            bullet.enabled
+                                                ? "border-slate-200"
+                                                : "border-slate-100 opacity-60"
                                         }`}
                                     />
                                     <button
                                         onClick={() => onRemoveBullet(bullet.id)}
                                         className="mt-2 p-0.5 text-slate-300 hover:text-red-500 transition-colors flex-shrink-0"
                                     >
-                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                                        <svg
+                                            className="w-3 h-3"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            strokeWidth={2.5}
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M6 18 18 6M6 6l12 12"
+                                            />
                                         </svg>
                                     </button>
                                 </div>
@@ -218,8 +402,18 @@ const ExperienceEntry: React.FC<ExperienceEntryProps> = ({
                             onClick={onAddBullet}
                             className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 mt-2 transition-colors"
                         >
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2.5}
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 4.5v15m7.5-7.5h-15"
+                                />
                             </svg>
                             Add bullet
                         </button>
