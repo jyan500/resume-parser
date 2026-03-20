@@ -8,6 +8,7 @@ import type {
     ParseStatus,
     ExperienceEntry,
     EducationEntry,
+    CertificationEntry,
     SkillCategory,
     ProjectEntry,
     Bullet,
@@ -39,6 +40,7 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
     summary: true,
     experience: true,
     education: true,
+    certifications: true,
     skills: true,
     projects: true,
     header: {
@@ -301,6 +303,53 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        // ── Certifications ──────────────────────────────────────────────────────
+        addCertification(state) {
+            state.resume.certifications.push({
+                id: uuid(),
+                name: "",
+                organization: "",
+                date: "",
+                enabled: true,
+            });
+            state.isDirty = true;
+        },
+
+        updateCertification(
+            state,
+            action: PayloadAction<{ id: string; patch: Partial<CertificationEntry> }>
+        ) {
+            const entry = state.resume.certifications.find((c) => c.id === action.payload.id);
+            if (entry) Object.assign(entry, action.payload.patch);
+            state.isDirty = true;
+        },
+
+        removeCertification(state, action: PayloadAction<string>) {
+            state.resume.certifications = state.resume.certifications.filter(
+                (c) => c.id !== action.payload
+            );
+            state.isDirty = true;
+        },
+
+        toggleCertification(state, action: PayloadAction<string>) {
+            const entry = state.resume.certifications.find((c) => c.id === action.payload);
+            if (entry) entry.enabled = !entry.enabled;
+            state.isDirty = true;
+        },
+
+        reorderCertifications(
+            state,
+            action: PayloadAction<{ fromIndex: number; toIndex: number }>
+        ) {
+            const { fromIndex, toIndex } = action.payload;
+            const temp = [...state.resume.certifications];
+            const from = temp[fromIndex];
+            temp.splice(fromIndex, 1);
+            temp.splice(toIndex, 0, from);
+            state.resume.certifications = temp;
+            state.isDirty = true;
+        },
+
         // ── Skills ──────────────────────────────────────────────────────────────
         addSkillCategory(state) {
             state.resume.skills.push({
@@ -444,6 +493,11 @@ export const {
     updateEducation,
     removeEducation,
     toggleEducation,
+    addCertification,
+    updateCertification,
+    removeCertification,
+    toggleCertification,
+    reorderCertifications,
     addSkillCategory,
     updateSkillCategory,
     removeSkillCategory,

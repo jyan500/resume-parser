@@ -169,6 +169,24 @@ const styles = StyleSheet.create({
         color: COLORS.midGray,
     },
 
+    // Certifications
+    certificationRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: 3,
+    },
+    certificationName: {
+        fontFamily: FONT.bold,
+        fontSize: SIZE.body,
+        color: COLORS.black,
+    },
+    certificationOrg: {
+        fontSize: SIZE.body,
+        color: COLORS.darkGray,
+        fontFamily: FONT.oblique,
+    },
+
     // Skills
     skillRow: {
         flexDirection: "row",
@@ -234,7 +252,7 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
     resume,
     visibility,
 }) => {
-    const { header, summary, experience, education, skills, projects } = resume;
+    const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;
 
     const contactItems: { value?: string; isLink?: boolean }[] = [
@@ -250,6 +268,7 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
 
     const enabledExperience = experience.filter((e) => e.enabled);
     const enabledEducation = education.filter((e) => e.enabled);
+    const enabledCertifications = certifications.filter((c) => c.enabled);
     const enabledSkills = skills.filter((s) => s.enabled);
     const enabledProjects = projects?.filter((p) => p.enabled) ?? [];
 
@@ -378,6 +397,24 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
                                         <Text style={styles.entryLocation}>{edu.location}</Text>
                                     )}
                                 </View>
+                            </View>
+                        ))}
+                    </View>
+                )}
+
+                {/* ── Certifications ── */}
+                {vis.certifications && enabledCertifications.length > 0 && (
+                    <View style={styles.section}>
+                        <SectionHeader title="Certifications" />
+                        {enabledCertifications.map((cert) => (
+                            <View key={cert.id} style={styles.certificationRow}>
+                                <View style={{ flex: 1 }}>
+                                    <Text style={styles.certificationName}>{cert.name}</Text>
+                                    <Text style={styles.certificationOrg}>{cert.organization}</Text>
+                                </View>
+                                {cert.date && (
+                                    <Text style={styles.entryDate}>{cert.date}</Text>
+                                )}
                             </View>
                         ))}
                     </View>

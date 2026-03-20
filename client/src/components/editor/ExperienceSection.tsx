@@ -15,7 +15,7 @@ import {
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
-import { AddButton } from "./AddButton";
+import { AddButton } from "../page-elements/AddButton";
 import type { ExperienceEntry } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview"

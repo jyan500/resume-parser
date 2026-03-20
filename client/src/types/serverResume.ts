@@ -39,13 +39,15 @@ export interface ServerProject {
 }
 
 export interface ServerResumeSchema {
-    first_name: string;
-    last_name: string;
-    location: string;
-    phone_number: string;
+    header: {
+        first_name: string;
+        last_name: string;
+        location: string;
+        phone_number: string;
+        email: string;
+        urls: string[];
+    }
     summary: string;
-    email: string;
-    urls: string[];
     education: ServerEducation[];
     certifications: ServerCertification[];
     experience: ServerExperience[];
@@ -67,7 +69,7 @@ function mapBulletsToClientBullets(bullets: string[]): Bullet[] {
 
 export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
     // Header / contact
-    const fullName = [server.first_name, server.last_name].filter(Boolean).join(" ").trim();
+    const fullName = [server.header.first_name, server.header.last_name].filter(Boolean).join(" ").trim();
     // Experience
     const experience: ExperienceEntry[] = (server.experience ?? []).map((exp) => {
         // Naive split for date range like "Jan 2020 - Present"
@@ -75,7 +77,6 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
             id: uuid(),
             company: exp.company ?? "",
             title: exp.job_title ?? "",
-            urls: server.urls,
             location: exp.location ?? "",
             startDate: exp.start_date ?? "",
             endDate: exp.end_date ?? "",
@@ -135,10 +136,10 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
     const resume: Resume = {
         header: {
             name: fullName,
-            email: server.email ?? "",
-            phone: server.phone_number ?? "",
-            location: server.location ?? "",
-            urls: server.urls ?? [],
+            email: server.header.email ?? "",
+            phone: server.header.phone_number ?? "",
+            location: server.header.location ?? "",
+            urls: server.header.urls ?? [],
         },
         summary: server.summary ?? "",
         experience,

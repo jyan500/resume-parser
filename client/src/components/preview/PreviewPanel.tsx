@@ -29,14 +29,6 @@ export const PreviewPanel: React.FC = () => {
     const resume = useAppSelector(selectResume);
     const visibility = useAppSelector(selectVisibility);
 
-    /* usePDF hook exposes the lifecycle for the PDF render from react-pdf/renderer*/
-    // const [instance, updateInstance] = usePDF({
-    //     document: <ResumeDocument resume={resume} visibility={visibility} />,
-    // });
-
-    // useEffect(() => {
-    //     updateInstance(<ResumeDocument resume={resume} visibility={visibility} />);
-    // }, [resume, visibility]); // eslint-disable-line react-hooks/exhaustive-deps
     const document = <ResumeDocument resume={resume} visibility={visibility} />;
     const render = useAsync(async () => {
         const blob = await pdf(document).toBlob();
@@ -65,16 +57,7 @@ export const PreviewPanel: React.FC = () => {
  
     const [numPages, setNumPages] = useState(1);
     const [containerWidth, setContainerWidth] = useState(0);
- 
-    const containerRef = useCallback((node: HTMLDivElement | null) => {
-        if (!node) return;
-        const observer = new ResizeObserver(([entry]) =>
-            setContainerWidth(entry.contentRect.width)
-        );
-        observer.observe(node);
-        return () => observer.disconnect();
-    }, []);
- 
+
     const handleDownload = useCallback(() => {
         if (!render.value) return;
         const a = document.createElement("a");
@@ -92,6 +75,15 @@ export const PreviewPanel: React.FC = () => {
     const shouldShowPreviousDocument = !isFirstRendering && isBusy;
  
     const pageWidth = containerWidth > 48 ? containerWidth - 48 : containerWidth;
+
+    const containerRef = useCallback((node: HTMLDivElement | null) => {
+        if (!node) return;
+        const observer = new ResizeObserver(([entry]) =>
+            setContainerWidth(entry.contentRect.width)
+        );
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
 
     return (
         <div className="flex flex-col h-full">
@@ -163,7 +155,8 @@ export const PreviewPanel: React.FC = () => {
                                 loading={null}
                                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                                 className={`flex flex-col items-center gap-4 ${
-                                    shouldShowPreviousDocument
+                                    // isBusy || shouldShowPreviousDocument
+                                    isBusy
                                         ? "absolute top-6 opacity-0 pointer-events-none"
                                         : ""
                                 }`}

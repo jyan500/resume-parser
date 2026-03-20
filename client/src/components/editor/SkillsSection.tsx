@@ -8,7 +8,7 @@ import {
     toggleSectionVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
-import { AddButton } from "./AddButton"
+import { AddButton } from "../page-elements/AddButton"
 import type { SkillCategory } from "../../types/resume";
 
 export const SkillsSection: React.FC = () => {

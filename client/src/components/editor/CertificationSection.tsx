@@ -1,42 +1,42 @@
 import React, { useState } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
-    addEducation,
-    updateEducation,
-    removeEducation,
-    toggleEducation,
+    addCertification,
+    updateCertification,
+    removeCertification,
+    toggleCertification,
     toggleSectionVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
-import type { EducationEntry } from "../../types/resume";
+import type { CertificationEntry } from "../../types/resume";
 
-export const EducationSection: React.FC = () => {
+export const CertificationSection: React.FC = () => {
     const dispatch = useAppDispatch();
-    const education = useAppSelector(selectResume).education;
-    const visible = useAppSelector(selectVisibility).education;
+    const certifications = useAppSelector(selectResume).certifications;
+    const visible = useAppSelector(selectVisibility).certifications;
 
     return (
         <SectionWrapper
-            title="Education"
+            title="Certifications"
             visible={visible}
-            onToggleVisibility={() => dispatch(toggleSectionVisibility("education"))}
+            onToggleVisibility={() => dispatch(toggleSectionVisibility("certifications"))}
             rightSlot={
-                <AddButton label="Add Education" onClick={() => dispatch(addEducation())} />
+                <AddButton label="Add Certification" onClick={() => dispatch(addCertification())} />
             }
         >
-            {education.length === 0 && (
-                <p className="text-sm text-slate-400 text-center py-4">No education added yet.</p>
+            {certifications.length === 0 && (
+                <p className="text-sm text-slate-400 text-center py-4">No certifications added yet.</p>
             )}
             <div className="flex flex-col gap-3">
-                {education.map((edu) => (
-                    <EducationEntryRow
-                        key={edu.id}
-                        entry={edu}
-                        onUpdate={(patch) => dispatch(updateEducation({ id: edu.id, patch }))}
-                        onRemove={() => dispatch(removeEducation(edu.id))}
-                        onToggle={() => dispatch(toggleEducation(edu.id))}
+                {certifications.map((cert) => (
+                    <CertificationEntryRow
+                        key={cert.id}
+                        entry={cert}
+                        onUpdate={(patch) => dispatch(updateCertification({ id: cert.id, patch }))}
+                        onRemove={() => dispatch(removeCertification(cert.id))}
+                        onToggle={() => dispatch(toggleCertification(cert.id))}
                     />
                 ))}
             </div>
@@ -44,14 +44,14 @@ export const EducationSection: React.FC = () => {
     );
 };
 
-interface EducationEntryRowProps {
-    entry: EducationEntry;
-    onUpdate: (patch: Partial<EducationEntry>) => void;
+interface CertificationEntryRowProps {
+    entry: CertificationEntry;
+    onUpdate: (patch: Partial<CertificationEntry>) => void;
     onRemove: () => void;
     onToggle: () => void;
 }
 
-const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, onRemove, onToggle }) => {
+const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, onUpdate, onRemove, onToggle }) => {
     const [expanded, setExpanded] = useState(true);
 
     return (
@@ -77,11 +77,11 @@ const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, 
                 </button>
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800 truncate">
-                        {entry.school || <span className="text-slate-400 font-normal italic">Unnamed school</span>}
+                        {entry.name || <span className="text-slate-400 font-normal italic">Unnamed certification</span>}
                     </p>
-                    {entry.degree && (
+                    {entry.organization && (
                         <p className="text-xs text-slate-500 truncate">
-                            {entry.degree}{entry.field ? `, ${entry.field}` : ""}
+                            {entry.organization}{entry.date ? ` · ${entry.date}` : ""}
                         </p>
                     )}
                 </div>
@@ -114,48 +114,28 @@ const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, 
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <div className="col-span-2">
                             <Field
-                                label="School"
-                                value={entry.school}
-                                onChange={(v) => onUpdate({ school: v })}
-                                placeholder="University of California, Berkeley"
+                                label="Certification Name"
+                                value={entry.name}
+                                onChange={(v) => onUpdate({ name: v })}
+                                placeholder="AWS Certified Solutions Architect"
                             />
                         </div>
-                        <Field
-                            label="Degree"
-                            value={entry.degree}
-                            onChange={(v) => onUpdate({ degree: v })}
-                            placeholder="Bachelor's"
-                        />
-                        <Field
-                            label="Field of Study"
-                            value={entry.field ?? ""}
-                            onChange={(v) => onUpdate({ field: v })}
-                            placeholder="Computer Science"
-                        />
-                        <Field
-                            label="Start Date"
-                            value={entry.startDate ?? ""}
-                            onChange={(v) => onUpdate({ startDate: v })}
-                            placeholder="Aug 2018"
-                        />
-                        <Field
-                            label="End Date"
-                            value={entry.endDate}
-                            onChange={(v) => onUpdate({ endDate: v })}
-                            placeholder="May 2022"
-                        />
-                        <Field
-                            label="GPA"
-                            value={entry.gpa ?? ""}
-                            onChange={(v) => onUpdate({ gpa: v })}
-                            placeholder="3.8"
-                        />
-                        <Field
-                            label="Location"
-                            value={entry.location ?? ""}
-                            onChange={(v) => onUpdate({ location: v })}
-                            placeholder="Berkeley, CA"
-                        />
+                        <div className="col-span-2">
+                            <Field
+                                label="Issuing Organization"
+                                value={entry.organization}
+                                onChange={(v) => onUpdate({ organization: v })}
+                                placeholder="Amazon Web Services"
+                            />
+                        </div>
+                        <div className="col-span-2">
+                            <Field
+                                label="Date"
+                                value={entry.date}
+                                onChange={(v) => onUpdate({ date: v })}
+                                placeholder="Jun 2023"
+                            />
+                        </div>
                     </div>
                 </div>
             )}

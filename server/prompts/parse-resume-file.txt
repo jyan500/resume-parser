@@ -1,10 +1,7 @@
-Parse the following resume text using the requested structured JSON format
+Parse the following resume file using the requested structured JSON format
 
 Specific instructions:
 1. Experience bullets can contain more than one sentence.
 2. If no skills section (with skills listed) is present, do not generate a skills section.
 3. In the skills section, if no skills category is present (i.e Frontend: Skill A, Skill B), default the category to "Skills".
 4. If certificate are found in the education section, please parse the certificates into a separate certification section instead.
-
-resume text:
-{{text}}

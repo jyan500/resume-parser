@@ -1,4 +1,3 @@
-from optparse import OptionContainer
 from typing import List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
@@ -10,46 +9,49 @@ class WorkType(str, Enum):
     UNKNOWN = ""
 
 class Education(BaseModel):
-    school_name: str
-    major: str
-    degree: str
-    graduation_date: str
+    school_name: Optional[str] = ""
+    major: Optional[str] = ""
+    degree: Optional[str] = ""
+    graduation_date: Optional[str] = ""
 
 class Certification(BaseModel):
-    name: str
-    organization: str
-    date: str
+    name: Optional[str] = ""
+    organization: Optional[str] = ""
+    date: Optional[str] = ""
 
 class Experience(BaseModel):
-    company: str
-    location: str
-    work_type: WorkType
-    job_title: str
-    start_date: str
-    end_date: str
+    company: Optional[str] = ""
+    location: Optional[str] = ""
+    work_type: Optional[WorkType] = WorkType.UNKNOWN
+    job_title: Optional[str] = ""
+    start_date: Optional[str] = ""
+    end_date: Optional[str] = ""
     bullets: List[str]
 
 class Project(BaseModel):
-    title: str
+    title: Optional[str] = ""
     bullets: List[str]
 
 class Skill(BaseModel):
-    category: Optional[str] = "Skills"
+    category: Optional[str] = ""
     skills: List[str]
 
-class ResumeSchema(BaseModel):
+class Header(BaseModel):
     first_name: str
     last_name: str
-    location: Optional[str]
-    phone_number: str
-    summary: Optional[str]
+    location: Optional[str] = ""
+    phone_number: Optional[str] = ""
     email: str
-    urls: Optional[List[str]]
+    urls: Optional[List[str]] = Field(default_factory=list)
+
+class ResumeSchema(BaseModel):
+    header: Header
+    summary: Optional[str] = ""
     education: List[Education]
-    certifications: Optional[List[Certification]]
+    certifications: List[Certification]
     experience: List[Experience]
-    skills: Optional[List[Skill]]
-    projects: Optional[List[Project]]
-    languages: Optional[List[str]]
-    interests: Optional[List[str]]
+    skills: Optional[List[Skill]] = Field(default_factory=list)
+    projects: Optional[List[Project]] = Field(default_factory=list)
+    languages: Optional[List[str]] = Field(default_factory=list)
+    interests: Optional[List[str]] = Field(default_factory=list)
 
