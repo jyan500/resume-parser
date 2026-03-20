@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
@@ -10,6 +10,7 @@ export const UploadPanel: React.FC = () => {
     const [parseResume, { isLoading, isError, error }] = useParseResumeMutation();
     const [isDragOver, setIsDragOver] = useState(false);
     const [fileName, setFileName] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleFile = useCallback(
         async (file: File) => {
@@ -32,6 +33,10 @@ export const UploadPanel: React.FC = () => {
                 const message =
                     err instanceof Error ? err.message : "Failed to parse resume";
                 dispatch(setParseStatus({ status: "error", error: message }));
+                // reset to allow the upload of the same file in case it fails
+                if (fileInputRef?.current){
+                    fileInputRef.current.value = ""
+                }
             }
         },
         [dispatch, navigate, parseResume]
@@ -81,6 +86,7 @@ export const UploadPanel: React.FC = () => {
             {/* Drop zone */}
             <label className="block cursor-pointer">
                 <input
+                    ref={fileInputRef}
                     type="file"
                     accept=".pdf, .docx, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     className="sr-only"

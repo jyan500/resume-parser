@@ -14,85 +14,125 @@ from utils.constants import (
     GEMINI_FLASH_LITE_MODEL,
     SECTION_PATTERNS,
 )
+import zipfile
+import xml.etree.ElementTree as ET
 
 class ResumeParser:
     def __init__(self):
         self.client = genai.Client()
         ## render using jinja2 to escape curly braces
-        self.template = Template(load_prompt("parse-resume"))
+        # self.template = Template(load_prompt("parse-resume"))
+        self.uploadTemplate = Template(load_prompt("parse-resume-file"))
+        self.textTemplate = Template(load_prompt("parse-resume"))
 
     def parse_resume(self, filepath):
         try:
-            """Extract text from resume file"""
             if filepath.endswith('.pdf'):
-                text, page_count = self._parse_pdf(filepath)
+                text = self._parse_pdf(filepath)
+                text = self._clean_text(text)
+                is_valid, error = self._validate_length(text)
+                if not is_valid:
+                    raise ValueError(error)
+                self._check_sections(text)
+
+                prompt = self.uploadTemplate.render()
+                uploaded_file = self.client.files.upload(file=filepath)
+                myfile = self.client.files.get(name=uploaded_file.name)
+                if not myfile:
+                    raise Exception("Something went wrong while uploading")
+
+                response = self.client.models.generate_content(
+                    model=GEMINI_FLASH_LITE_MODEL,
+                    contents=[prompt, myfile],
+                    config={
+                        "response_mime_type": "application/json",
+                        "response_json_schema": ResumeSchema.model_json_schema(),
+                    },
+                )
+                self.client.files.delete(name=myfile.name)
+
             elif filepath.endswith('.docx'):
-                text, page_count = self._parse_docx(filepath)
+                text = self._parse_docx(filepath)
+                text = self._clean_text(text)
+                is_valid, error = self._validate_length(text)
+                if not is_valid:
+                    raise ValueError(error)
+                self._check_sections(text)
+
+                # Gemini doesn't support .docx uploads — send extracted text inline instead
+                prompt = self.textTemplate.render(text=text)
+                response = self.client.models.generate_content(
+                    model=GEMINI_FLASH_LITE_MODEL,
+                    contents=[prompt],
+                    config={
+                        "response_mime_type": "application/json",
+                        "response_json_schema": ResumeSchema.model_json_schema(),
+                    },
+                )
             else:
                 raise ValueError('Unsupported file format')
 
-            text = self._clean_text(text)
-            is_valid, error = self._validate_length(text, page_count)
-            if not is_valid:
-                raise ValueError(error)
-            sections = self._identify_sections(text)
-            # if none of the sections are filled out, this is likely not a valid resume document
-            if len(sections["_meta"]["section_start_line"]) == 0:
-                raise ValueError("Please upload a valid resume")
-
-            prompt = self.template.render(text=json.dumps(sections))
-            response = self.client.models.generate_content(
-                model=GEMINI_FLASH_LITE_MODEL, 
-                contents={
-                    prompt
-                },
-                config={
-                    "response_mime_type": "application/json",
-                    "response_json_schema": ResumeSchema.model_json_schema(),
-                },
-            )
             parsed_resume = ResumeSchema.model_validate_json(response.text)
-            parsed_resume_dict = parsed_resume.model_dump()
-            return self._clean_parse_result(parsed_resume_dict, sections)
-            # TODO: unused file upload code in case the text based parsing
-            # doesn't work out
-            # uploaded_file = self.client.files.upload(file=filepath)
-            # file_name = uploaded_file.name
-            # print("file_name: ", file_name)
-            # myfile = self.client.files.get(name=file_name)
-            # if (myfile):
-            #     response = self.client.models.generate_content(
-            #         model=GEMINI_FLASH_LITE_MODEL, 
-            #         contents=[
-            #             prompt,
-            #             myfile,
-            #         ],
-            #         config={
-            #             "response_mime_type": "application/json",
-            #             "response_json_schema": ResumeSchema.model_json_schema(),
-            #         },
-            #     )
-            #     self.client.files.delete(name=myfile.name)
-            #     parsed_resume = ResumeSchema.model_validate_json(response.text)
-            #     parsed_resume_dict = parsed_resume.model_dump()
-            #     return self._clean_parse_result(parsed_resume_dict, sections)
-            return sections
-        
+            return parsed_resume.model_dump()
+
         except Exception as e:
-            raise e
+            traceback.print_exc()
+            if isinstance(e, ValueError):
+                raise e
+            raise Exception("Something went wrong while uploading")
+
+
+    def _check_sections(self, text):
+        """Raises ValueError if no resume sections are detected."""
+        if len(self._identify_resume_sections(text)) == 0:
+            raise ValueError("Please upload a valid resume")
 
     def _parse_pdf(self, filepath):
         text = ''
         with pdfplumber.open(filepath) as pdf:
             page_count = len(pdf.pages)
+            if (page_count > MAX_PAGES):
+                raise ValueError(f"Document must be less than {MAX_PAGES} pages")
             for page in pdf.pages:
-                text += page.extract_text() + '\n'
-        return (text.strip(), page_count)
+                text += page.extract_text()
+        return text.strip()
 
     def _parse_docx(self, filepath):
         """Extract text from Word document"""
+        # --- Fast page-count check (reads only docProps/app.xml from the ZIP) ---
+        page_count = self._get_docx_page_count(filepath)
+        if page_count is not None and page_count > MAX_PAGES:
+            raise ValueError(
+                f"Document must be less than {MAX_PAGES} pages"
+            )
         text = docx2txt.process(filepath)
-        return (text.strip(), None)
+        return text.strip()
+    
+    def _get_docx_page_count(self, filepath):
+        """Read page count from docProps/app.xml inside the .docx ZIP.
+        
+        Returns the page count as an int, or None if it cannot be determined.
+        Note: this reflects the count from the last time Word saved/rendered
+        the file, so it may be absent in programmatically-created docs.
+        """
+        try:
+            with zipfile.ZipFile(filepath, "r") as zf:
+                if "docProps/app.xml" not in zf.namelist():
+                    return None
+                with zf.open("docProps/app.xml") as f:
+                    tree = ET.parse(f)
+                    root = tree.getroot()
+
+                # The namespace varies by Office version
+                ns = {"ep": "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"}
+                pages_el = root.find("ep:Pages", ns)
+
+                if pages_el is not None and pages_el.text:
+                    return int(pages_el.text)
+        except (zipfile.BadZipFile, ET.ParseError, ValueError):
+            return None
+
+        return None
 
     def _clean_text(self, text: str) -> str:
         """ 
@@ -110,98 +150,23 @@ class ResumeParser:
 
         return text
 
-    def _validate_length(self, text: str, page_count: int = None):
+    def _validate_length(self, text: str):
         word_count = len(text.split())
-    
-        if page_count and page_count > MAX_PAGES:
-            return (False, f"Document exceeds {MAX_PAGES} pages. Please upload a resume.")
         
         if word_count > MAX_WORDS:
-            return (False, f"Document is too long to be a resume ({word_count} words). Please upload a 1–2 page resume.")
+            return (False, f"Document cannot exceed ({word_count} words).")
 
         return (True, "")
 
-    def _clean_parse_result(self, parsed_result, sections): 
-        """ 
-            validate the results between parsed_result and sections 
-            if a section is present in sections, but the same section in parsed_result
-            doesn't have a value, just take the non-parsed section.
-
-            TODO: This seems to be happening specifically with professional summaries that 
-            are being missed by the LLM, so this is a workaround for that.
-        """
-        result = {**parsed_result} 
-        section_headers = {**SECTION_PATTERNS, "header": ""}
-        for key in section_headers:
-            if key in result:
-                if key == "summary":
-                    # if the LLM did not catch the summary, just add the summary from
-                    # the parsed section back in
-                    if parsed_result["summary"] == "" and sections["summary"] != "":
-                        result[key] = sections["summary"]
-                    # if the LLM incorrectly generated a summary, remove it
-                    elif parsed_result["summary"] != "" and sections["summary"] == "":
-                        result[key] = ""
-                # make sure we don't include any sections that were not originally included
-                # in our sections parse
-                else:
-                    result[key] = parsed_result[key]
-        return result
-
-    def _identify_sections(self, text):
-        """ Split resume into sections based on common headers """
-
+    def _identify_resume_sections(self, text):
         lines = text.split("\n")
-        sections = {}
-        current_section = None
-        current_content = []
-        section_start_line = {}
-
-        for i, line in enumerate(lines):
+        sections = set()
+        for line in lines:
             line_stripped = line.strip()
             if not line_stripped:
                 continue
-
-            # check if this line is a section header
-            is_header = False
             for section_name, pattern in SECTION_PATTERNS.items():
-                if re.match(pattern, line_stripped):
-                    # If we've found a section, save previous section
-                    # and all of its content in the sections dict
-                    if current_section:
-                        sections[current_section] = " ".join(current_content)
-
-                    # Start new section
-                    current_section = section_name
-                    current_content = []
-
-                    # save the line number where the new section begins
-                    section_start_line[section_name] = i
-                    is_header = True
-                    break
-
-            # save all content between each section
-            if not is_header and current_section:
-                current_content.append(line)
-
-        # add the last section found (if available)
-        if current_section != None and len(current_content) > 0:
-            sections[current_section] = "\n".join(current_content)
-
-        # Store the line numbers where each section starts (for header extraction) 
-        sections["_meta"] = {"section_start_line": section_start_line}
-
-        # Get text before first section (usually contact info)
-        header_lines = []
-
-        # Find where first section starts
-        meta = sections.get("_meta", {})
-        section_starts = meta.get("section_start_line", {})
-        # find the first section
-        if len(section_starts.values()):
-            first_section_line = min(section_starts.values() if section_starts else len(lines))
-            # Get lines before first section (typically first 5-10 lines)
-            header_text = "\n".join(lines[:min(first_section_line, 15)])
-
-            sections["header"] = header_text
+                match = re.match(pattern, line_stripped)
+                if match:
+                    sections.add(match.group(0))
         return sections
