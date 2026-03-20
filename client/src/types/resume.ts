@@ -83,6 +83,7 @@ export interface ResumeHeader {
     experience: boolean;
     education: boolean;
     skills: boolean;
+    certifications: boolean;
     projects: boolean;
     header: {
       phone: boolean;

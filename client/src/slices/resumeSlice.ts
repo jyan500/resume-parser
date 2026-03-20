@@ -8,6 +8,7 @@ import type {
     ParseStatus,
     ExperienceEntry,
     EducationEntry,
+    CertificationEntry,
     SkillCategory,
     ProjectEntry,
     Bullet,
@@ -39,6 +40,7 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
     summary: true,
     experience: true,
     education: true,
+    certifications: true,
     skills: true,
     projects: true,
     header: {
@@ -131,13 +133,37 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        /* 
+            i.e if you move an item from index 0 to index 2 (and there are 3 items in the list) 
+
+            i = 0  *A*  
+            i = 1  *B*
+            i = 2  *C*
+            i = 3  *D*
+
+            remove i = 0 first
+            so now the other indices are shifted
+            i = 0 *B*
+            i = 1 *C*
+            i = 2 *D*
+
+            now A would need to be inserted between C and D,
+            so after index 1. Note that before we deleted "A",
+            "C" used to be index 2, so we'd insert at index 2,
+            so now "D" gets pushed to index 3 after the insert
+        */
         reorderExperience(
             state,
             action: PayloadAction<{ fromIndex: number; toIndex: number }>
         ) {
             const { fromIndex, toIndex } = action.payload;
-            const [moved] = state.resume.experience.splice(fromIndex, 1);
-            state.resume.experience.splice(toIndex, 0, moved);
+            // remove element at fromIndex
+            const temp = [...state.resume.experience]
+            const from = temp[fromIndex];
+            temp.splice(fromIndex, 1)
+            // insert element at toIndex
+            temp.splice(toIndex, 0, from);
+            state.resume.experience = temp
             state.isDirty = true;
         },
 
@@ -277,6 +303,53 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        // ── Certifications ──────────────────────────────────────────────────────
+        addCertification(state) {
+            state.resume.certifications.push({
+                id: uuid(),
+                name: "",
+                organization: "",
+                date: "",
+                enabled: true,
+            });
+            state.isDirty = true;
+        },
+
+        updateCertification(
+            state,
+            action: PayloadAction<{ id: string; patch: Partial<CertificationEntry> }>
+        ) {
+            const entry = state.resume.certifications.find((c) => c.id === action.payload.id);
+            if (entry) Object.assign(entry, action.payload.patch);
+            state.isDirty = true;
+        },
+
+        removeCertification(state, action: PayloadAction<string>) {
+            state.resume.certifications = state.resume.certifications.filter(
+                (c) => c.id !== action.payload
+            );
+            state.isDirty = true;
+        },
+
+        toggleCertification(state, action: PayloadAction<string>) {
+            const entry = state.resume.certifications.find((c) => c.id === action.payload);
+            if (entry) entry.enabled = !entry.enabled;
+            state.isDirty = true;
+        },
+
+        reorderCertifications(
+            state,
+            action: PayloadAction<{ fromIndex: number; toIndex: number }>
+        ) {
+            const { fromIndex, toIndex } = action.payload;
+            const temp = [...state.resume.certifications];
+            const from = temp[fromIndex];
+            temp.splice(fromIndex, 1);
+            temp.splice(toIndex, 0, from);
+            state.resume.certifications = temp;
+            state.isDirty = true;
+        },
+
         // ── Skills ──────────────────────────────────────────────────────────────
         addSkillCategory(state) {
             state.resume.skills.push({
@@ -349,6 +422,23 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
+        reorderProjects(
+            state,
+            action: PayloadAction<{ fromIndex: number; toIndex: number }>
+        ) {
+            const { fromIndex, toIndex } = action.payload;
+            // remove element at fromIndex
+            if (state.resume.projects?.length){
+                const temp = [...state.resume.projects]
+                const from = temp[fromIndex];
+                temp.splice(fromIndex, 1)
+                // insert element at toIndex
+                temp.splice(toIndex, 0, from);
+                state.resume.projects = temp
+                state.isDirty = true;
+            }
+        },
+
         // ── Visibility ──────────────────────────────────────────────────────────
         setVisibility(state, action: PayloadAction<Partial<ResumeVisibility>>) {
             Object.assign(state.visibility, action.payload);
@@ -403,6 +493,11 @@ export const {
     updateEducation,
     removeEducation,
     toggleEducation,
+    addCertification,
+    updateCertification,
+    removeCertification,
+    toggleCertification,
+    reorderCertifications,
     addSkillCategory,
     updateSkillCategory,
     removeSkillCategory,
@@ -411,6 +506,7 @@ export const {
     updateProject,
     removeProject,
     toggleProject,
+    reorderProjects,
     setVisibility,
     toggleSectionVisibility,
     toggleHeaderField,

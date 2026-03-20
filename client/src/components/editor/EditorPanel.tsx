@@ -5,6 +5,7 @@ import { ExperienceSection } from "./ExperienceSection";
 import { EducationSection } from "./EducationSection";
 import { SkillsSection } from "./SkillsSection";
 import { ProjectsSection } from "./ProjectsSection";
+import { CertificationSection } from "./CertificationSection";
  
 export const EditorPanel: React.FC = () => {
     return (
@@ -14,6 +15,7 @@ export const EditorPanel: React.FC = () => {
             <ExperienceSection />
             <ProjectsSection />
             <EducationSection />
+            <CertificationSection/>
             <SkillsSection />
         </div>
     );

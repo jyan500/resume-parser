@@ -68,6 +68,7 @@ export const selectHeader = (state: RootState) => state.resume.resume.header;
 export const selectSummary = (state: RootState) => state.resume.resume.summary;
 export const selectExperience = (state: RootState) => state.resume.resume.experience;
 export const selectEducation = (state: RootState) => state.resume.resume.education;
+export const selectCertifications = (state: RootState) => state.resume.resume.certifications;
 export const selectSkills = (state: RootState) => state.resume.resume.skills;
 export const selectProjects = (state: RootState) => state.resume.resume.projects;
 export const selectVisibility = (state: RootState) => state.resume.visibility;
