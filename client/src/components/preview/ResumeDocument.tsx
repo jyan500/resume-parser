@@ -280,7 +280,7 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
                 <View style={styles.header}>
                     <Text style={styles.name}>{header.name || "Your Name"}</Text>
                     <View style={styles.contactRow}>
-                        {contactItems.map((item, i) => (
+                        {contactItems.filter((item) => item.value !== "").map((item, i) => (
                             <ContactItem
                                 key={i}
                                 value={item.value}
