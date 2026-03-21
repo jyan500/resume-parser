@@ -257,8 +257,8 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
 
     const contactItems: { value?: string; isLink?: boolean }[] = [
         vis.header.phone ? { value: header.phone } : null,
-        vis.header.location ? { value: header.location } : null,
         { value: header.email, isLink: false },
+        vis.header.location ? { value: header.location } : null,
         ...(vis.header.urls ? header.urls.map((url) => {
             return {
                 value: url, isLink: true
