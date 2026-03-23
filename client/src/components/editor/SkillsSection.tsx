@@ -8,10 +8,18 @@ import {
     toggleSectionVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
-import { AddButton } from "../page-elements/AddButton"
+import { AddButton } from "../page-elements/AddButton";
 import type { SkillCategory } from "../../types/resume";
 
-export const SkillsSection: React.FC = () => {
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+interface SkillsSectionProps {
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Spread onto the drag handle <button> inside SectionWrapper's header.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+export const SkillsSection: React.FC<SkillsSectionProps> = ({ dragHandleProps }) => {
     const dispatch = useAppDispatch();
     const skills = useAppSelector(selectResume).skills;
     const visible = useAppSelector(selectVisibility).skills;
@@ -21,6 +29,7 @@ export const SkillsSection: React.FC = () => {
             title="Skills"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("skills"))}
+            dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Category" onClick={() => dispatch(addSkillCategory())} />
             }
@@ -42,6 +51,8 @@ export const SkillsSection: React.FC = () => {
         </SectionWrapper>
     );
 };
+
+// ─── Entry card ───────────────────────────────────────────────────────────────
 
 interface SkillCategoryRowProps {
     skill: SkillCategory;

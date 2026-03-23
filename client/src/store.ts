@@ -64,6 +64,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 // ─── Selectors ────────────────────────────────────────────────────────────────
 
 export const selectResume = (state: RootState) => state.resume.resume;
+export const selectOrder = (state: RootState) => state.resume.order
 export const selectHeader = (state: RootState) => state.resume.resume.header;
 export const selectSummary = (state: RootState) => state.resume.resume.summary;
 export const selectExperience = (state: RootState) => state.resume.resume.experience;

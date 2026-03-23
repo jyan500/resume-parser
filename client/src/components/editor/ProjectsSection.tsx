@@ -20,7 +20,15 @@ import type { ProjectEntry } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 
-export const ProjectsSection: React.FC = () => {
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+interface ProjectsSectionProps {
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Spread onto the drag handle <button> inside SectionWrapper's header.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProps }) => {
     const dispatch = useAppDispatch();
     const projects = useAppSelector(selectResume).projects ?? [];
     const visible = useAppSelector(selectVisibility).projects;
@@ -30,6 +38,7 @@ export const ProjectsSection: React.FC = () => {
             title="Projects"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("projects"))}
+            dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Project" onClick={() => dispatch(addProject())} />
             }
@@ -40,14 +49,14 @@ export const ProjectsSection: React.FC = () => {
             <DndSortableWrapper<ProjectEntry>
                 elements={projects}
                 dragEndAction={(fromIndex: number, toIndex: number) => {
-                    dispatch(reorderProjects({fromIndex, toIndex}))
+                    dispatch(reorderProjects({ fromIndex, toIndex }));
                 }}
             >
                 {projects.map((proj) => {
                     const payload = {
                         section: "projects" as ContainsBullets,
                         entryId: proj.id,
-                    }
+                    };
                     return (
                         <DndSortableWrapperPreview
                             key={proj.id}
@@ -55,27 +64,29 @@ export const ProjectsSection: React.FC = () => {
                             childComponent={ProjectRow}
                             childProps={{
                                 project: proj,
-                                onUpdate:(patch) => dispatch(updateProject({ id: proj.id, patch })),
-                                onRemove:() => dispatch(removeProject(proj.id)),
-                                onToggle:() => dispatch(toggleProject(proj.id)),
-                                onAddBullet:() => dispatch(addBullet(payload)),
-                                onUpdateBullet:(bulletId, text) => {
-                                    dispatch(updateBullet({ ...payload, bulletId, text }))
+                                onUpdate: (patch) => dispatch(updateProject({ id: proj.id, patch })),
+                                onRemove: () => dispatch(removeProject(proj.id)),
+                                onToggle: () => dispatch(toggleProject(proj.id)),
+                                onAddBullet: () => dispatch(addBullet(payload)),
+                                onUpdateBullet: (bulletId, text) => {
+                                    dispatch(updateBullet({ ...payload, bulletId, text }));
                                 },
-                                onRemoveBullet:(bulletId) =>{
-                                    dispatch(removeBullet({ ...payload, bulletId }))
+                                onRemoveBullet: (bulletId) => {
+                                    dispatch(removeBullet({ ...payload, bulletId }));
                                 },
-                                onToggleBullet:(bulletId) =>{
-                                    dispatch(toggleBullet({ ...payload, bulletId }))
-                                }
+                                onToggleBullet: (bulletId) => {
+                                    dispatch(toggleBullet({ ...payload, bulletId }));
+                                },
                             } as ProjectRowProps}
                         />
-                    )
+                    );
                 })}
             </DndSortableWrapper>
         </SectionWrapper>
     );
 };
+
+// ─── Entry card ───────────────────────────────────────────────────────────────
 
 interface ProjectRowProps {
     project: ProjectEntry;

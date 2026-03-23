@@ -12,7 +12,15 @@ import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import type { CertificationEntry } from "../../types/resume";
 
-export const CertificationSection: React.FC = () => {
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+interface CertificationSectionProps {
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Spread onto the drag handle <button> inside SectionWrapper's header.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+export const CertificationSection: React.FC<CertificationSectionProps> = ({ dragHandleProps }) => {
     const dispatch = useAppDispatch();
     const certifications = useAppSelector(selectResume).certifications;
     const visible = useAppSelector(selectVisibility).certifications;
@@ -22,6 +30,7 @@ export const CertificationSection: React.FC = () => {
             title="Certifications"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("certifications"))}
+            dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Certification" onClick={() => dispatch(addCertification())} />
             }
@@ -43,6 +52,8 @@ export const CertificationSection: React.FC = () => {
         </SectionWrapper>
     );
 };
+
+// ─── Entry card ───────────────────────────────────────────────────────────────
 
 interface CertificationEntryRowProps {
     entry: CertificationEntry;
