@@ -17,6 +17,7 @@ import type {
 // ─── Default State ────────────────────────────────────────────────────────────
 
 export type ContainsBullets = "projects" | "experience"
+export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
 
 const DEFAULT_RESUME: Resume = {
     header: {
@@ -55,6 +56,7 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
 export interface ResumeState {
     resume: Resume;
     visibility: ResumeVisibility;
+    order: Array<OrderableSection>;
     activeSection: ActiveSection;
     parseStatus: ParseStatus;
     parseError: string | null;
@@ -64,6 +66,7 @@ export interface ResumeState {
 const initialState: ResumeState = {
     resume: DEFAULT_RESUME,
     visibility: DEFAULT_VISIBILITY,
+    order: ["experience", "projects", "education", "certifications", "skills"],
     activeSection: null,
     parseStatus: "idle",
     parseError: null,
@@ -88,6 +91,23 @@ export const resumeSlice = createSlice({
             state.isDirty = false;
             state.parseStatus = "idle";
             state.parseError = null;
+        },
+
+        /*
+            Reorders the section order array.
+            Same splice pattern as reorderExperience / reorderProjects:
+            remove the item at fromIndex, then insert it at toIndex.
+        */
+        updateOrder(
+            state,
+            action: PayloadAction<{ fromIndex: number; toIndex: number }>
+        ) {
+            const { fromIndex, toIndex } = action.payload;
+            const temp = [...state.order];
+            const [moved] = temp.splice(fromIndex, 1);
+            temp.splice(toIndex, 0, moved);
+            state.order = temp;
+            state.isDirty = true;
         },
 
         // ── Header ──────────────────────────────────────────────────────────────
@@ -478,6 +498,7 @@ export const {
     setResume,
     resetResume,
     updateHeader,
+    updateOrder,
     setSummary,
     addExperience,
     updateExperience,

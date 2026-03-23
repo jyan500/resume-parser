@@ -1,5 +1,5 @@
 import React, { useState } from "react";
- 
+
 interface SectionWrapperProps {
     title: string;
     visible?: boolean;
@@ -7,8 +7,11 @@ interface SectionWrapperProps {
     children: React.ReactNode;
     defaultOpen?: boolean;
     rightSlot?: React.ReactNode;
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Absent for Header and Summary, which are never orderable.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
- 
+
 export const SectionWrapper: React.FC<SectionWrapperProps> = ({
     title,
     visible = true,
@@ -16,14 +19,37 @@ export const SectionWrapper: React.FC<SectionWrapperProps> = ({
     children,
     defaultOpen = true,
     rightSlot,
+    dragHandleProps,
 }) => {
     const [open, setOpen] = useState(defaultOpen);
- 
+
     return (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
             {/* Section header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
                 <div className="flex items-center gap-2">
+                    {/* Section-level drag handle — only rendered for orderable sections */}
+                    {dragHandleProps && (
+                        <button
+                            className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+                            aria-label="Drag to reorder section"
+                            {...dragHandleProps}
+                        >
+                            <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={2}
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M3.75 9h16.5m-16.5 6.75h16.5"
+                                />
+                            </svg>
+                        </button>
+                    )}
                     <button
                         onClick={() => setOpen((o) => !o)}
                         className="text-slate-700 hover:text-slate-900 transition-colors"

@@ -12,7 +12,15 @@ import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import type { EducationEntry } from "../../types/resume";
 
-export const EducationSection: React.FC = () => {
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+interface EducationSectionProps {
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Spread onto the drag handle <button> inside SectionWrapper's header.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+export const EducationSection: React.FC<EducationSectionProps> = ({ dragHandleProps }) => {
     const dispatch = useAppDispatch();
     const education = useAppSelector(selectResume).education;
     const visible = useAppSelector(selectVisibility).education;
@@ -22,6 +30,7 @@ export const EducationSection: React.FC = () => {
             title="Education"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("education"))}
+            dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Education" onClick={() => dispatch(addEducation())} />
             }
@@ -43,6 +52,8 @@ export const EducationSection: React.FC = () => {
         </SectionWrapper>
     );
 };
+
+// ─── Entry card ───────────────────────────────────────────────────────────────
 
 interface EducationEntryRowProps {
     entry: EducationEntry;

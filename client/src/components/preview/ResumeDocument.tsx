@@ -7,8 +7,8 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { Resume, ResumeVisibility } from "../../types/resume";
-
+import type { ExperienceEntry, ProjectEntry, Resume, ResumeVisibility } from "../../types/resume";
+import type { OrderableSection } from "../../slices/resumeSlice";
 // ─── Design Tokens ────────────────────────────────────────────────────────────
 
 const COLORS = {
@@ -241,24 +241,216 @@ const ContactItem: React.FC<ContactItemProps> = ({ value, isLink, isFirst }) => 
     );
 };
 
+interface ExperienceSectionProps {
+    visibility: ResumeVisibility
+    enabledExperience: Array<ExperienceEntry>
+}
+
+const ExperienceSection = ({visibility: vis, enabledExperience}: ExperienceSectionProps) => {
+    {/* ── Experience ── */}
+    if (vis.experience && enabledExperience.length > 0){
+        return (
+            <View style={styles.section}>
+                <SectionHeader title="Professional Experience" />
+                {enabledExperience.map((exp) => (
+                    <View key={exp.id} style={{ marginBottom: 6 }}>
+                        <View style={styles.entryRow}>
+                            <View style={{ flex: 1 }}>
+                                <Text style={styles.entryTitle}>{exp.title}</Text>
+                                <Text style={styles.entryCompany}>{exp.company}</Text>
+                            </View>
+                            <View style={{ alignItems: "flex-end" }}>
+                                <Text style={styles.entryDate}>
+                                    {exp.startDate} – {exp.endDate}
+                                </Text>
+                                {exp.location && (
+                                    <Text style={styles.entryLocation}>{exp.location}</Text>
+                                )}
+                            </View>
+                        </View>
+                        <View style={styles.bulletList}>
+                            {exp.bullets
+                                .filter((b) => b.enabled && b.text)
+                                .map((bullet) => (
+                                    <View key={bullet.id} style={styles.bulletRow}>
+                                        <Text style={styles.bulletDot}>•</Text>
+                                        <Text style={styles.bulletText}>{bullet.text}</Text>
+                                    </View>
+                                ))}
+                        </View>
+                    </View>
+                ))}
+            </View>
+        )
+    } 
+    return null
+}
+
+interface ProjectsSectionProps {
+    visibility: ResumeVisibility
+    enabledProjects: Array<NonNullable<Resume["projects"]>[number]>
+}
+
+const ProjectsSection = ({ visibility: vis, enabledProjects }: ProjectsSectionProps) => {
+    if (vis.projects && enabledProjects.length > 0) {
+        return (
+            <View style={styles.section}>
+                <SectionHeader title="Projects" />
+                {enabledProjects.map((proj) => (
+                    <View key={proj.id} style={{ marginBottom: 6 }}>
+                        <View style={styles.entryRow}>
+                            <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
+                                <Text style={styles.entryTitle}>{proj.name}</Text>
+                                {proj.url && (
+                                    <Link style={styles.contactLink} src={proj.url}>
+                                        ↗
+                                    </Link>
+                                )}
+                            </View>
+                            {proj.technologies && proj.technologies.length > 0 && (
+                                <Text style={styles.entryDate}>
+                                    {proj.technologies.join(", ")}
+                                </Text>
+                            )}
+                        </View>
+                        <View style={styles.bulletList}>
+                            {proj.bullets
+                                .filter((b) => b.enabled && b.text)
+                                .map((bullet) => (
+                                    <View key={bullet.id} style={styles.bulletRow}>
+                                        <Text style={styles.bulletDot}>•</Text>
+                                        <Text style={styles.bulletText}>{bullet.text}</Text>
+                                    </View>
+                                ))}
+                        </View>
+                    </View>
+                ))}
+            </View>
+        )
+    }
+    return null
+}
+
+interface EducationSectionProps {
+    visibility: ResumeVisibility
+    enabledEducation: Resume["education"]
+}
+
+const EducationSection = ({ visibility: vis, enabledEducation }: EducationSectionProps) => {
+    if (vis.education && enabledEducation.length > 0) {
+        return (
+            <View style={styles.section}>
+                <SectionHeader title="Education" />
+                {enabledEducation.map((edu) => (
+                    <View key={edu.id} style={styles.educationRow}>
+                        <View style={styles.educationLeft}>
+                            <Text style={styles.educationSchool}>{edu.school}</Text>
+                            <Text style={styles.educationDegree}>
+                                {edu.degree}
+                                {edu.field ? `, ${edu.field}` : ""}
+                            </Text>
+                            {edu.gpa && (
+                                <Text style={styles.educationGpa}>GPA: {edu.gpa}</Text>
+                            )}
+                        </View>
+                        <View style={{ alignItems: "flex-end" }}>
+                            <Text style={styles.entryDate}>
+                                {
+                                    edu.startDate ? `${edu.startDate}-` : ""
+                                }
+                                {edu.endDate}
+                            </Text>
+                            {edu.location && (
+                                <Text style={styles.entryLocation}>{edu.location}</Text>
+                            )}
+                        </View>
+                    </View>
+                ))}
+            </View>
+        )
+    }
+    return null
+}
+
+interface CertificationSectionProps {
+    visibility: ResumeVisibility
+    enabledCertifications: Resume["certifications"]
+}
+
+const CertificationSection = ({ visibility: vis, enabledCertifications }: CertificationSectionProps) => {
+    if (vis.certifications && enabledCertifications.length > 0) {
+        return (
+            <View style={styles.section}>
+                <SectionHeader title="Certifications" />
+                {enabledCertifications.map((cert) => (
+                    <View key={cert.id} style={styles.certificationRow}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.certificationName}>{cert.name}</Text>
+                            <Text style={styles.certificationOrg}>{cert.organization}</Text>
+                        </View>
+                        {cert.date && (
+                            <Text style={styles.entryDate}>{cert.date}</Text>
+                        )}
+                    </View>
+                ))}
+            </View>
+        )
+    }
+    return null
+}
+
+interface SkillsSectionProps {
+    visibility: ResumeVisibility
+    enabledSkills: Resume["skills"]
+}
+
+const SkillsSection = ({ visibility: vis, enabledSkills }: SkillsSectionProps) => {
+    if (vis.skills && enabledSkills.length > 0) {
+        return (
+            <View style={styles.section}>
+                <SectionHeader title="Skills" />
+                {enabledSkills.map((skill) => (
+                    <View key={skill.id} style={styles.skillRow}>
+                        <Text style={styles.skillCategory}>{skill.category}:</Text>
+                        <Text style={styles.skillItems}>
+                            {skill.items.join(", ")}
+                        </Text>
+                    </View>
+                ))}
+            </View>
+        )
+    }
+    return null
+}
+
 // ─── Main Document ────────────────────────────────────────────────────────────
 
+type SectionPropsByKey = {
+    experience: ExperienceSectionProps;
+    projects: ProjectsSectionProps;
+    education: EducationSectionProps;
+    certifications: CertificationSectionProps;
+    skills: SkillsSectionProps;
+};
+  
 interface ResumeDocumentProps {
     resume: Resume;
     visibility: ResumeVisibility;
+    order: Array<OrderableSection>
 }
 
 export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
     resume,
     visibility,
+    order,
 }) => {
     const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;
 
     const contactItems: { value?: string; isLink?: boolean }[] = [
         vis.header.phone ? { value: header.phone } : null,
-        vis.header.location ? { value: header.location } : null,
         { value: header.email, isLink: false },
+        vis.header.location ? { value: header.location } : null,
         ...(vis.header.urls ? header.urls.map((url) => {
             return {
                 value: url, isLink: true
@@ -272,6 +464,14 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
     const enabledSkills = skills.filter((s) => s.enabled);
     const enabledProjects = projects?.filter((p) => p.enabled) ?? [];
 
+    const sectionProps: SectionPropsByKey = {
+        experience: {visibility: vis, enabledExperience},
+        projects: {visibility: vis, enabledProjects},
+        education: {visibility: vis, enabledEducation},
+        certifications: {visibility: vis, enabledCertifications},
+        skills: {visibility: vis, enabledSkills},
+    }
+
     return (
         <Document>
             <Page size="LETTER" style={styles.page}>
@@ -280,7 +480,7 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
                 <View style={styles.header}>
                     <Text style={styles.name}>{header.name || "Your Name"}</Text>
                     <View style={styles.contactRow}>
-                        {contactItems.map((item, i) => (
+                        {contactItems.filter((item) => item.value !== "").map((item, i) => (
                             <ContactItem
                                 key={i}
                                 value={item.value}
@@ -299,141 +499,20 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
                     </View>
                 )}
 
-                {/* ── Experience ── */}
-                {vis.experience && enabledExperience.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader title="Professional Experience" />
-                        {enabledExperience.map((exp) => (
-                            <View key={exp.id} style={{ marginBottom: 6 }}>
-                                <View style={styles.entryRow}>
-                                    <View style={{ flex: 1 }}>
-                                        <Text style={styles.entryTitle}>{exp.title}</Text>
-                                        <Text style={styles.entryCompany}>{exp.company}</Text>
-                                    </View>
-                                    <View style={{ alignItems: "flex-end" }}>
-                                        <Text style={styles.entryDate}>
-                                            {exp.startDate} – {exp.endDate}
-                                        </Text>
-                                        {exp.location && (
-                                            <Text style={styles.entryLocation}>{exp.location}</Text>
-                                        )}
-                                    </View>
-                                </View>
-                                <View style={styles.bulletList}>
-                                    {exp.bullets
-                                        .filter((b) => b.enabled && b.text)
-                                        .map((bullet) => (
-                                            <View key={bullet.id} style={styles.bulletRow}>
-                                                <Text style={styles.bulletDot}>•</Text>
-                                                <Text style={styles.bulletText}>{bullet.text}</Text>
-                                            </View>
-                                        ))}
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* ── Projects ── */}
-                {vis.projects && enabledProjects.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader title="Projects" />
-                        {enabledProjects.map((proj) => (
-                            <View key={proj.id} style={{ marginBottom: 6 }}>
-                                <View style={styles.entryRow}>
-                                    <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
-                                        <Text style={styles.entryTitle}>{proj.name}</Text>
-                                        {proj.url && (
-                                            <Link style={styles.contactLink} src={proj.url}>
-                                                ↗
-                                            </Link>
-                                        )}
-                                    </View>
-                                    {proj.technologies && proj.technologies.length > 0 && (
-                                        <Text style={styles.entryDate}>
-                                            {proj.technologies.join(", ")}
-                                        </Text>
-                                    )}
-                                </View>
-                                <View style={styles.bulletList}>
-                                    {proj.bullets
-                                        .filter((b) => b.enabled && b.text)
-                                        .map((bullet) => (
-                                            <View key={bullet.id} style={styles.bulletRow}>
-                                                <Text style={styles.bulletDot}>•</Text>
-                                                <Text style={styles.bulletText}>{bullet.text}</Text>
-                                            </View>
-                                        ))}
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* ── Education ── */}
-                {vis.education && enabledEducation.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader title="Education" />
-                        {enabledEducation.map((edu) => (
-                            <View key={edu.id} style={styles.educationRow}>
-                                <View style={styles.educationLeft}>
-                                    <Text style={styles.educationSchool}>{edu.school}</Text>
-                                    <Text style={styles.educationDegree}>
-                                        {edu.degree}
-                                        {edu.field ? `, ${edu.field}` : ""}
-                                    </Text>
-                                    {edu.gpa && (
-                                        <Text style={styles.educationGpa}>GPA: {edu.gpa}</Text>
-                                    )}
-                                </View>
-                                <View style={{ alignItems: "flex-end" }}>
-                                    <Text style={styles.entryDate}>
-                                        {
-                                            edu.startDate ? `${edu.startDate}-` : ""
-                                        }
-                                        {edu.endDate}
-                                    </Text>
-                                    {edu.location && (
-                                        <Text style={styles.entryLocation}>{edu.location}</Text>
-                                    )}
-                                </View>
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* ── Certifications ── */}
-                {vis.certifications && enabledCertifications.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader title="Certifications" />
-                        {enabledCertifications.map((cert) => (
-                            <View key={cert.id} style={styles.certificationRow}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.certificationName}>{cert.name}</Text>
-                                    <Text style={styles.certificationOrg}>{cert.organization}</Text>
-                                </View>
-                                {cert.date && (
-                                    <Text style={styles.entryDate}>{cert.date}</Text>
-                                )}
-                            </View>
-                        ))}
-                    </View>
-                )}
-
-                {/* ── Skills ── */}
-                {vis.skills && enabledSkills.length > 0 && (
-                    <View style={styles.section}>
-                        <SectionHeader title="Skills" />
-                        {enabledSkills.map((skill) => (
-                            <View key={skill.id} style={styles.skillRow}>
-                                <Text style={styles.skillCategory}>{skill.category}:</Text>
-                                <Text style={styles.skillItems}>
-                                    {skill.items.join(", ")}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
-                )}
+                {order.map((section) => {
+                switch (section) {
+                    case "experience":
+                        return <ExperienceSection key={"resume-experience"} {...sectionProps.experience} />
+                    case "projects":
+                        return <ProjectsSection key={"resume-projects"} {...sectionProps.projects} />
+                    case "education":
+                        return <EducationSection key={"resume-education"} {...sectionProps.education} />
+                    case "certifications":
+                        return <CertificationSection key={"resume-certifications"} {...sectionProps.certifications} />
+                    case "skills":
+                        return <SkillsSection key={"resume-skills"} {...sectionProps.skills} />
+                }
+                })}
 
             </Page>
         </Document>

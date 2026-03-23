@@ -18,9 +18,17 @@ import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import type { ExperienceEntry } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
-import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview"
+import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 
-export const ExperienceSection: React.FC = () => {
+// ─── Section ──────────────────────────────────────────────────────────────────
+
+interface ExperienceSectionProps {
+    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
+    // Spread onto the drag handle <button> inside SectionWrapper's header.
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
+}
+
+export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandleProps }) => {
     const dispatch = useAppDispatch();
     const experience = useAppSelector(selectResume).experience;
     const visible = useAppSelector(selectVisibility).experience;
@@ -30,6 +38,7 @@ export const ExperienceSection: React.FC = () => {
             title="Professional Experience"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("experience"))}
+            dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Experience" onClick={() => dispatch(addExperience())} />
             }
@@ -40,16 +49,16 @@ export const ExperienceSection: React.FC = () => {
                 </p>
             )}
 
-            {/* 
+            {/*
                 closestCenter means that when the user drags an item over a list of
                 droppable targets, dnd will determine the dropping target based on the distance
                 from the center point of the dragged item to the center of every droppable target,
-                and picks the target with the closest distance. 
+                and picks the target with the closest distance.
             */}
             <DndSortableWrapper<ExperienceEntry>
                 elements={experience}
                 dragEndAction={(fromIndex: number, toIndex: number) => {
-                    dispatch(reorderExperience({fromIndex, toIndex}))
+                    dispatch(reorderExperience({ fromIndex, toIndex }));
                 }}
             >
                 {experience.map((exp) => {
@@ -65,19 +74,19 @@ export const ExperienceSection: React.FC = () => {
                             childProps={{
                                 entry: exp,
                                 onUpdate: (patch) => {
-                                    dispatch(updateExperience({ id: exp.id, patch }))
+                                    dispatch(updateExperience({ id: exp.id, patch }));
                                 },
                                 onRemove: () => dispatch(removeExperience(exp.id)),
                                 onToggle: () => dispatch(toggleExperience(exp.id)),
                                 onAddBullet: () => dispatch(addBullet(payload)),
                                 onUpdateBullet: (bulletId, text) => {
-                                    dispatch(updateBullet({ ...payload, bulletId, text }))
+                                    dispatch(updateBullet({ ...payload, bulletId, text }));
                                 },
                                 onRemoveBullet: (bulletId) => {
-                                    dispatch(removeBullet({ ...payload, bulletId }))
+                                    dispatch(removeBullet({ ...payload, bulletId }));
                                 },
                                 onToggleBullet: (bulletId) => {
-                                    dispatch(toggleBullet({ ...payload, bulletId }))
+                                    dispatch(toggleBullet({ ...payload, bulletId }));
                                 },
                             } as ExperienceEntryProps}
                         />
@@ -87,6 +96,8 @@ export const ExperienceSection: React.FC = () => {
         </SectionWrapper>
     );
 };
+
+// ─── Entry card ───────────────────────────────────────────────────────────────
 
 interface ExperienceEntryProps {
     entry: ExperienceEntry;
@@ -99,7 +110,7 @@ interface ExperienceEntryProps {
     onToggleBullet: (bulletId: string) => void;
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
- 
+
 const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     entry,
     onUpdate,
@@ -112,7 +123,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     dragHandleProps,
 }) => {
     const [expanded, setExpanded] = useState(true);
- 
+
     return (
         <div
             className={`rounded-xl border transition-colors duration-150 ${
@@ -144,7 +155,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                         />
                     </svg>
                 </button>
- 
+
                 {/* Enable toggle */}
                 <button
                     onClick={onToggle}
@@ -170,7 +181,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                         </svg>
                     )}
                 </button>
- 
+
                 {/* Title / company summary */}
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-800 truncate">
@@ -184,7 +195,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                         <p className="text-xs text-slate-500 truncate">{entry.company}</p>
                     )}
                 </div>
- 
+
                 {/* Actions */}
                 <div className="flex items-center gap-1 flex-shrink-0">
                     <button
@@ -228,7 +239,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                     </button>
                 </div>
             </div>
- 
+
             {/* Expanded fields */}
             {expanded && (
                 <div className="px-3 pb-3 border-t border-slate-100">
@@ -266,7 +277,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                             />
                         </div>
                     </div>
- 
+
                     {/* Bullets */}
                     <div className="mt-3">
                         <label className="text-xs font-medium text-slate-500 mb-2 block">

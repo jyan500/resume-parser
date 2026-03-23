@@ -1,20 +1,19 @@
 // ─── Primitives ───────────────────────────────────────────────────────────────
-
 export interface ResumeHeader {
     name: string;
     email: string;
     phone: string;
     location: string;
-    urls: Array<string>
-  }
-  
-  export interface Bullet {
+    urls: Array<string>;
+}
+
+export interface Bullet {
     id: string;
     text: string;
     enabled: boolean;
-  }
-  
-  export interface ExperienceEntry {
+}
+
+export interface ExperienceEntry {
     id: string;
     company: string;
     title: string;
@@ -23,9 +22,9 @@ export interface ResumeHeader {
     endDate: string; // "Present" or date string
     bullets: Bullet[];
     enabled: boolean;
-  }
-  
-  export interface EducationEntry {
+}
+
+export interface EducationEntry {
     id: string;
     school: string;
     degree: string;
@@ -35,16 +34,16 @@ export interface ResumeHeader {
     endDate: string;
     gpa?: string;
     enabled: boolean;
-  }
-  
-  export interface SkillCategory {
+}
+
+export interface SkillCategory {
     id: string;
     category: string;
     items: string[];
     enabled: boolean;
-  }
-  
-  export interface ProjectEntry {
+}
+
+export interface ProjectEntry {
     id: string;
     name: string;
     description: string;
@@ -52,19 +51,18 @@ export interface ResumeHeader {
     technologies?: string[];
     bullets: Bullet[];
     enabled: boolean;
-  }
-  
-  export interface CertificationEntry {
+}
+
+export interface CertificationEntry {
     id: string;
     name: string;
     organization: string;
     date: string;
     enabled: boolean;
-  }
-  
-  // ─── Root Resume ──────────────────────────────────────────────────────────────
-  
-  export interface Resume {
+}
+
+// ─── Root Resume ──────────────────────────────────────────────────────────────
+export interface Resume {
     header: ResumeHeader;
     summary?: string;
     experience: ExperienceEntry[];
@@ -74,11 +72,10 @@ export interface ResumeHeader {
     projects?: ProjectEntry[];
     languages: string[];
     interests: string[];
-  }
-  
-  // ─── Visibility Toggles ───────────────────────────────────────────────────────
-  
-  export interface ResumeVisibility {
+}
+
+// ─── Visibility Toggles ───────────────────────────────────────────────────────
+export interface ResumeVisibility {
     summary: boolean;
     experience: boolean;
     education: boolean;
@@ -86,15 +83,14 @@ export interface ResumeHeader {
     certifications: boolean;
     projects: boolean;
     header: {
-      phone: boolean;
-      location: boolean;
-      urls: boolean;
+        phone: boolean;
+        location: boolean;
+        urls: boolean;
     };
-  }
-  
-  // ─── UI / Editor State ────────────────────────────────────────────────────────
-  
-  export type ActiveSection =
+}
+
+// ─── UI / Editor State ────────────────────────────────────────────────────────
+export type ActiveSection =
     | "header"
     | "summary"
     | "experience"
@@ -102,5 +98,5 @@ export interface ResumeHeader {
     | "skills"
     | "projects"
     | null;
-  
-  export type ParseStatus = "idle" | "parsing" | "success" | "error";
+
+export type ParseStatus = "idle" | "parsing" | "success" | "error";

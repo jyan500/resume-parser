@@ -13,7 +13,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
 import { ResumeDocument } from "./ResumeDocument";
-import { useAppSelector, selectResume, selectVisibility } from "../../store";
+import { useAppSelector, selectResume, selectVisibility, selectOrder } from "../../store";
 import { useAsync } from "react-use"
 
 /* 
@@ -28,12 +28,13 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export const PreviewPanel: React.FC = () => {
     const resume = useAppSelector(selectResume);
     const visibility = useAppSelector(selectVisibility);
+    const order = useAppSelector(selectOrder)
 
-    const document = <ResumeDocument resume={resume} visibility={visibility} />;
+    const resumePdfDocument = <ResumeDocument order={order} resume={resume} visibility={visibility} />;
     const render = useAsync(async () => {
-        const blob = await pdf(document).toBlob();
+        const blob = await pdf(resumePdfDocument).toBlob();
         return URL.createObjectURL(blob);
-    }, [resume, visibility]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [resume, visibility, order]); 
  
     // Revoke old blob URLs to prevent memory leaks.
     const previousBlobRef = useRef<string | null>(null);
@@ -174,7 +175,7 @@ export const PreviewPanel: React.FC = () => {
                                             // Only the last page firing promotes the URL,
                                             // so multi-page resumes don't swap mid-render.
                                             i + 1 === numPages
-                                                ? () => setPreviousRenderUrl(render.value)
+                                                ? () => setPreviousRenderUrl(render.value ?? null)
                                                 : undefined
                                         }
                                     />
