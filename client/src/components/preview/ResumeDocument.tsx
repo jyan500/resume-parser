@@ -472,8 +472,6 @@ export const ResumeDocument: React.FC<ResumeDocumentProps> = ({
         skills: {visibility: vis, enabledSkills},
     }
 
-    console.log("order: ", order)
-
     return (
         <Document>
             <Page size="LETTER" style={styles.page}>
