@@ -17,6 +17,7 @@ import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDisp
 import { useAsync } from "react-use"
 import { ORDERS, setTemplate } from "../../slices/resumeSlice"
 import type { ResumeTemplate } from "../../types/resume";
+import { Checkbox } from "../page-elements/Checkbox";
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -101,7 +102,7 @@ export const PreviewPanel: React.FC = () => {
                         <div className="flex flex-row gap-x-2 items-center">
                             <span className="text-sm text-slate-600">Switch Templates:</span>
                             <select 
-                                className="select select-sm focus:border-blue-500 focus:outline-none w-32" 
+                                className="select select-sm w-32" 
                                 value={form.template} 
                                 onChange={(e) => {
                                     e.preventDefault()
@@ -127,20 +128,17 @@ export const PreviewPanel: React.FC = () => {
                         </div>
                         <div className="flex flex-row gap-x-2 items-center">
                             <span className="text-sm text-slate-600">Reset Order</span>
-                            <input 
-                                type="checkbox" 
-                                className="checkbox checkbox-sm" 
-                                checked={form.resetOrder}
-                                onChange={(e) => {
+                            <Checkbox 
+                                enabled={form.resetOrder}
+                                onToggle={(e) => {
                                     e.preventDefault()
-                                    console.log(e.target.checked)
                                     setForm({
                                         ...form,
-                                        resetOrder: !e.target.checked
+                                        resetOrder: !form.resetOrder
                                     })
                                     dispatch(setTemplate({
                                         template: form.template,
-                                        resetOrder: !e.target.checked
+                                        resetOrder: !form.resetOrder
                                     }))
                                 }}
                             />

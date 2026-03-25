@@ -19,6 +19,7 @@ import { AddButton } from "../page-elements/AddButton";
 import type { ExperienceEntry } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
+import { Checkbox } from "../page-elements/Checkbox";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -157,7 +158,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                 </button>
 
                 {/* Enable toggle */}
-                <button
+                {/* <button
                     onClick={onToggle}
                     className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
                         entry.enabled
@@ -180,7 +181,8 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                             />
                         </svg>
                     )}
-                </button>
+                </button> */}
+                <Checkbox onToggle={onToggle} enabled={entry.enabled}/>
 
                 {/* Title / company summary */}
                 <div className="flex-1 min-w-0">
