@@ -100,8 +100,9 @@ export const PreviewPanel: React.FC = () => {
                 <div className = "flex flex-row gap-x-4 items-center">
                     <form className="flex flex-row gap-x-4 items-center">
                         <div className="flex flex-row gap-x-2 items-center">
-                            <span className="text-sm text-slate-600">Switch Templates:</span>
+                            <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
                             <select 
+                                name={"template-select"}
                                 className="select select-sm w-32" 
                                 value={form.template} 
                                 onChange={(e) => {
@@ -127,8 +128,9 @@ export const PreviewPanel: React.FC = () => {
                             </select>
                         </div>
                         <div className="flex flex-row gap-x-2 items-center">
-                            <span className="text-sm text-slate-600">Reset Order</span>
+                            <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>
                             <Checkbox 
+                                name={"template-order"}
                                 enabled={form.resetOrder}
                                 onToggle={(e) => {
                                     e.preventDefault()

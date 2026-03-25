@@ -59,7 +59,7 @@ const COLORS = {
 
 const SIZE = {
     name: 14,     // Header name — 14pt bold
-    contact: 12,  // Phone / email / location row — 12pt, no bold
+    contact: 11,  // Phone / email / location row — 12pt, no bold
     body: 10.5,   // Everything below the contact row
 };
 
@@ -368,7 +368,7 @@ const EducationSection = ({ visibility: vis, enabledEducation }: EducationSectio
                     .filter(Boolean)
                     .join(" ");
 
-                const statusOrDate = edu.endDate ? `Status – ${edu.endDate}` : "";
+                const statusOrDate = edu.endDate ? `${edu.endDate}` : "";
 
                 return (
                     <View key={edu.id} style={styles.eduCertBulletRow}>
@@ -408,10 +408,10 @@ const CertificationSection = ({ visibility: vis, enabledCertifications }: Certif
                 return (
                     <View key={cert.id} style={styles.eduCertBulletRow}>
                         <Text style={styles.eduCertBulletDot}>•</Text>
-                        <Text style={styles.eduCertText}>
-                            {label}
-                            {cert.date ? `  ${cert.date}` : ""}
-                        </Text>
+                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                            <Text style={styles.eduCertText}>{label}</Text>
+                            <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
+                        </View>
                     </View>
                 );
             })}

@@ -1,13 +1,14 @@
 import React from "react"
 
-interface Props {
+interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     onToggle: (e: React.MouseEvent) => void
     enabled: boolean
 }
 
-export const Checkbox = ({onToggle, enabled}: Props) => {
+export const Checkbox = React.forwardRef<HTMLButtonElement, Props>(({onToggle, enabled, className, ...props}, ref) => {
     return (
         <button
+            {...props}
             onClick={onToggle}
             className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
                 enabled
@@ -32,4 +33,4 @@ export const Checkbox = ({onToggle, enabled}: Props) => {
             )}
         </button>
         )
-}
+})
