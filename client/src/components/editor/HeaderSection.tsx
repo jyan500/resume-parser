@@ -3,6 +3,7 @@ import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "
 import { updateHeader, toggleHeaderField } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field"
+import { DebouncedInput } from "./DebouncedInput";
 
  
 export const HeaderSection: React.FC = () => {
@@ -126,7 +127,7 @@ export const HeaderSection: React.FC = () => {
                     </label>
                     {(header.urls ?? []).map((url, i) => (
                         <div key={i} className="flex items-center gap-2 mb-2">
-                            <input
+                            {/* <input
                                 type="url"
                                 value={url}
                                 onChange={(e) => {
@@ -136,6 +137,16 @@ export const HeaderSection: React.FC = () => {
                                 }}
                                 placeholder="https://linkedin.com/in/you"
                                 className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors"
+                            /> */}
+                            <DebouncedInput
+                                type="url"
+                                value={url}
+                                onChange={(v) => {
+                                    const updated = [...(header.urls ?? [])]
+                                    updated[i] = v
+                                    patch({urls: updated})
+                                }}
+                                placeholder="https://linkedin.com/in/my-profile"
                             />
                             <button
                                 onClick={() => {
