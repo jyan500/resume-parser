@@ -11,6 +11,7 @@ interface FieldProps {
     onChange: (v: string) => void;
     placeholder?: string;
     type?: string;
+    inlineItem?: React.ReactNode,
 }
  
 export const Field: React.FC<FieldProps> = ({
@@ -18,13 +19,23 @@ export const Field: React.FC<FieldProps> = ({
     value,
     onChange,
     placeholder,
+    inlineItem,
     type = "text",
 }) => {
     const { local, handleChange, flush } = useCommit(value, onChange);
  
     return (
         <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-slate-500">{label}</label>
+            {
+                inlineItem ? (
+                    <div className="flex items-center justify-between mb-1">
+                        <label className="text-xs font-medium text-slate-500">{label}</label>
+                        {inlineItem}
+                    </div>
+                ) : (
+                    <label className="text-xs font-medium text-slate-500">{label}</label>
+                )
+            }
             <input
                 type={type}
                 value={local}

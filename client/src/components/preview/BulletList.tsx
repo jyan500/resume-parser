@@ -25,7 +25,8 @@ export const BulletList: React.FC<BulletListProps> = ({
         {bullets
             .filter((b) => b.enabled && b.text)
             .map((bullet) => (
-                <View key={bullet.id} style={styles.bulletRow}>
+                /* wrap=false prevents the bullet point and text from being separated on a page break */
+                <View key={bullet.id} style={styles.bulletRow} wrap={false}>
                     <Text style={styles.bulletDot}>{bulletChar}</Text>
                     <Text style={styles.bulletText}>{bullet.text}</Text>
                 </View>
