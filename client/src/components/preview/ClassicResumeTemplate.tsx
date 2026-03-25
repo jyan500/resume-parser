@@ -223,7 +223,6 @@ const styles = StyleSheet.create({
     },
     skillCategory: {
         fontFamily: "Arial",
-        fontWeight: "bold",
         fontStyle: "normal",
         fontSize: SIZE.body,
         width: 100,
