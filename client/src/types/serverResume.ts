@@ -1,5 +1,6 @@
 import type { Resume, ExperienceEntry, EducationEntry, SkillCategory, ProjectEntry, Bullet, CertificationEntry } from "./resume";
 import { v4 as uuid } from "uuid";
+import { normalizeText } from "../helpers/functions";
 
 // ─── Server-side Schema Mirrors (from server/utils/schema.py) ───────────────────
 
@@ -62,7 +63,7 @@ export interface ServerResumeSchema {
 function mapBulletsToClientBullets(bullets: string[]): Bullet[] {
     return bullets.map((text) => ({
         id: uuid(),
-        text,
+        text: normalizeText(text),
         enabled: true,
     }));
 }
@@ -141,7 +142,7 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
             location: server.header.location ?? "",
             urls: server.header.urls ?? [],
         },
-        summary: server.summary ?? "",
+        summary: normalizeText(server.summary) ?? "",
         experience,
         education,
         certifications,

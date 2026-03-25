@@ -89,6 +89,8 @@ export interface ResumeVisibility {
     };
 }
 
+export type ResumeTemplate = "modern" | "classic"
+
 // ─── UI / Editor State ────────────────────────────────────────────────────────
 export type ActiveSection =
     | "header"
