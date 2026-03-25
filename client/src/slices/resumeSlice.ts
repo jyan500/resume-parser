@@ -12,12 +12,17 @@ import type {
     SkillCategory,
     ProjectEntry,
     Bullet,
+    ResumeTemplate,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
 
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
+export const ORDERS = {
+    "modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
+    "classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
+}
 
 const DEFAULT_RESUME: Resume = {
     header: {
@@ -56,6 +61,7 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
 export interface ResumeState {
     resume: Resume;
     visibility: ResumeVisibility;
+    template: ResumeTemplate;
     order: Array<OrderableSection>;
     activeSection: ActiveSection;
     parseStatus: ParseStatus;
@@ -66,7 +72,8 @@ export interface ResumeState {
 const initialState: ResumeState = {
     resume: DEFAULT_RESUME,
     visibility: DEFAULT_VISIBILITY,
-    order: ["experience", "projects", "education", "certifications", "skills"],
+    template: "classic",
+    order: ORDERS["classic"],
     activeSection: null,
     parseStatus: "idle",
     parseError: null,
@@ -91,6 +98,14 @@ export const resumeSlice = createSlice({
             state.isDirty = false;
             state.parseStatus = "idle";
             state.parseError = null;
+        },
+
+        setTemplate(state, action: PayloadAction<{template: ResumeTemplate, resetOrder: boolean}>){
+            const {template, resetOrder} = action.payload
+            state.template = template
+            if (resetOrder){
+                state.order = ORDERS[template as ResumeTemplate]
+            }
         },
 
         /*
@@ -499,6 +514,7 @@ export const {
     resetResume,
     updateHeader,
     updateOrder,
+    setTemplate,
     setSummary,
     addExperience,
     updateExperience,

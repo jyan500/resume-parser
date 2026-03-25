@@ -13,8 +13,11 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
 import { ResumeDocument } from "./ResumeDocument";
-import { useAppSelector, selectResume, selectVisibility, selectOrder } from "../../store";
+import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
+import { ORDERS, setTemplate } from "../../slices/resumeSlice"
+import type { ResumeTemplate } from "../../types/resume";
+import { Checkbox } from "../page-elements/Checkbox";
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -26,15 +29,18 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 export const PreviewPanel: React.FC = () => {
-    const resume = useAppSelector(selectResume);
-    const visibility = useAppSelector(selectVisibility);
-    const order = useAppSelector(selectOrder)
+    const dispatch = useAppDispatch()
+    const {resume, visibility, order, template} = useAppSelector((state) => state.resume)
+    const [ form, setForm ] = useState({
+        template: template,
+        resetOrder: false,
+    })
 
-    const resumePdfDocument = <ResumeDocument order={order} resume={resume} visibility={visibility} />;
+    const resumePdfDocument = <ResumeDocument template={template} order={order} resume={resume} visibility={visibility} />;
     const render = useAsync(async () => {
         const blob = await pdf(resumePdfDocument).toBlob();
         return URL.createObjectURL(blob);
-    }, [resume, visibility, order]); 
+    }, [resume, visibility, order, template]); 
  
     // Revoke old blob URLs to prevent memory leaks.
     const previousBlobRef = useRef<string | null>(null);
@@ -90,7 +96,57 @@ export const PreviewPanel: React.FC = () => {
         <div className="flex flex-col h-full">
 
             {/* Toolbar */}
-            <div className="flex-none flex items-center justify-end gap-2 px-4 py-2.5 bg-white border-b border-slate-200">
+            <div className="flex-none flex items-center justify-between gap-2 px-4 py-2.5 bg-white border-b border-slate-200" data-theme="light">
+                <div className = "flex flex-row gap-x-4 items-center">
+                    <form className="flex flex-row gap-x-4 items-center">
+                        <div className="flex flex-row gap-x-2 items-center">
+                            <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
+                            <select 
+                                name={"template-select"}
+                                className="select select-sm w-32" 
+                                value={form.template} 
+                                onChange={(e) => {
+                                    e.preventDefault()
+                                    if (e.target.value !== ""){
+                                        setForm({
+                                            ...form,
+                                            template: e.target.value as ResumeTemplate, 
+                                        })
+                                        dispatch(setTemplate({
+                                            template: e.target.value as ResumeTemplate,
+                                            resetOrder: form.resetOrder,
+                                        }))
+                                    }
+                                }}>
+                                {
+                                    Object.keys(ORDERS).map((key) => {
+                                        return (
+                                            <option value={key}>{key[0].toUpperCase() + key.slice(1,key.length)}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                        </div>
+                        <div className="flex flex-row gap-x-2 items-center">
+                            <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>
+                            <Checkbox 
+                                name={"template-order"}
+                                enabled={form.resetOrder}
+                                onToggle={(e) => {
+                                    e.preventDefault()
+                                    setForm({
+                                        ...form,
+                                        resetOrder: !form.resetOrder
+                                    })
+                                    dispatch(setTemplate({
+                                        template: form.template,
+                                        resetOrder: !form.resetOrder
+                                    }))
+                                }}
+                            />
+                        </div>
+                    </form>
+                </div>
                 <button
                     onClick={handleDownload}
                     disabled={!render.value}
