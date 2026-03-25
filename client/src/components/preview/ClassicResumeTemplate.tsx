@@ -1,10 +1,8 @@
 /**
  * ClassicResumeTemplate.tsx
- *
- * Styled to match the Headless Headhunters resume template spec:
  *  - Arial font throughout (4 registered variants)
  *  - Name: 14pt bold, centered
- *  - Contact row: 12pt, no bold, centered
+ *  - Contact row: 11pt, no bold, centered
  *  - Everything below: 10.5pt, 1.5 line spacing
  *  - Section headers: bold only
  *  - Entry label (Title at Company, Location): bold + italic
@@ -12,10 +10,6 @@
  *  - Education bullet text: NOT bold
  *  - No gap between entry label and its bullet list
  *  - Single line gap between entries / sections
- *
- * NOTE: You must supply Arial .ttf font files at the paths below
- * (e.g. copy them into /public/fonts/ in your project root).
- * Free source: https://github.com/matomo-org/travis-scripts/tree/master/fonts
  */
 
 import React from "react";
@@ -59,7 +53,7 @@ const COLORS = {
 
 const SIZE = {
     name: 14,     // Header name — 14pt bold
-    contact: 11,  // Phone / email / location row — 12pt, no bold
+    contact: 11,  // Phone / email / location row — 11pt, no bold
     body: 10.5,   // Everything below the contact row
 };
 
