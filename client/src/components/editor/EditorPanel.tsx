@@ -60,8 +60,10 @@ export const EditorPanel: React.FC = () => {
     return (
         <div className="flex flex-col">
             {/* Header and Summary are always fixed at the top — not orderable. */}
-            <HeaderSection />
-            <SummarySection />
+            <div className = "flex flex-col gap-y-3">
+                <HeaderSection />
+                <SummarySection />
+            </div>
 
             {/* The remaining 5 sections are freely reorderable. */}
             <DndSortableWrapper<{ id: string }>

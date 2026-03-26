@@ -1,12 +1,14 @@
+import traceback
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import sys
 import io
+from utils.tailor import TailorResume
 from utils.parser import ResumeParser
 import json
-from utils.routes import ( PARSE_RESUME_URL, ANALYZE_RESUME_URL )
+from utils.routes import ( PARSE_RESUME_URL, TAILOR_RESUME_URL )
 
 load_dotenv()
 
@@ -26,6 +28,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MOCKS_FOLDER'] = 'mocks'
 MOCK_RESUME = os.path.join(app.config["MOCKS_FOLDER"], "sample_resume_germany.json")
 parser = ResumeParser()
+tailor = TailorResume()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -65,22 +68,28 @@ def parse_resume():
     return jsonify(resume_data)
 
 
-@app.route(ANALYZE_RESUME_URL, methods=['POST'])
-def analyze():
+@app.route(TAILOR_RESUME_URL, methods=['POST'])
+def tailor_resume():
     data = request.json
     
-    resume_text = data.get('resume_text')
-    job_description = data.get('job_description')
+    resume = data.get("resume")
+    job_description = data.get("jobDescription")
+    job_title = data.get("jobTitle")
+
+    print("resume: ", resume)
+    print("job_description: ", job_description)
+    print("job_title: ", job_title)
     
-    if not resume_text or not job_description:
-        return jsonify({'error': 'Missing required fields'}), 400
+    if not resume or not job_description or not job_title:
+        return jsonify({'error': 'Missing required fields'}), 422
     
     # TODO: Add keyword extraction and matching logic here
-    suggestions = {
-        'missing_keywords': [],
-        'recommendations': []
-    }
-    
+    try:
+        suggestions = tailor.tailor_resume(json.dumps(resume), job_description, job_title)
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
     return jsonify(suggestions)
 
 if __name__ == '__main__':

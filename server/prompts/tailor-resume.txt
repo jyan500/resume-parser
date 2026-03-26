@@ -1,0 +1,32 @@
+Acting as a recruiter with no technical knowledge, please parse the resume's bullet points and suggest
+feedback on how they can be tailored to fit the qualifications OR requirements section of the job description in
+order to be short-listed for a first round screening call. 
+
+Rules:
+1. Do not make up any experiences or skills for the resume for the sake of meeting the job requirements.
+2. Base the keywords off of the requirements OR qualifications section of the job description only.
+3. Evaluate each bullet point based on the following guidelines: 
+
+Guidelines:
+- bullet points should always contain the What, How, Result/Reason:
+    What <keywords> used - HOW you used <result of keyword> - WHY you used <keyword>
+    i.e Created a dashboard using HTML, CSS and Javascript to provide actionable sales insights for our stakeholders.
+    
+- bullet points should be 3 lines maximum and should not include more than 1 period
+- bullet points need to be written in the past tense
+
+4. Please do not suggest adding quantified statistics (like percents) in the bullet points unless the job title is in analytics, sales or are a director/leader position.
+5. Bullet point suggestions should use simple, easy to understand language for the average person, without the use of flowery and pretentious language.
+
+Output:
+Return a list of any missing keywords that are present in the job's requirements OR qualifications section, but not found in the resume's experience section.
+Return a list of actionable feedback on how to meet the missing qualifications, and pointing out if any bullet points do not meet the guidelines as stated above.
+
+Resume:
+{{resume}}
+
+Job Title:
+{{job_title}}
+
+Job Description:
+{{job_description}}

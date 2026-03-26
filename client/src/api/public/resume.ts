@@ -1,4 +1,4 @@
-import { ANALYZE_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
+import { TAILOR_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
 import type { Resume } from "../../types/resume";
 import type { ServerResumeSchema } from "../../types/serverResume";
 import { mapServerResumeToClient } from "../../types/serverResume";
@@ -14,12 +14,13 @@ export interface ParseResumeResponse {
     resume: Resume;
 }
 
-export interface AnalyzeRequest {
-    resume_text: string;
-    job_description: string;
+export interface TailorRequest {
+    resume: Resume;
+    jobTitle: string;
+    jobDescription: string;
 }
 
-export interface AnalyzeResponse {
+export interface TailorResponse {
     missing_keywords: string[];
     recommendations: string[];
 }
@@ -51,15 +52,12 @@ export const resumeApi = publicApi.injectEndpoints({
             }),
         }),
 
-        // POST /analyze — JSON body with resume_text + job_description
-        analyzeResume: builder.mutation<AnalyzeResponse, AnalyzeRequest>({
+        // POST /tailor — JSON body with resume JSON + job_description
+        tailorResume: builder.mutation<TailorResponse, TailorRequest>({
             query: (body) => ({
-                url: ANALYZE_RESUME_URL,
+                url: TAILOR_RESUME_URL,
                 method: "POST",
-                body,
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                body: body
             }),
         }),
 
@@ -75,6 +73,6 @@ export const resumeApi = publicApi.injectEndpoints({
 
 export const {
     useParseResumeMutation,
-    useAnalyzeResumeMutation,
+    useTailorResumeMutation,
     useHealthCheckQuery,
 } = resumeApi;
