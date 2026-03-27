@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PreviewPanel } from "../components/preview/PreviewPanel";
 import { useAppSelector, selectParseStatus } from "../store";
 import { EditorPanel } from "../components/editor/EditorPanel";
+import { TargetJobPanel } from "../components/target-job/TargetJobPanel";
 
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
@@ -50,17 +51,17 @@ export const EditorPage: React.FC = () => {
                 </div>
 
                 {/* Status pill */}
-                <div className="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1">
+                {/* <div className="flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-full px-3 py-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Resume loaded
-                </div>
+                </div> */}
             </header>
 
             {/* Split-pane body */}
             <main className="flex-1 flex overflow-hidden">
 
                 {/* Left — editor panel */}
-                <div className="w-4/10 flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
+                <div className="w-[33%] flex-none flex flex-col border-r border-slate-200 bg-white overflow-hidden">
                     <div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                             Editor
@@ -88,8 +89,12 @@ export const EditorPage: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Far right — target job panel */}
+                <div className="w-[20%] flex-none flex flex-col border-l border-slate-200 overflow-hidden">
+                    <TargetJobPanel />
+                </div>
+
             </main>
         </div>
     );
 };
-

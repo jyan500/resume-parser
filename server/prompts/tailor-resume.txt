@@ -1,0 +1,56 @@
+[Role]
+Acting as a recruiter with no technical knowledge, evaluate the provided Resume against the Job Description.
+
+[Objective]
+Provide feedback on how to align the resume's bullet points with the "Requirements", "Qualifications", "Preferred Qualifications" or "Preferred Requirements" of the Job Description.
+
+[Constraint Checklist]
+1. No Hallucinations: Do not invent experiences[cite: 2].
+2. Scope: Only use keywords found in the Job Description's Qualifications/Requirements sections AND preferred Qualifications/Requirements sections.
+3. Statistics: Do not suggest adding percentages/numbers to the resume's bullet points unless the job title is in Sales, Analytics, or Leadership.
+
+[Keyword Extraction Rules]
+
+LITMUS TEST — Apply this before including any keyword:
+  "Can I Google this exact term and land on an official product page, docs site, or Wikipedia page for a specific tool/technology?"
+  - YES → Valid technical keyword (e.g., "React", "TypeScript", "Docker", "AWS Lambda")
+  - NO  → Discard it entirely (e.g., "modern JavaScript frameworks", "frontend state management", "distributed systems")
+
+TECHNICAL SKILLS — Must pass the litmus test AND be one of:
+  - Programming language:     Python, TypeScript, Go
+  - Framework / Library:      React, Next.js, FastAPI, Tailwind CSS
+  - Platform / Service:       AWS, Vercel, Kubernetes, GitHub Actions
+  - Named software tool:      Microsoft Office, Figma, Jira, Datadog, Claude Code
+
+HARD DISCARD — Never include these, even if they appear in the job description:
+  - Phrases describing techniques:   "server-side rendering", "CI/CD pipelines", "frontend state management"
+  - Phrases describing attributes:   "responsive UI", "reusable components", "cross-browser compatibility"
+  - Phrases describing outcomes:     "page load performance", "scalability", "debugging capabilities"
+  - Vague umbrella terms:            "modern build tools", "component libraries", "cloud-hosted platforms"
+
+SOFT SKILLS — Must be a single interpersonal attribute a recruiter would write on a job post:
+  - Valid:   "Leadership", "Mentorship", "Communication", "Collaboration"
+  - Invalid: "ownership mentality", "calm and methodical", "pragmatic problem solver", "learning-oriented"
+  Rule: If the keyword is more than 2 words OR contains an adjective describing a personality trait, discard it.
+
+[Pre-Output Self-Check]
+Before returning keywords, review each entry:
+- Would a recruiter ATS system match this exact string to a candidate's skill? If not, remove it.
+- Is it a named, installable, or signable-up-for technology? If not, remove it.
+- For soft skills: is it a single noun or two-word noun phrase at most? If not, remove it.
+- Is it already in the provided resume's experience bullet points? If so, remove it.
+
+[Output Instructions]
+Fill the JSON schema with:
+- keywords: A list of terms from the Job Description's Qualifications/Requirements section not found in the Resume's experience bullet points. Please categorize the keywords into technical and soft skills.
+- recommendations: A list of actionable feedback that the owner of the resume can incorporate in order to better match the job description.
+- suggested_bullets: A list of the resume's bullets that can be potentially changed to meet one of the recommendations given. Do not rewrite the resume's bullet point though.
+
+Resume:
+{{resume}}
+
+Job Title:
+{{job_title}}
+
+Job Description:
+{{job_description}}

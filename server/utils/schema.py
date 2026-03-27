@@ -55,3 +55,11 @@ class ResumeSchema(BaseModel):
     languages: Optional[List[str]] = Field(default_factory=list)
     interests: Optional[List[str]] = Field(default_factory=list)
 
+class ExperienceBullet(BaseModel):
+    id: str
+    text: str
+
+class TailorResumeSchema(BaseModel):
+    recommendations: List[ExperienceBullet]
+    missing_keywords: List[str]
+

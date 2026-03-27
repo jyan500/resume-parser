@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
         color: COLORS.darkGray,
         paddingTop: 40,
         paddingBottom: 48,
-        paddingHorizontal: 52,
-        lineHeight: 1.5,
+        paddingHorizontal: 56,
+        lineHeight: 1.6,
     },
 
     // ── Header ────────────────────────────────────────────────────────────────
@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
         fontWeight: "normal",
         fontStyle: "normal",
         fontSize: SIZE.contact,
-        color: COLORS.midGray,
     },
     contactSeparator: {
         fontFamily: "Arial",
@@ -139,7 +138,7 @@ const styles = StyleSheet.create({
     entryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
-        marginBottom: 0, // "No Space Here" — bullets follow immediately
+        marginBottom: 4, 
     },
     // Entry label: bold + italic ("Bold this and nothing else" + "Italicize")
     entryInlineLabel: {
@@ -189,6 +188,7 @@ const styles = StyleSheet.create({
 
     // ── Education / Certification bullet rows ─────────────────────────────────
     eduCertBulletRow: {
+        marginLeft: 12,
         flexDirection: "row",
         marginBottom: 0,
     },
@@ -459,7 +459,6 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
     const contactItems: { value?: string; isLink?: boolean }[] = [
         vis.header.phone ? { value: header.phone } : null,
         { value: header.email, isLink: false },
-        vis.header.location ? { value: header.location } : null,
         ...(vis.header.urls
             ? header.urls.map((url) => ({ value: url, isLink: true }))
             : []),
@@ -499,6 +498,13 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
                                 />
                             ))}
                     </View>
+                    {
+                        vis.header.location ? 
+                        <View style={styles.contactRow}>
+                            <Text style={styles.contactText}>{header.location}</Text>
+                        </View>
+                        : null
+                    }
                 </View>
 
                 {/* ── Summary ── */}
