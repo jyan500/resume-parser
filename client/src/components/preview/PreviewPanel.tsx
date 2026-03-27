@@ -212,8 +212,7 @@ export const PreviewPanel: React.FC = () => {
                                 loading={null}
                                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                                 className={`flex flex-col items-center gap-4 ${
-                                    // isBusy || shouldShowPreviousDocument
-                                    isBusy
+                                    isBusy || shouldShowPreviousDocument
                                         ? "absolute top-6 opacity-0 pointer-events-none"
                                         : ""
                                 }`}

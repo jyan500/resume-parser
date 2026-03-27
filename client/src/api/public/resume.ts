@@ -57,7 +57,14 @@ export const resumeApi = publicApi.injectEndpoints({
             query: (body) => ({
                 url: TAILOR_RESUME_URL,
                 method: "POST",
-                body: body
+                body: {
+                    jobDescription: body.jobDescription,
+                    jobTitle: body.jobTitle,
+                    resume: {
+                        "projects": body.resume?.projects ?? [],
+                        "experience": body.resume?.experience ?? [],
+                    } 
+                }
             }),
         }),
 

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useTailorResumeMutation } from "../../api/public/resume";
 import type { Resume } from "../../types/resume";
+import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 
 interface TargetJobForm {
     jobTitle: string;
@@ -11,7 +12,7 @@ interface TargetJobForm {
 }
 
 export const TargetJobPanel: React.FC = () => {
-    const [ tailorResume, { data, isLoading, isError }] = useTailorResumeMutation()
+    const [ tailorResume, { data, isLoading, error}] = useTailorResumeMutation()
     const { resume } = useAppSelector(state => state.resume) 
     const {
         register,
@@ -112,6 +113,7 @@ export const TargetJobPanel: React.FC = () => {
                         </>
                     )}
                 </button>
+                <ErrorDisplay error={error}/>
             </form>
         </div>
     );
