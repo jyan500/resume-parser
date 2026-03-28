@@ -18,7 +18,7 @@ class TailorResume:
         try:
             prompt = self.template.render(resume=resume_json_string, job_title=job_title, job_description=job_description)
             response = self.client.models.generate_content(
-                model=GEMINI_FLASH_LITE_MODEL,
+                model=GEMINI_FLASH_MODEL,
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",

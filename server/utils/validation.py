@@ -82,7 +82,7 @@ class TailorRequest(BaseModel):
                         f"An entry in '{section_name}' has too many bullet points."
                     )
                 for bullet in bullets:
-                    word_count = len(bullet.split())
+                    word_count = len(bullet["text"].split())
                     if word_count > 60 or len(bullet) > 400:
                         raise ValueError(
                             f"A bullet point in '{section_name}' is too long. "
@@ -98,9 +98,11 @@ def validate_tailor_request(f):
         data = request.json or {}
         try:
             TailorRequest.model_validate(data)
-        except Exception as e:
+        except ValueError as e:
             # Collect all Pydantic error messages into a single list
             errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
             return jsonify({"errors": errors}), 422
+        except Exception as e:
+            return jsonify({"errors": ["Something went wrong!"]}), 500
         return f(*args, **kwargs)
     return decorated

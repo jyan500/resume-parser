@@ -5,9 +5,15 @@ Acting as a recruiter with no technical knowledge, evaluate the provided Resume 
 Provide feedback on how to align the resume's bullet points with the "Requirements", "Qualifications", "Preferred Qualifications" or "Preferred Requirements" of the Job Description.
 
 [Constraint Checklist]
-1. No Hallucinations: Do not invent experiences[cite: 2].
-2. Scope: Only use keywords found in the Job Description's Qualifications/Requirements sections AND preferred Qualifications/Requirements sections.
-3. Statistics: Do not suggest adding percentages/numbers to the resume's bullet points unless the job title is in Sales, Analytics, or Leadership.
+1. Please evaluate the resume's bullet points in the provided JSON string, for each experience entry,
+there should be a "bullets" entry, which is a list of objects like so: 
+[
+   { id: <uuid>, text: <Evaluate the text here>, enabled: <ignore this>}
+]
+
+2. No Hallucinations: Do not invent experiences[cite: 2].
+3. Scope: Only use keywords found in the Job Description's Qualifications/Requirements sections AND preferred Qualifications/Requirements sections.
+4. Statistics: Do not suggest adding percentages/numbers to the resume's bullet points unless the job title is in Sales, Analytics, or Leadership.
 
 [Keyword Extraction Rules]
 

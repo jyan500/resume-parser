@@ -1,6 +1,6 @@
-import type { Resume, ExperienceEntry, EducationEntry, SkillCategory, ProjectEntry, Bullet, CertificationEntry } from "./resume";
+import type { Resume, ExperienceEntry, EducationEntry, SkillCategory, ProjectEntry, Bullet, CertificationEntry } from "../../types/resume";
 import { v4 as uuid } from "uuid";
-import { normalizeText } from "../helpers/functions";
+import { normalizeText } from "../../helpers/functions";
 
 // ─── Server-side Schema Mirrors (from server/utils/schema.py) ───────────────────
 

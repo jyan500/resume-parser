@@ -1,13 +1,14 @@
 import { TAILOR_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
-import type { Resume } from "../../types/resume";
-import type { ServerResumeSchema } from "../../types/serverResume";
-import { mapServerResumeToClient } from "../../types/serverResume";
+import type { Resume, ResumeSuggestion } from "../../types/resume";
+import { type ServerResumeSchema, mapServerResumeToClient } from "../helpers/serverResume";
+import { type ServerTailorResumeSchema, mapServerTailorResumeToClient } from "../helpers/serverTailorResume";
 import { publicApi } from "../public"
 
 // ─── Request / Response Types ─────────────────────────────────────────────────
 
 // Raw server response matches `ResumeSchema` in `server/utils/schema.py`
 export type ParseResumeServerResponse = ServerResumeSchema;
+export type TailorResumeServerResponse = ServerTailorResumeSchema
 
 // Client-facing response exposed by RTK Query
 export interface ParseResumeResponse {
@@ -18,11 +19,6 @@ export interface TailorRequest {
     resume: Resume;
     jobTitle: string;
     jobDescription: string;
-}
-
-export interface TailorResponse {
-    missing_keywords: string[];
-    recommendations: string[];
 }
 
 export interface HealthResponse {
@@ -53,7 +49,7 @@ export const resumeApi = publicApi.injectEndpoints({
         }),
 
         // POST /tailor — JSON body with resume JSON + job_description
-        tailorResume: builder.mutation<TailorResponse, TailorRequest>({
+        tailorResume: builder.mutation<ResumeSuggestion, TailorRequest>({
             query: (body) => ({
                 url: TAILOR_RESUME_URL,
                 method: "POST",
@@ -66,6 +62,9 @@ export const resumeApi = publicApi.injectEndpoints({
                     } 
                 }
             }),
+            transformResponse: (raw: TailorResumeServerResponse) => ({
+                ...mapServerTailorResumeToClient(raw)
+            })
         }),
 
         // GET /health — useful to ping the backend on mount

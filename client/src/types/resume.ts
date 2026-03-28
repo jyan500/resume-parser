@@ -89,6 +89,24 @@ export interface ResumeVisibility {
     };
 }
 
+export type SuggestedBullet = Bullet & {
+    recommendation: string
+}
+
+export type Skill = "Technical" | "Soft Skill" 
+
+export interface Keyword {
+    id: string
+    type: Skill
+    text: string
+}
+
+export interface ResumeSuggestion {
+    recommendations: Array<string>
+    missingKeywords: Array<Keyword>
+    suggestedBullets: Array<SuggestedBullet>
+}
+
 export type ResumeTemplate = "modern" | "classic"
 
 // ─── UI / Editor State ────────────────────────────────────────────────────────

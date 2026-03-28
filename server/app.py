@@ -80,8 +80,8 @@ def tailor_resume():
 
     # we only include the experience and projects
     # as this is what the LLM will give feedback on
-    experience = data.get("experience")
-    projects = data.get("projects")
+    experience = resume.get("experience", [])
+    projects = resume.get("projects", [])
 
     suggestions = {} 
     try:
