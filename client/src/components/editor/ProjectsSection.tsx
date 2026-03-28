@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useMemo, useState, useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     type ContainsBullets,
@@ -7,7 +7,6 @@ import {
     removeProject,
     toggleProject,
     addBullet,
-    updateBullet,
     removeBullet,
     toggleBullet,
     toggleSectionVisibility,
@@ -16,15 +15,14 @@ import {
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
-import type { ProjectEntry } from "../../types/resume";
+import { Bullet } from "./Bullet";
+import type { ProjectEntry, SuggestedBullet } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
 interface ProjectsSectionProps {
-    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
-    // Spread onto the drag handle <button> inside SectionWrapper's header.
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
@@ -32,6 +30,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
     const dispatch = useAppDispatch();
     const projects = useAppSelector(selectResume).projects ?? [];
     const visible = useAppSelector(selectVisibility).projects;
+
+    const suggestedBullets = useAppSelector((s) => s.resume.suggestions.suggestedBullets);
+    const suggestionsMap = useMemo<Map<string, SuggestedBullet>>(
+        () => new Map(suggestedBullets.map((sb) => [sb.id, sb])),
+        [suggestedBullets],
+    );
 
     return (
         <SectionWrapper
@@ -48,15 +52,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
             )}
             <DndSortableWrapper<ProjectEntry>
                 elements={projects}
-                dragEndAction={(fromIndex: number, toIndex: number) => {
-                    dispatch(reorderProjects({ fromIndex, toIndex }));
-                }}
+                dragEndAction={(fromIndex, toIndex) =>
+                    dispatch(reorderProjects({ fromIndex, toIndex }))
+                }
             >
                 {projects.map((proj) => {
-                    const payload = {
-                        section: "projects" as ContainsBullets,
-                        entryId: proj.id,
-                    };
+                    const payload = { section: "projects" as ContainsBullets, entryId: proj.id };
                     return (
                         <DndSortableWrapperPreview
                             key={proj.id}
@@ -64,19 +65,16 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
                             childComponent={ProjectRow}
                             childProps={{
                                 project: proj,
-                                onUpdate: (patch) => dispatch(updateProject({ id: proj.id, patch })),
+                                suggestionsMap,
+                                onUpdate: (patch) =>
+                                    dispatch(updateProject({ id: proj.id, patch })),
                                 onRemove: () => dispatch(removeProject(proj.id)),
                                 onToggle: () => dispatch(toggleProject(proj.id)),
                                 onAddBullet: () => dispatch(addBullet(payload)),
-                                onUpdateBullet: (bulletId, text) => {
-                                    dispatch(updateBullet({ ...payload, bulletId, text }));
-                                },
-                                onRemoveBullet: (bulletId) => {
-                                    dispatch(removeBullet({ ...payload, bulletId }));
-                                },
-                                onToggleBullet: (bulletId) => {
-                                    dispatch(toggleBullet({ ...payload, bulletId }));
-                                },
+                                onRemoveBullet: (bulletId) =>
+                                    dispatch(removeBullet({ ...payload, bulletId })),
+                                onToggleBullet: (bulletId) =>
+                                    dispatch(toggleBullet({ ...payload, bulletId })),
                             } as ProjectRowProps}
                         />
                     );
@@ -90,29 +88,34 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
 
 interface ProjectRowProps {
     project: ProjectEntry;
+    suggestionsMap: Map<string, SuggestedBullet>;
     onUpdate: (patch: Partial<ProjectEntry>) => void;
     onRemove: () => void;
     onToggle: () => void;
     onAddBullet: () => void;
-    onUpdateBullet: (bulletId: string, text: string) => void;
     onRemoveBullet: (bulletId: string) => void;
     onToggleBullet: (bulletId: string) => void;
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 const ProjectRow: React.FC<ProjectRowProps> = ({
-    project, onUpdate, onRemove, onToggle, onAddBullet, onUpdateBullet, onRemoveBullet, onToggleBullet,
-    dragHandleProps,
+    project, suggestionsMap, onUpdate, onRemove, onToggle, onAddBullet,
+    onRemoveBullet, onToggleBullet, dragHandleProps,
 }) => {
     const [expanded, setExpanded] = useState(true);
     const [techInput, setTechInput] = useState("");
     const techInputRef = useRef<HTMLInputElement>(null);
 
+    const pendingCount = project.bullets.filter((b) => suggestionsMap.has(b.id)).length;
+
     const addTech = (raw: string) => {
         const trimmed = raw.trim();
         if (!trimmed) return;
         const items = trimmed.split(",").map((s) => s.trim()).filter(Boolean);
-        const next = [...(project.technologies ?? []), ...items.filter((s) => !(project.technologies ?? []).includes(s))];
+        const next = [
+            ...(project.technologies ?? []),
+            ...items.filter((s) => !(project.technologies ?? []).includes(s)),
+        ];
         onUpdate({ technologies: next });
         setTechInput("");
     };
@@ -123,27 +126,15 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
 
     return (
         <div className={`rounded-xl border transition-colors duration-150 ${project.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
-            {/* Header */}
+            {/* ── Header ── */}
             <div className="flex items-center gap-2 px-3 py-2.5">
-                {/* Drag handle — listeners scoped here so clicking other
-                    buttons in the card never accidentally starts a drag. */}
                 <button
                     className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
                     aria-label="Drag to reorder"
                     {...dragHandleProps}
                 >
-                    <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3.75 9h16.5m-16.5 6.75h16.5"
-                        />
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
                     </svg>
                 </button>
                 <button
@@ -158,14 +149,28 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         </svg>
                     )}
                 </button>
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">
-                        {project.name || <span className="text-slate-400 font-normal italic">Untitled project</span>}
-                    </p>
-                    {(project.technologies ?? []).length > 0 && (
-                        <p className="text-xs text-slate-500 truncate">{project.technologies!.join(", ")}</p>
+
+                <div className="flex-1 min-w-0 flex items-center gap-2">
+                    <div className="min-w-0">
+                        <p className="text-sm font-medium text-slate-800 truncate">
+                            {project.name || <span className="text-slate-400 font-normal italic">Untitled project</span>}
+                        </p>
+                        {(project.technologies ?? []).length > 0 && (
+                            <p className="text-xs text-slate-500 truncate">{project.technologies!.join(", ")}</p>
+                        )}
+                    </div>
+
+                    {/* Pending suggestions pill — only when collapsed */}
+                    {!expanded && pendingCount > 0 && (
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-600 text-xs font-medium flex-shrink-0">
+                            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                            </svg>
+                            {pendingCount}
+                        </span>
                     )}
                 </div>
+
                 <div className="flex items-center gap-1 flex-shrink-0">
                     <button onClick={onRemove} className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
@@ -183,25 +188,15 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                 </div>
             </div>
 
-            {/* Fields */}
+            {/* ── Fields ── */}
             {expanded && (
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <div className="col-span-2">
-                            <Field
-                                label="Project Name"
-                                value={project.name}
-                                onChange={(v) => onUpdate({ name: v })}
-                                placeholder="My Awesome Project"
-                            />
+                            <Field label="Project Name" value={project.name} onChange={(v) => onUpdate({ name: v })} placeholder="My Awesome Project" />
                         </div>
                         <div className="col-span-2">
-                            <Field
-                                label="URL"
-                                value={project.url ?? ""}
-                                onChange={(v) => onUpdate({ url: v })}
-                                placeholder="https://github.com/you/project"
-                            />
+                            <Field label="URL" value={project.url ?? ""} onChange={(v) => onUpdate({ url: v })} placeholder="https://github.com/you/project" />
                         </div>
                     </div>
 
@@ -243,36 +238,20 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         </div>
                     </div>
 
-                    {/* Bullets */}
+                    {/* ── Bullets ── */}
                     <div className="mt-3">
                         <label className="text-xs font-medium text-slate-500 mb-2 block">Bullet Points</label>
                         <div className="flex flex-col gap-1.5">
                             {project.bullets.map((bullet) => (
-                                <div key={bullet.id} className="flex items-start gap-2">
-                                    <button
-                                        onClick={() => onToggleBullet(bullet.id)}
-                                        className={`mt-2 w-3.5 h-3.5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
-                                            bullet.enabled ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300"
-                                        }`}
-                                    />
-                                    <textarea
-                                        value={bullet.text}
-                                        onChange={(e) => onUpdateBullet(bullet.id, e.target.value)}
-                                        placeholder="Describe what you built or accomplished..."
-                                        rows={2}
-                                        className={`flex-1 rounded-lg border bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors resize-none leading-relaxed ${
-                                            bullet.enabled ? "border-slate-200" : "border-slate-100 opacity-60"
-                                        }`}
-                                    />
-                                    <button
-                                        onClick={() => onRemoveBullet(bullet.id)}
-                                        className="mt-2 p-0.5 text-slate-300 hover:text-red-500 transition-colors flex-shrink-0"
-                                    >
-                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                <Bullet
+                                    key={bullet.id}
+                                    bullet={bullet}
+                                    section="projects"
+                                    entryId={project.id}
+                                    suggestion={suggestionsMap.get(bullet.id)}
+                                    onRemoveBullet={() => onRemoveBullet(bullet.id)}
+                                    onToggleBullet={() => onToggleBullet(bullet.id)}
+                                />
                             ))}
                         </div>
                         <button onClick={onAddBullet} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 mt-2 transition-colors">
