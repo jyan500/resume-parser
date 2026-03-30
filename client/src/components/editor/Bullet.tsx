@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useAppDispatch } from "../../store";
-import { dismissSuggestion, updateBullet } from "../../slices/resumeSlice";
+import React, { useState, useRef, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { dismissSuggestion, updateBullet, setFocusedBulletId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
 import { TextArea } from "./TextArea";
 import type { Bullet as BulletType, SuggestedBullet } from "../../types/resume";
@@ -26,6 +26,17 @@ export const Bullet: React.FC<Bullet> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState(false);
+    const rootRef = useRef<HTMLDivElement>(null);
+
+    // When the Target Job panel signals this bullet should be focused,
+    // scroll it into view and briefly highlight it, then clear the signal.
+    const focusedBulletId = useAppSelector((s) => s.resume.focusedBulletId);
+    useEffect(() => {
+        if (focusedBulletId !== bullet.id) return;
+        rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        setOpen(!!suggestion); // auto-open the suggestion card if one exists
+        dispatch(setFocusedBulletId(null)); // clear so it doesn't retrigger
+    }, [focusedBulletId, bullet.id, suggestion, dispatch]);
 
     const handleTextChange = (text: string) => {
         dispatch(updateBullet({ section, entryId, bulletId: bullet.id, text }));
@@ -45,6 +56,7 @@ export const Bullet: React.FC<Bullet> = ({
 
     return (
         <div
+            ref={rootRef}
             className={`rounded-lg transition-all duration-150 ${
                 open ? "bg-blue-50/50 ring-1 ring-blue-200 p-1.5" : ""
             }`}
@@ -62,15 +74,6 @@ export const Bullet: React.FC<Bullet> = ({
                 />
 
                 {/* Textarea — writes through dispatch so Apply can also write here */}
-                {/* <textarea
-                    value={bullet.text}
-                    onChange={(e) => handleTextChange(e.target.value)}
-                    placeholder="Describe an achievement or responsibility..."
-                    rows={2}
-                    className={`flex-1 rounded-lg border bg-slate-50 px-2.5 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors resize-none leading-relaxed ${
-                        bullet.enabled ? "border-slate-200" : "border-slate-100 opacity-60"
-                    }`}
-                /> */}
                 <TextArea
                     value={bullet.text}
                     onChange={(v) => handleTextChange(v)}

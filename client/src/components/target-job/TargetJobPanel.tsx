@@ -7,6 +7,7 @@ import {
     setSuggestions,
     dismissSuggestion,
     updateBullet,
+    setFocusedBulletId,
     type ContainsBullets,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
@@ -248,6 +249,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         suggestedBullet={sb}
                         onApply={() => handleApply(sb)}
                         onDismiss={() => handleDismiss(sb)}
+                        onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
                     />
                 ))}
 
@@ -293,21 +295,34 @@ interface SuggestionCardProps {
     suggestedBullet: SuggestedBullet;
     onApply: () => void;
     onDismiss: () => void;
+    onScrollTo: () => void;
 }
 
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
-    index, suggestedBullet, onApply, onDismiss,
+    index, suggestedBullet, onApply, onDismiss, onScrollTo,
 }) => (
     <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        {/* Card header */}
-        <div className="flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100">
+        {/* Card header — clicking scrolls the editor to the matching bullet */}
+        <button
+            onClick={onScrollTo}
+            className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 hover:bg-blue-50 hover:border-blue-100 transition-colors text-left group"
+            title="Click to locate bullet in editor"
+        >
             <span className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                 {index}
             </span>
             <p className="text-xs font-medium text-slate-600 truncate flex-1">
                 Bullet suggestion
             </p>
-        </div>
+            {/* Locate icon — appears on hover */}
+            <svg
+                className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500 transition-colors flex-shrink-0"
+                fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+            </svg>
+        </button>
 
         <div className="px-3.5 py-3 flex flex-col gap-3">
             {/* Original */}

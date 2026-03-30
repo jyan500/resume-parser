@@ -75,6 +75,7 @@ export interface ResumeState {
     parseStatus: ParseStatus;
     parseError: string | null;
     isDirty: boolean;
+    focusedBulletId: string | null;
 }
 
 const initialState: ResumeState = {
@@ -87,6 +88,7 @@ const initialState: ResumeState = {
     parseStatus: "idle",
     parseError: null,
     isDirty: false,
+    focusedBulletId: null,
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -494,6 +496,10 @@ export const resumeSlice = createSlice({
             state.parseStatus = action.payload.status;
             state.parseError = action.payload.error ?? null;
         },
+
+        setFocusedBulletId(state, action: PayloadAction<string | null>) {
+            state.focusedBulletId = action.payload;
+        },
     },
 });
 
@@ -539,6 +545,7 @@ export const {
     toggleHeaderField,
     setActiveSection,
     setParseStatus,
+    setFocusedBulletId,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
