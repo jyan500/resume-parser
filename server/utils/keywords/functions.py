@@ -1,0 +1,47 @@
+from db.models import db, JobTitle, Keyword, KeywordType
+import re
+
+def save_keywords(normalized_title: str, keywords: list[dict]):
+    # get or create the job title
+    job_title = JobTitle.query.filter_by(title=normalized_title).first()
+    if not job_title:
+        job_title = JobTitle(title=normalized_title)
+        db.session.add(job_title)
+
+    for kw in keywords:
+        # get or create the keyword type
+        keyword_type = KeywordType.query.filter_by(type=kw["type"]).first()
+        if not keyword_type:
+            keyword_type = KeywordType(type=kw["type"])
+            db.session.add(keyword_type)
+            db.session.flush()  # flush so keyword_type.id is available
+
+        # get or create the keyword itself
+        keyword = Keyword.query.filter_by(name=kw["text"], keyword_type_id=keyword_type.id).first()
+        if not keyword:
+            keyword = Keyword(name=kw["text"], keyword_type=keyword_type)
+            db.session.add(keyword)
+
+        # link to job title via junction table if not already linked
+        if keyword not in job_title.keywords:
+            job_title.keywords.append(keyword)
+
+    db.session.commit()
+
+def normalize_title(job_title: str) -> str:
+    """ convert to lower case, remove any spaces """
+    title = job_title.lower().strip()
+    title = re.sub(r'[^a-z0-9\s]', '', title)
+    return re.sub(r'\s+', ' ', title)
+
+def get_cached_keywords(job_title: str) -> list[dict] | None:
+    normalized = normalize_title(job_title)
+    job_title_row = JobTitle.query.filter_by(title=normalized).first()
+
+    if not job_title_row or not job_title_row.keywords:
+        return None
+
+    return [
+        {"text": kw.name, "type": kw.keyword_type.type}
+        for kw in job_title_row.keywords
+    ]

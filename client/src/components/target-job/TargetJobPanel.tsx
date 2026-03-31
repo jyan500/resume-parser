@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useForm, FormProvider, useFormContext } from "react-hook-form";
+import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useTailorResumeMutation } from "../../api/public/resume";
 import type { Resume, SuggestedBullet } from "../../types/resume";
@@ -11,9 +11,12 @@ import {
     type ContainsBullets,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
+import { AsyncSelect } from "../page-elements/AsyncSelect";
+import type { OptionType } from "../../types/api";
+import { JOB_TITLE_URL } from "../../helpers/urls";
 
 interface TargetJobForm {
-    jobTitle: string;
+    jobTitle: OptionType;
     jobDescription: string;
 }
 
@@ -61,6 +64,9 @@ const FormView: React.FC<FormViewProps> = ({
     const  
     {
         register,
+        control,
+        watch,
+        setValue,
         handleSubmit,
         formState: { errors },
     } = useForm<TargetJobForm>();
@@ -70,7 +76,7 @@ const FormView: React.FC<FormViewProps> = ({
             const result = await tailorResume({
                 resume,
                 jobDescription: data.jobDescription,
-                jobTitle: data.jobTitle,
+                jobTitle: data.jobTitle.value,
             }).unwrap();
             dispatch(setSuggestions(result));
             setView("suggestions");
@@ -86,7 +92,7 @@ const FormView: React.FC<FormViewProps> = ({
             {/* Job Title */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Title</label>
-                <input
+                {/* <input
                     type="text"
                     placeholder="e.g. Senior Software Engineer"
                     {...register("jobTitle", { required: "Job title is required" })}
@@ -95,6 +101,22 @@ const FormView: React.FC<FormViewProps> = ({
                             ? "border-red-400 focus:border-red-400 focus:ring-red-400"
                             : "border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     }`}
+                /> */}
+                <Controller
+                    name={"jobTitle"}
+                    control={control}
+                    render={({ field: { onChange } }) => (
+                        <AsyncSelect 
+                            endpoint={JOB_TITLE_URL} 
+                            clearable={false}
+                            urlParams={{}} 
+                            onSelect={async (selectedOption: OptionType | null) => {
+                                if (selectedOption){
+                                    setValue("jobTitle", selectedOption)
+                                }
+                            }}
+                        />
+                    )}
                 />
                 {errors.jobTitle && (
                     <p className="text-xs text-red-500">{errors.jobTitle.message}</p>

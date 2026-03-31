@@ -6,7 +6,7 @@ import json
 import os
 from jinja2 import Template
 from google import genai
-from utils.schema import ResumeSchema
+from utils.schemas.schema import ResumeSchema
 from utils.functions import load_prompt
 from utils.constants import (
     MAX_PAGES,

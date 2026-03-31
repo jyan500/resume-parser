@@ -76,6 +76,7 @@ export interface ResumeState {
     parseError: string | null;
     isDirty: boolean;
     focusedBulletId: string | null;
+    isDarkMode: boolean
 }
 
 const initialState: ResumeState = {
@@ -89,6 +90,7 @@ const initialState: ResumeState = {
     parseError: null,
     isDirty: false,
     focusedBulletId: null,
+    isDarkMode: false
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
