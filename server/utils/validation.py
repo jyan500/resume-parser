@@ -1,7 +1,9 @@
 from functools import wraps
 from flask import request, jsonify
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
+from utils.keywords.functions import get_cached_keywords
 from typing import Any
+import traceback
 
 JD_ANCHOR_KEYWORDS = [
     "responsibilities", "requirements", "qualifications",
@@ -20,7 +22,7 @@ class TailorRequest(BaseModel):
     @classmethod
     def validate_job_title_id(cls, v: str) -> str:
         v = v.strip()
-        cached = get_cached_keywords(job_title_id)
+        cached = get_cached_keywords(v)
         if not cached:
             raise ValueError("No keywords found!")
         # if not v:
@@ -114,6 +116,7 @@ def validate_tailor_request(f):
             errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
             return jsonify({"errors": errors}), 422
         except Exception as e:
+            traceback.print_exc()
             return jsonify({"errors": ["Something went wrong!"]}), 500
         return f(*args, **kwargs)
     return decorated
