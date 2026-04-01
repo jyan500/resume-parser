@@ -4,6 +4,7 @@ import json
 import os
 from jinja2 import Template
 from google import genai
+from db.models import JobTitle
 from utils.constants import GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL
 from utils.schemas.tailor_resume_schema import TailorJobSchema
 from utils.schemas.keywords_schema import KeywordListSchema
@@ -40,14 +41,13 @@ class TailorResume:
     def tailor_resume_job_title(self, resume_json_string, job_title_id):
         try:
             cached = get_cached_keywords(job_title_id)
-
+            job_title = JobTitle.query.get(job_title_id)
             # if cached is None:
             #     # cache miss — derive from LLM and save
             #     cached = self._derive_and_cache_keywords(job_title)
-            
-            prompt = self.job_title_template.render(resume=resume_json_string, job_title=job_title)
+            prompt = self.job_title_template.render(resume=resume_json_string, job_title=job_title.name)
             response = self.client.models.generate_content(
-                model=GEMINI_FLASH_MODEL,
+                model=GEMINI_FLASH_LITE_MODEL,
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",

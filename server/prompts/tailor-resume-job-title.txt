@@ -42,7 +42,7 @@ Before returning your output, verify:
  
 [Output Instructions]
 Fill the JSON schema with:
-- missing_keywords: Keywords from the provided keywords list that are NOT present in any of the resume's experience bullet points (skills sections do not count).
+- missing_keywords: Keywords from the provided keywords list that are NOT present in any of the resume's experience or project bullet points (skills sections do not count).
 - recommendations: A list of 3 to 6 actionable steps the resume owner can take to better position their resume for "{{job_title}}" roles.
 - suggested_bullets: 
   * Bullets that violate one or more of the five Headless Headhunter rules above. 

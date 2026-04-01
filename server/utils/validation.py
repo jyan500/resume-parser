@@ -4,6 +4,7 @@ from pydantic import BaseModel, ValidationError, field_validator, model_validato
 from utils.keywords.functions import get_cached_keywords
 from typing import Any
 import traceback
+from db.models import JobTitle
 
 JD_ANCHOR_KEYWORDS = [
     "responsibilities", "requirements", "qualifications",
@@ -22,7 +23,13 @@ class TailorRequest(BaseModel):
     @classmethod
     def validate_job_title_id(cls, v: str) -> str:
         v = v.strip()
+        # we allow an empty string, assuming job description is also submitted
+        if (v == ""):
+            return v
         cached = get_cached_keywords(v)
+        job_title = JobTitle.query.get(v)
+        if not job_title:
+            raise ValueError("Job Title not found!")
         if not cached:
             raise ValueError("No keywords found!")
         # if not v:

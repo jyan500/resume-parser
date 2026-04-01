@@ -105,12 +105,13 @@ export const PreviewPanel: React.FC = () => {
                             <Select
                                 id="template-select"
                                 className="w-32 text-xs"
-                                value={{ value: form.template, label: form.template[0].toUpperCase() + form.template.slice(1) }}
+                                defaultValue={{ value: form.template, label: form.template[0].toUpperCase() + form.template.slice(1) }}
                                 options={Object.keys(ORDERS).map((key) => ({
                                     value: key,
                                     label: key[0].toUpperCase() + key.slice(1),
                                 }))}
                                 hideIndicatorSeparator={true}
+                                clearable={false}
                                 onChange={(selected) => {
                                     if (selected) {
                                         setForm({ ...form, template: selected.value as ResumeTemplate })

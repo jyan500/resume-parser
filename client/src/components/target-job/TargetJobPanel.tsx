@@ -60,6 +60,10 @@ const FormView: React.FC<FormViewProps> = ({
     resume
 }) => {
     const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
+    const [preloadedValues, setPreloadedValues] = useState({
+        jobTitleId: {label: "", value: ""},
+        jobDescription: "",
+    })
 
     const dispatch = useAppDispatch();
     const  
@@ -72,7 +76,9 @@ const FormView: React.FC<FormViewProps> = ({
         setValue,
         handleSubmit,
         formState: { errors },
-    } = useForm<TargetJobForm>();
+    } = useForm<TargetJobForm>({
+        defaultValues: preloadedValues
+    });
 
     const registerOptions = {
         jobTitleId: {
