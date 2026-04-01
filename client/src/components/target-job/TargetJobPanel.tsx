@@ -8,6 +8,7 @@ import {
     dismissSuggestion,
     updateBullet,
     setFocusedBulletId,
+    setTargetJobViewMode,
     type ContainsBullets,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
@@ -16,15 +17,15 @@ import type { OptionType } from "../../types/api";
 import { JOB_TITLE_URL } from "../../helpers/urls";
 
 interface TargetJobForm {
-    jobTitle: OptionType;
+    jobTitleId: OptionType;
     jobDescription: string;
 }
 
 // ─── Panel root ───────────────────────────────────────────────────────────────
 
 export const TargetJobPanel: React.FC = () => {
-    const { resume, suggestions } = useAppSelector((s) => s.resume);
-    const [view, setView] = useState<"form" | "suggestions">("form");
+    const { resume, targetJobViewMode: view, suggestions } = useAppSelector((s) => s.resume);
+    const dispatch = useAppDispatch()
 
     return (
         <div className="flex flex-col h-full bg-white overflow-hidden">
@@ -36,13 +37,13 @@ export const TargetJobPanel: React.FC = () => {
             </div>
 
             {view === "form" ? (
-                <FormView resume={resume} setView={setView}/>
+                <FormView resume={resume}/>
             ) : (
                 <SuggestionsView
                     suggestedBullets={suggestions.suggestedBullets}
                     recommendations={suggestions.recommendations}
                     resume={resume}
-                    onRetarget={() => setView("form")}
+                    onRetarget={() => dispatch(setTargetJobViewMode("form"))}
                 />
             )}
         </div>
@@ -53,11 +54,10 @@ export const TargetJobPanel: React.FC = () => {
 
 interface FormViewProps {
     resume: Resume
-    setView: (view: "form" | "suggestions") => void
 }
 
 const FormView: React.FC<FormViewProps> = ({
-    resume, setView
+    resume
 }) => {
     const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
 
@@ -75,7 +75,7 @@ const FormView: React.FC<FormViewProps> = ({
     } = useForm<TargetJobForm>();
 
     const registerOptions = {
-        jobTitle: {
+        jobTitleId: {
             validate: (value) => {
                 const jobDescription = getValues("jobDescription")
                 if (!value && !jobDescription?.trim()) {
@@ -86,14 +86,14 @@ const FormView: React.FC<FormViewProps> = ({
         },
         jobDescription: {
             validate: (value) => {
-                const jobTitle = getValues("jobTitle")
+                const jobTitle = getValues("jobTitleId")
                 if (!value?.trim() && !jobTitle) {
                     return "Please provide at least a job title or job description"
                 }
                 return true
             },
             // filling out job description clears out the job title
-            onChange: () => trigger("jobTitle")
+            onChange: () => trigger("jobTitleId")
         }
     }
 
@@ -102,10 +102,10 @@ const FormView: React.FC<FormViewProps> = ({
             const result = await tailorResume({
                 resume,
                 jobDescription: data.jobDescription,
-                jobTitle: data.jobTitle.label,
+                jobTitleId: data.jobTitleId.value,
             }).unwrap();
             dispatch(setSuggestions(result));
-            setView("suggestions");
+            dispatch(setTargetJobViewMode("suggestions"))
         } catch (_) {
             // Error is surfaced by <ErrorDisplay />
         }
@@ -118,20 +118,21 @@ const FormView: React.FC<FormViewProps> = ({
             {/* Job Title */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Title</label>
-                <p className = "text-xs text-slate-600">Enter only a job title to tailor your resume to a particular job title</p>
+                <p className = "text-xs text-slate-600">Enter a job title to tailor your resume based on keywords that we've determined for the selected job title</p>
                 <Controller
-                    name={"jobTitle"}
+                    name={"jobTitleId"}
                     control={control}
-                    rules={registerOptions.jobTitle}
+                    rules={registerOptions.jobTitleId}
                     render={({ field: { onChange } }) => (
                         <AsyncSelect 
+                            className = "text-xs"
                             endpoint={JOB_TITLE_URL} 
-                            isError={!!errors.jobTitle}
+                            isError={!!errors.jobTitleId}
                             clearable={true}
                             urlParams={{}} 
                             onSelect={async (selectedOption: OptionType | null) => {
                                 if (selectedOption){
-                                    setValue("jobTitle", selectedOption, {shouldValidate: true})
+                                    setValue("jobTitleId", selectedOption, {shouldValidate: true})
                                     trigger("jobDescription")
                                 }
                             }}
@@ -178,9 +179,9 @@ const FormView: React.FC<FormViewProps> = ({
                     </>
                 )}
             </button>
-            {(errors.jobTitle || errors.jobDescription) && (
+            {(errors.jobTitleId || errors.jobDescription) && (
                 <p className="text-xs text-red-500">
-                    {errors.jobTitle?.message || errors.jobDescription?.message}
+                    {errors.jobTitleId?.message || errors.jobDescription?.message}
                 </p>
             )}
             <ErrorDisplay error={error} />
@@ -205,6 +206,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const [recommendationsOpen, setRecommendationsOpen] = useState(false);
+    const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
 
     // Build a bulletId → { section, entryId } lookup so each card can dispatch
     // updateBullet without needing to know the resume structure.
@@ -233,31 +235,64 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     const allDone = suggestedBullets.length === 0;
 
     return (
-        <div className="flex-1 overflow-y-auto flex flex-col">
+        <div className="flex flex-col gap-4 py-6 overflow-y-auto">
             {/* Sub-header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
-                <div className="flex items-center gap-1.5">
-                    <svg className="w-3.5 h-3.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                    </svg>
-                    <span className="text-xs font-medium text-slate-600">
-                        {allDone
-                            ? "All suggestions reviewed"
-                            : `${suggestedBullets.length} suggestion${suggestedBullets.length !== 1 ? "s" : ""}`}
-                    </span>
-                </div>
-                <button
-                    onClick={onRetarget}
-                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
-                >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                    Retarget
-                </button>
+            <div className = "flex flex-col gap-3 px-5">
+                {
+                    suggestedBullets.length > 0 ? 
+                        <button
+                            onClick={onRetarget}
+                            className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+                        >
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                            Retarget
+                        </button>
+                    : null
+                }
+                {suggestedBullets.length > 0 && (
+                    <>
+                        <div className="rounded-xl border border-slate-200 overflow-hidden">
+                            <button
+                                onClick={() => setSuggestedBulletsOpen((v) => !v)}
+                                className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+                            >
+                                <span className="text-xs font-medium text-slate-600">
+                                    Suggestions ({suggestedBullets.length})
+                                </span>
+                                <svg
+                                    className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${suggestedBulletsOpen ? "rotate-0" : "-rotate-90"}`}
+                                    fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+                        </div>
+                        <>
+                            {suggestedBulletsOpen && (
+                                <ul className="flex flex-col gap-y-2 h-[500px] overflow-y-auto">
+                                    {
+                                        suggestedBullets.map((sb, i) => (
+                                            <SuggestionCard
+                                                key={sb.id}
+                                                index={i + 1}
+                                                suggestedBullet={sb}
+                                                onApply={() => handleApply(sb)}
+                                                onDismiss={() => handleDismiss(sb)}
+                                                onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
+                                            />
+                                        ))
+                                    }
+                                </ul>
+                                )
+                            }
+                        </>
+                    </>
+                    )}
             </div>
 
-            <div className="flex flex-col gap-3 px-5 py-4">
+            <div className="flex flex-col gap-3 px-5">
                 {/* ── All done state ── */}
                 {allDone && (
                     <div className="flex flex-col items-center gap-3 py-8 text-center">
@@ -281,18 +316,6 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         </button>
                     </div>
                 )}
-
-                {/* ── Suggestion cards ── */}
-                {suggestedBullets.map((sb, i) => (
-                    <SuggestionCard
-                        key={sb.id}
-                        index={i + 1}
-                        suggestedBullet={sb}
-                        onApply={() => handleApply(sb)}
-                        onDismiss={() => handleDismiss(sb)}
-                        onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
-                    />
-                ))}
 
                 {/* ── General recommendations (collapsible) ── */}
                 {recommendations.length > 0 && (
@@ -342,7 +365,7 @@ interface SuggestionCardProps {
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
     index, suggestedBullet, onApply, onDismiss, onScrollTo,
 }) => (
-    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+    <div className="rounded-xl border border-slate-200 bg-white">
         {/* Card header — clicking scrolls the editor to the matching bullet */}
         <button
             onClick={onScrollTo}
@@ -369,14 +392,14 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
             {/* Original */}
             <div>
                 <p className="text-xs font-medium text-slate-400 mb-1">Original</p>
-                <p className="text-xs text-slate-400 line-through leading-relaxed">
+                <p className="text-xs text-slate-400 leading-relaxed">
                     {suggestedBullet.text}
                 </p>
             </div>
 
             {/* Suggested */}
             <div>
-                <p className="text-xs font-medium text-slate-500 mb-1">Suggested</p>
+                <p className="text-xs font-medium text-slate-500 mb-1">Tips</p>
                 <p className="text-xs text-slate-700 leading-relaxed">
                     {suggestedBullet.recommendation}
                 </p>
@@ -384,17 +407,17 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
 
             {/* Actions */}
             <div className="flex gap-2">
-                <button
+                {/* <button
                     onClick={onApply}
                     className="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
                 >
                     Apply
-                </button>
+                </button> */}
                 <button
                     onClick={onDismiss}
                     className="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
                 >
-                    Dismiss
+                    Got it
                 </button>
             </div>
         </div>

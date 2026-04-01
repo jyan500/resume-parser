@@ -12,28 +12,31 @@ JD_ANCHOR_KEYWORDS = [
 JD_ANCHOR_MIN_MATCHES = 2
 
 class TailorRequest(BaseModel):
-    jobTitle: str
+    jobTitleId: str
     jobDescription: str
     resume: dict[str, Any]
 
-    @field_validator("jobTitle")
+    @field_validator("jobTitleId")
     @classmethod
-    def validate_job_title(cls, v: str) -> str:
+    def validate_job_title_id(cls, v: str) -> str:
         v = v.strip()
-        if not v:
-            return v
-        if len(v) < 2:
-            raise ValueError("Job title is too short.")
-        if "\n" in v:
-            raise ValueError("Job title must be a single line.")
-        if len(v) > 100:
-            raise ValueError(
-                "Job title is too long — please enter just the role name, e.g. 'Senior Frontend Engineer'."
-            )
-        if len(v.split()) > 15:
-            raise ValueError(
-                "Job title seems too long. Please enter just the role name, e.g. 'Senior Frontend Engineer'."
-            )
+        cached = get_cached_keywords(job_title_id)
+        if not cached:
+            raise ValueError("No keywords found!")
+        # if not v:
+        #     return v
+        # if len(v) < 2:
+        #     raise ValueError("Job title is too short.")
+        # if "\n" in v:
+        #     raise ValueError("Job title must be a single line.")
+        # if len(v) > 100:
+        #     raise ValueError(
+        #         "Job title is too long — please enter just the role name, e.g. 'Senior Frontend Engineer'."
+        #     )
+        # if len(v.split()) > 15:
+        #     raise ValueError(
+        #         "Job title seems too long. Please enter just the role name, e.g. 'Senior Frontend Engineer'."
+        #     )
         return v
 
     @field_validator("jobDescription")
@@ -74,7 +77,7 @@ class TailorRequest(BaseModel):
 
     @model_validator(mode="after")
     def validate_title_or_description_and_bullets(self) -> "TailorRequest":
-        if not self.jobTitle.strip() and not self.jobDescription.strip():
+        if not self.jobTitleId.strip() and not self.jobDescription.strip():
             raise ValueError(
                 "Provide either a job title or a job description (both cannot be empty)."
             )
@@ -106,7 +109,7 @@ def validate_tailor_request(f):
         data = request.json or {}
         try:
             TailorRequest.model_validate(data)
-        except ValidationError as e:
+        except ValueError as e:
             # Collect all Pydantic error messages into a single list
             errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
             return jsonify({"errors": errors}), 422

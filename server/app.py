@@ -116,7 +116,7 @@ def tailor_resume():
     
     resume = data.get("resume")
     job_description = data.get("jobDescription")
-    job_title = data.get("jobTitle")
+    job_title_id = data.get("jobTitleId")
 
     # we only include the experience and projects
     # as this is what the LLM will give feedback on
@@ -128,9 +128,9 @@ def tailor_resume():
         # only include the resume's experience and projects section
         resume_json = json.dumps({"experience": experience, "projects": projects})
         if (job_description != ""):
-            suggestions = tailor.tailor_resume(resume_json, job_description, job_title)
-        elif (job_title != ""):
-            suggestions = tailor.tailor_resume_job_title(resume_json, job_title)
+            suggestions = tailor.tailor_resume(resume_json, job_description)
+        elif (job_title_id != ""):
+            suggestions = tailor.tailor_resume_job_title(resume_json, job_title_id)
     except Exception as e:
         traceback.print_exc()
         return jsonify({"status": 500, "errors": ["Something went wrong!"]}), 500

@@ -18,6 +18,7 @@ import { useAsync } from "react-use"
 import { ORDERS, setTemplate } from "../../slices/resumeSlice"
 import type { ResumeTemplate } from "../../types/resume";
 import { Checkbox } from "../page-elements/Checkbox";
+import { Select } from "../page-elements/Select"
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -101,31 +102,25 @@ export const PreviewPanel: React.FC = () => {
                     <form className="flex flex-row gap-x-4 items-center">
                         <div className="flex flex-row gap-x-2 items-center">
                             <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
-                            <select 
-                                name={"template-select"}
-                                className="select select-sm w-32" 
-                                value={form.template} 
-                                onChange={(e) => {
-                                    e.preventDefault()
-                                    if (e.target.value !== ""){
-                                        setForm({
-                                            ...form,
-                                            template: e.target.value as ResumeTemplate, 
-                                        })
+                            <Select
+                                id="template-select"
+                                className="w-32 text-xs"
+                                value={{ value: form.template, label: form.template[0].toUpperCase() + form.template.slice(1) }}
+                                options={Object.keys(ORDERS).map((key) => ({
+                                    value: key,
+                                    label: key[0].toUpperCase() + key.slice(1),
+                                }))}
+                                hideIndicatorSeparator={true}
+                                onChange={(selected) => {
+                                    if (selected) {
+                                        setForm({ ...form, template: selected.value as ResumeTemplate })
                                         dispatch(setTemplate({
-                                            template: e.target.value as ResumeTemplate,
+                                            template: selected.value as ResumeTemplate,
                                             resetOrder: form.resetOrder,
                                         }))
                                     }
-                                }}>
-                                {
-                                    Object.keys(ORDERS).map((key) => {
-                                        return (
-                                            <option value={key}>{key[0].toUpperCase() + key.slice(1,key.length)}</option>
-                                        )
-                                    })
-                                }
-                            </select>
+                                }}
+                            />
                         </div>
                         <div className="flex flex-row gap-x-2 items-center">
                             <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>

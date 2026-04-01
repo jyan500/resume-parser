@@ -1,11 +1,11 @@
 from db.models import db, JobTitle, Keyword, KeywordType
 import re
 
-def save_keywords(normalized_title: str, keywords: list[dict]):
+def save_keywords(title: str, keywords: list[dict]):
     # get or create the job title
-    job_title = JobTitle.query.filter_by(name=normalized_title).first()
+    job_title = JobTitle.query.filter_by(name=title).first()
     if not job_title:
-        job_title = JobTitle(name=normalized_title)
+        job_title = JobTitle(name=title)
         db.session.add(job_title)
 
     for kw in keywords:
@@ -28,15 +28,8 @@ def save_keywords(normalized_title: str, keywords: list[dict]):
 
     db.session.commit()
 
-def normalize_title(job_title: str) -> str:
-    """ remove any leading/trailing spaces """
-    title = job_title.strip()
-    title = re.sub(r'[^a-z0-9\s]', '', title)
-    return re.sub(r'\s+', ' ', title)
-
-def get_cached_keywords(job_title: str) -> list[dict] | None:
-    normalized = normalize_title(job_title)
-    job_title_row = JobTitle.query.filter_by(name=normalized).first()
+def get_cached_keywords(job_title_id: str) -> list[dict] | None:
+    job_title_row = JobTitle.query.filter_by(id=job_title_id).first()
 
     if not job_title_row or not job_title_row.keywords:
         return None

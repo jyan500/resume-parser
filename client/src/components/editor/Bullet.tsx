@@ -118,10 +118,6 @@ export const Bullet: React.FC<Bullet> = ({
                 <div className="ml-6 mt-2 rounded-lg border border-blue-200 bg-white overflow-hidden">
                     {/* Header */}
                     <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 border-b border-blue-100">
-                        <svg className="w-3 h-3 text-blue-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                        </svg>
-                        <span className="text-xs font-medium text-blue-700">AI suggestion</span>
                     </div>
 
                     {/* Suggested text */}
@@ -131,17 +127,23 @@ export const Bullet: React.FC<Bullet> = ({
 
                     {/* Actions */}
                     <div className="flex gap-2 px-3 pb-3">
-                        <button
+                        {/* <button
                             onClick={handleApply}
                             className="flex-1 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
                         >
                             Apply
-                        </button>
+                        </button> */}
                         <button
                             onClick={handleDismiss}
                             className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
                         >
-                            Dismiss
+                            Got it
+                        </button>
+                        <button 
+                            onClick={() => setOpen(!open)}
+                            className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
+                        >
+                            Close
                         </button>
                     </div>
                 </div>

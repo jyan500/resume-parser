@@ -20,6 +20,7 @@ import type {
 
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
+type TargetJobViewMode = "form" | "suggestions"
 export const ORDERS = {
     "modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
     "classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
@@ -76,6 +77,7 @@ export interface ResumeState {
     parseError: string | null;
     isDirty: boolean;
     focusedBulletId: string | null;
+    targetJobViewMode: TargetJobViewMode
     isDarkMode: boolean
 }
 
@@ -90,6 +92,7 @@ const initialState: ResumeState = {
     parseError: null,
     isDirty: false,
     focusedBulletId: null,
+    targetJobViewMode: "form",
     isDarkMode: false
 };
 
@@ -111,6 +114,10 @@ export const resumeSlice = createSlice({
             state.isDirty = false;
             state.parseStatus = "idle";
             state.parseError = null;
+        },
+
+        setTargetJobViewMode(state, action: PayloadAction<TargetJobViewMode>){
+            state.targetJobViewMode = action.payload
         },
 
         setTemplate(state, action: PayloadAction<{template: ResumeTemplate, resetOrder: boolean}>){
@@ -546,6 +553,7 @@ export const {
     toggleSectionVisibility,
     toggleHeaderField,
     setActiveSection,
+    setTargetJobViewMode,
     setParseStatus,
     setFocusedBulletId,
 } = resumeSlice.actions;
