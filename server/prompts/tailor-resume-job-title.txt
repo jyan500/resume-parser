@@ -36,16 +36,18 @@ RULE 5 — All bullets must be written in past tense, even if the candidate is c
  
 [Pre-Output Self-Check]
 Before returning your output, verify:
-- Does each hh_critique reference a specific bullet id from the resume?
+- Does each critique reference a specific bullet id from the resume?
 - Do suggested_bullets reference real bullet ids and describe the structural fix needed (not rewrite the bullet)?
 - Are recommendations actionable and specific to this job title?
  
 [Output Instructions]
 Fill the JSON schema with:
 - missing_keywords: Keywords from the provided keywords list that are NOT present in any of the resume's experience bullet points (skills sections do not count).
-- hh_critiques: A list of critiques for specific resume bullets that violate one or more of the five Headless Headhunter rules above. Each critique must reference the bullet's id, quote the rule being violated, and explain what needs to change.
 - recommendations: A list of 3 to 6 actionable steps the resume owner can take to better position their resume for "{{job_title}}" roles.
-- suggested_bullets: Bullets from the resume that need restructuring to follow the What → How → Result/Reason format. Reference the bullet id and describe what element is missing — do NOT rewrite the bullet for them.
+- suggested_bullets: 
+  * Bullets that violate one or more of the five Headless Headhunter rules above. 
+    Each critique must reference the bullet's id and explain what needs to change.
+  * Bullets from the resume that need restructuring to follow the What → How → Result/Reason format. Reference the bullet id and describe what element is missing — do NOT rewrite the bullet for them.
  
 Resume:
 {{resume}}

@@ -24,6 +24,7 @@ interface AsyncSelectProps {
 	urlParams: Record<string, any>
 	cacheKey?: string
 	menuInPortal?: boolean
+	isError?: boolean
 	onSelect: (selectedOption: OptionType | null) => void
 }
 
@@ -32,13 +33,14 @@ export const AsyncSelect = React.forwardRef<SelectInstance<OptionType, false, Gr
 	{ 
 		id, 
 		cacheKey, 
-		clearable, 
+		clearable=false, 
 		className, 
 		defaultValue, 
 		endpoint, 
 		onSelect, 
 		urlParams, 
 		onBlur,
+		isError=false,
 		menuInPortal=false
 	}, ref) => {
 	const [searchTerm, setSearchTerm] = useState("")
@@ -107,6 +109,7 @@ export const AsyncSelect = React.forwardRef<SelectInstance<OptionType, false, Gr
         className: className,
         hideIndicatorSeparator: false,
 		menuInPortal: menuInPortal,
+		isError: isError, 
     })
 
 	return (
@@ -132,7 +135,7 @@ export const AsyncSelect = React.forwardRef<SelectInstance<OptionType, false, Gr
 			placeholder="Search"
 			// wait milliseconds amount after user stops typing before searching
 			debounceTimeout={300}
-			isClearable={clearable ?? true}
+			isClearable={clearable}
 			cacheUniqs={[cacheKey ?? ""]}
 			menuShouldScrollIntoView={false}
 		/>

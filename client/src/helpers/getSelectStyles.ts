@@ -10,6 +10,7 @@ interface GetSelectStylesParams {
     className?: string
     hideIndicatorSeparator?: boolean
     menuInPortal?: boolean
+    isError?: boolean
 }
 
 export const getSelectStyles = ({
@@ -19,6 +20,7 @@ export const getSelectStyles = ({
     className = 'w-full',
     hideIndicatorSeparator = false,
     menuInPortal = false,
+    isError = false,
 }: GetSelectStylesParams): {
     classNames: ClassNamesConfig<OptionType, false, GroupBase<OptionType>>
     styles: StylesConfig<OptionType, false, GroupBase<OptionType>>
@@ -40,6 +42,18 @@ export const getSelectStyles = ({
                 height: "43px",
                 padding: ".1em",
                 textAlign: textAlign as any,
+                /* box shadow override is needed as react-select has preset box-shadow*/
+                borderColor: isError
+                    ? '#f87171'  // red-400
+                    : state.isFocused
+                        ? '#3b82f6'  // blue-500 on focus
+                        : baseStyles.borderColor,
+                boxShadow: isError
+                    ? '0 0 0 1px #f87171'
+                    : baseStyles.boxShadow,
+                '&:hover': {
+                    borderColor: isError ? '#f87171' : '#3b82f6',
+                },
             }),
             option: (provided, state) => ({
                 ...provided,

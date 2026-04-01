@@ -60,23 +60,49 @@ const FormView: React.FC<FormViewProps> = ({
     resume, setView
 }) => {
     const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
+
     const dispatch = useAppDispatch();
     const  
     {
         register,
         control,
+        trigger,
+        getValues,
         watch,
         setValue,
         handleSubmit,
         formState: { errors },
     } = useForm<TargetJobForm>();
 
+    const registerOptions = {
+        jobTitle: {
+            validate: (value) => {
+                const jobDescription = getValues("jobDescription")
+                if (!value && !jobDescription?.trim()) {
+                    return "Please provide at least a job title or job description"
+                }
+                return true
+            }
+        },
+        jobDescription: {
+            validate: (value) => {
+                const jobTitle = getValues("jobTitle")
+                if (!value?.trim() && !jobTitle) {
+                    return "Please provide at least a job title or job description"
+                }
+                return true
+            },
+            // filling out job description clears out the job title
+            onChange: () => trigger("jobTitle")
+        }
+    }
+
     const onSubmit = async (data: TargetJobForm) => {
         try {
             const result = await tailorResume({
                 resume,
                 jobDescription: data.jobDescription,
-                jobTitle: data.jobTitle.value,
+                jobTitle: data.jobTitle.label,
             }).unwrap();
             dispatch(setSuggestions(result));
             setView("suggestions");
@@ -92,53 +118,42 @@ const FormView: React.FC<FormViewProps> = ({
             {/* Job Title */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Title</label>
-                {/* <input
-                    type="text"
-                    placeholder="e.g. Senior Software Engineer"
-                    {...register("jobTitle", { required: "Job title is required" })}
-                    className={`w-full px-3 py-2 text-sm text-slate-800 bg-white border rounded-lg placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-colors duration-150 ${
-                        errors.jobTitle
-                            ? "border-red-400 focus:border-red-400 focus:ring-red-400"
-                            : "border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    }`}
-                /> */}
+                <p className = "text-xs text-slate-600">Enter only a job title to tailor your resume to a particular job title</p>
                 <Controller
                     name={"jobTitle"}
                     control={control}
+                    rules={registerOptions.jobTitle}
                     render={({ field: { onChange } }) => (
                         <AsyncSelect 
                             endpoint={JOB_TITLE_URL} 
-                            clearable={false}
+                            isError={!!errors.jobTitle}
+                            clearable={true}
                             urlParams={{}} 
                             onSelect={async (selectedOption: OptionType | null) => {
                                 if (selectedOption){
-                                    setValue("jobTitle", selectedOption)
+                                    setValue("jobTitle", selectedOption, {shouldValidate: true})
+                                    trigger("jobDescription")
                                 }
                             }}
                         />
                     )}
                 />
-                {errors.jobTitle && (
-                    <p className="text-xs text-red-500">{errors.jobTitle.message}</p>
-                )}
             </div>
 
             {/* Job Description */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Description</label>
+                <p className = "text-xs text-slate-600">Enter a job description to tailor your resume to a particular job description</p>
                 <textarea
                     placeholder="Paste the job description here to get tailored suggestions..."
                     rows={10}
-                    {...register("jobDescription", { required: "Job description is required" })}
+                    {...register("jobDescription", registerOptions.jobDescription)}
                     className={`w-full px-3 py-2 text-sm text-slate-800 bg-white border rounded-lg placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-colors duration-150 resize-none ${
                         errors.jobDescription
                             ? "border-red-400 focus:border-red-400 focus:ring-red-400"
                             : "border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                     }`}
                 />
-                {errors.jobDescription && (
-                    <p className="text-xs text-red-500">{errors.jobDescription.message}</p>
-                )}
             </div>
 
             <button
@@ -163,7 +178,11 @@ const FormView: React.FC<FormViewProps> = ({
                     </>
                 )}
             </button>
-
+            {(errors.jobTitle || errors.jobDescription) && (
+                <p className="text-xs text-red-500">
+                    {errors.jobTitle?.message || errors.jobDescription?.message}
+                </p>
+            )}
             <ErrorDisplay error={error} />
         </form>
     )

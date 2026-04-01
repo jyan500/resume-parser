@@ -5,7 +5,7 @@ import os
 from jinja2 import Template
 from google import genai
 from utils.constants import GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL
-from utils.schemas.tailor_resume_schema import TailorJobDescriptionSchema, TailorJobTitleSchema
+from utils.schemas.tailor_resume_schema import TailorJobSchema
 from utils.schemas.keywords_schema import KeywordListSchema
 from utils.keywords.functions import save_keywords, get_cached_keywords, normalize_title
 from utils.functions import load_prompt
@@ -27,10 +27,10 @@ class TailorResume:
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",
-                    "response_json_schema": TailorJobDescriptionSchema.model_json_schema(),
+                    "response_json_schema": TailorJobSchema.model_json_schema(),
                 },
             )
-            validated_schema = TailorJobDescriptionSchema.model_validate_json(response.text)
+            validated_schema = TailorJobSchema.model_validate_json(response.text)
             return validated_schema.model_dump()
         except Exception as e:
             traceback.print_exc()
@@ -52,10 +52,10 @@ class TailorResume:
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",
-                    "response_json_schema": TailorJobTitleSchema.model_json_schema(),
+                    "response_json_schema": TailorJobSchema.model_json_schema(),
                 },
             )
-            validated_schema = TailorJobTitleSchema.model_validate_json(response.text)
+            validated_schema = TailorJobSchema.model_validate_json(response.text)
             return validated_schema.model_dump()
         except Exception as e:
             traceback.print_exc()

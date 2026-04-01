@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import request, jsonify
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing import Any
 
 JD_ANCHOR_KEYWORDS = [
@@ -20,6 +20,8 @@ class TailorRequest(BaseModel):
     @classmethod
     def validate_job_title(cls, v: str) -> str:
         v = v.strip()
+        if not v:
+            return v
         if len(v) < 2:
             raise ValueError("Job title is too short.")
         if "\n" in v:
@@ -38,6 +40,8 @@ class TailorRequest(BaseModel):
     @classmethod
     def validate_job_description(cls, v: str) -> str:
         v = v.strip()
+        if not v:
+            return v
         word_count = len(v.split())
         if len(v) < 150 or word_count < 50:
             raise ValueError(
@@ -69,7 +73,11 @@ class TailorRequest(BaseModel):
         return v
 
     @model_validator(mode="after")
-    def validate_resume_bullets(self) -> "TailorRequest":
+    def validate_title_or_description_and_bullets(self) -> "TailorRequest":
+        if not self.jobTitle.strip() and not self.jobDescription.strip():
+            raise ValueError(
+                "Provide either a job title or a job description (both cannot be empty)."
+            )
         sections = [
             ("experience", self.resume.get("experience", [])),
             ("projects", self.resume.get("projects", [])),
@@ -98,7 +106,7 @@ def validate_tailor_request(f):
         data = request.json or {}
         try:
             TailorRequest.model_validate(data)
-        except ValueError as e:
+        except ValidationError as e:
             # Collect all Pydantic error messages into a single list
             errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
             return jsonify({"errors": errors}), 422

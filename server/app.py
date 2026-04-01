@@ -126,7 +126,11 @@ def tailor_resume():
     suggestions = {} 
     try:
         # only include the resume's experience and projects section
-        suggestions = tailor.tailor_resume(json.dumps({"experience": experience, "projects": projects}), job_description, job_title)
+        resume_json = json.dumps({"experience": experience, "projects": projects})
+        if (job_description != ""):
+            suggestions = tailor.tailor_resume(resume_json, job_description, job_title)
+        elif (job_title != ""):
+            suggestions = tailor.tailor_resume_job_title(resume_json, job_title)
     except Exception as e:
         traceback.print_exc()
         return jsonify({"status": 500, "errors": ["Something went wrong!"]}), 500

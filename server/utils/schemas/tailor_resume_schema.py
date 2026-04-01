@@ -12,36 +12,14 @@ class Keyword(BaseModel):
     type: SkillType
     text: str
  
- 
-class HHCritique(BaseModel):
-    """A Headless Headhunter-style critique of a specific resume bullet."""
-    id: str           # bullet uuid from the resume JSON
-    text: str         # the original bullet text being critiqued
-    rule_violated: str  # e.g. "Rule 3 — Missing Result/Reason", "Rule 2 — Fewer than 3 keywords"
-    critique: str     # plain-English explanation of what is wrong and what needs to change
- 
- 
 class RecommendationBullet(BaseModel):
     id: str           # bullet uuid from the resume JSON
     text: str         # the original bullet text
     recommendation: str  # what structural element is missing or needs fixing
- 
 
-class TailorJobDescriptionSchema(BaseModel): 
+class TailorJobSchema(BaseModel):
+    # Subset of keywords not found in any experience bullet point
     missing_keywords: List[Keyword]
-    hh_critiques: List[HHCritique]
-    recommendations: List[str]
-    suggested_bullets: List[RecommendationBullet]
-
-class TailorJobTitleSchema(BaseModel):
-    # All keywords that are commonly required for this job title
-    common_keywords: List[Keyword]
- 
-    # Subset of common_keywords not found in any experience bullet point
-    missing_keywords: List[Keyword]
- 
-    # HH-rule violations on specific bullets
-    hh_critiques: List[HHCritique]
  
     # High-level actionable advice for positioning the resume toward this job title
     recommendations: List[str]
