@@ -1,13 +1,14 @@
 import { TAILOR_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
-import type { Resume } from "../../types/resume";
-import type { ServerResumeSchema } from "../../types/serverResume";
-import { mapServerResumeToClient } from "../../types/serverResume";
+import type { Resume, ResumeSuggestion } from "../../types/resume";
+import { type ServerResumeSchema, mapServerResumeToClient } from "../helpers/serverResume";
+import { type ServerTailorResumeSchema, mapServerTailorResumeToClient } from "../helpers/serverTailorResume";
 import { publicApi } from "../public"
 
 // ─── Request / Response Types ─────────────────────────────────────────────────
 
 // Raw server response matches `ResumeSchema` in `server/utils/schema.py`
 export type ParseResumeServerResponse = ServerResumeSchema;
+export type TailorResumeServerResponse = ServerTailorResumeSchema
 
 // Client-facing response exposed by RTK Query
 export interface ParseResumeResponse {
@@ -16,13 +17,8 @@ export interface ParseResumeResponse {
 
 export interface TailorRequest {
     resume: Resume;
-    jobTitle: string;
+    jobTitleId: string;
     jobDescription: string;
-}
-
-export interface TailorResponse {
-    missing_keywords: string[];
-    recommendations: string[];
 }
 
 export interface HealthResponse {
@@ -53,19 +49,22 @@ export const resumeApi = publicApi.injectEndpoints({
         }),
 
         // POST /tailor — JSON body with resume JSON + job_description
-        tailorResume: builder.mutation<TailorResponse, TailorRequest>({
+        tailorResume: builder.mutation<ResumeSuggestion, TailorRequest>({
             query: (body) => ({
                 url: TAILOR_RESUME_URL,
                 method: "POST",
                 body: {
                     jobDescription: body.jobDescription,
-                    jobTitle: body.jobTitle,
+                    jobTitleId: body.jobTitleId,
                     resume: {
                         "projects": body.resume?.projects ?? [],
                         "experience": body.resume?.experience ?? [],
                     } 
                 }
             }),
+            transformResponse: (raw: TailorResumeServerResponse) => ({
+                ...mapServerTailorResumeToClient(raw)
+            })
         }),
 
         // GET /health — useful to ping the backend on mount

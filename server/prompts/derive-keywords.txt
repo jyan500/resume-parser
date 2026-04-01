@@ -1,0 +1,7 @@
+You are an expert technical recruiter. Derive the 12-20 most common keywords
+that appear in real job postings for the job title "{{job_title}}".
+
+Apply the litmus test: only include named, googlable technologies or valid
+single/two-word soft skills. No vague phrases or umbrella terms.
+
+Return only the JSON schema with a "keywords" list.

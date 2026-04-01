@@ -13,12 +13,14 @@ import type {
     ProjectEntry,
     Bullet,
     ResumeTemplate,
+    ResumeSuggestion,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
 
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
+type TargetJobViewMode = "form" | "suggestions"
 export const ORDERS = {
     "modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
     "classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
@@ -56,21 +58,32 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
     },
 };
 
+const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
+    suggestedBullets: [],
+    missingKeywords: [],
+    recommendations: [],
+}
+
 // ─── Slice State Type ─────────────────────────────────────────────────────────
 
 export interface ResumeState {
     resume: Resume;
     visibility: ResumeVisibility;
     template: ResumeTemplate;
+    suggestions: ResumeSuggestion;
     order: Array<OrderableSection>;
     activeSection: ActiveSection;
     parseStatus: ParseStatus;
     parseError: string | null;
     isDirty: boolean;
+    focusedBulletId: string | null;
+    targetJobViewMode: TargetJobViewMode
+    isDarkMode: boolean
 }
 
 const initialState: ResumeState = {
     resume: DEFAULT_RESUME,
+    suggestions: DEFAULT_SUGGESTIONS,
     visibility: DEFAULT_VISIBILITY,
     template: "classic",
     order: ORDERS["classic"],
@@ -78,6 +91,9 @@ const initialState: ResumeState = {
     parseStatus: "idle",
     parseError: null,
     isDirty: false,
+    focusedBulletId: null,
+    targetJobViewMode: "form",
+    isDarkMode: false
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -100,12 +116,29 @@ export const resumeSlice = createSlice({
             state.parseError = null;
         },
 
+        setTargetJobViewMode(state, action: PayloadAction<TargetJobViewMode>){
+            state.targetJobViewMode = action.payload
+        },
+
         setTemplate(state, action: PayloadAction<{template: ResumeTemplate, resetOrder: boolean}>){
             const {template, resetOrder} = action.payload
             state.template = template
             if (resetOrder){
                 state.order = ORDERS[template as ResumeTemplate]
             }
+        },
+
+        setSuggestions(state, action: PayloadAction<ResumeSuggestion>){
+            state.suggestions = action.payload
+        },
+
+        // Removes a single SuggestedBullet by bullet id once it has been
+        // applied or dismissed by the user. Used by both BulletWithSuggestion
+        // (Approach B) and TargetJobPanel (Approach A).
+        dismissSuggestion(state, action: PayloadAction<string>) {
+            state.suggestions.suggestedBullets = state.suggestions.suggestedBullets.filter(
+                (sb) => sb.id !== action.payload
+            );
         },
 
         /*
@@ -168,35 +201,14 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
-        /* 
-            i.e if you move an item from index 0 to index 2 (and there are 3 items in the list) 
-
-            i = 0  *A*  
-            i = 1  *B*
-            i = 2  *C*
-            i = 3  *D*
-
-            remove i = 0 first
-            so now the other indices are shifted
-            i = 0 *B*
-            i = 1 *C*
-            i = 2 *D*
-
-            now A would need to be inserted between C and D,
-            so after index 1. Note that before we deleted "A",
-            "C" used to be index 2, so we'd insert at index 2,
-            so now "D" gets pushed to index 3 after the insert
-        */
         reorderExperience(
             state,
             action: PayloadAction<{ fromIndex: number; toIndex: number }>
         ) {
             const { fromIndex, toIndex } = action.payload;
-            // remove element at fromIndex
             const temp = [...state.resume.experience]
             const from = temp[fromIndex];
             temp.splice(fromIndex, 1)
-            // insert element at toIndex
             temp.splice(toIndex, 0, from);
             state.resume.experience = temp
             state.isDirty = true;
@@ -208,7 +220,7 @@ export const resumeSlice = createSlice({
             state.isDirty = true;
         },
 
-        // ── Experience & Projects Bullets ─────────────────────────────────────────────────────────────
+        // ── Experience & Projects Bullets ────────────────────────────────────────
         addBullet(state, action: PayloadAction<{ section: ContainsBullets, entryId: string }>) {
             if (action.payload.section in state.resume){
                 const entry = state.resume[action.payload.section]
@@ -226,78 +238,67 @@ export const resumeSlice = createSlice({
 
         updateBullet(
             state,
-            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string; text: string }>
+            action: PayloadAction<{ section: ContainsBullets; entryId: string; bulletId: string; text: string }>
         ) {
             const { section, entryId, bulletId, text } = action.payload;
-            if (section in state.resume){
-                const entry = state.resume[section]
-                if (entry && Array.isArray(entry)){
-                    const entity = entry.find((e) => e.id === entryId);
-                    if (entity){
-                        const bullet = entity?.bullets.find((b: Bullet) => b.id === bulletId);
-                        if (bullet) bullet.text = text;
-                        state.isDirty = true;
-                    }
+            const entries = state.resume[section];
+            if (entries && Array.isArray(entries)) {
+                const entry = entries.find((e) => e.id === entryId);
+                if (entry) {
+                    const bullet = entry.bullets.find((b: Bullet) => b.id === bulletId);
+                    if (bullet) bullet.text = text;
                 }
             }
+            state.isDirty = true;
         },
 
         removeBullet(
             state,
-            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string }>
+            action: PayloadAction<{ section: ContainsBullets; entryId: string; bulletId: string }>
         ) {
             const { section, entryId, bulletId } = action.payload;
-            if (section in state.resume){
-                const entry = state.resume[section]
-                if (entry && Array.isArray(entry)) {
-                    const entity = entry.find((e) => e.id === entryId);
-                    if (entity){
-                        entity.bullets = entity.bullets.filter(
-                            (b: Bullet) => b.id !== bulletId
-                        );
-                    }
+            const entries = state.resume[section];
+            if (entries && Array.isArray(entries)) {
+                const entry = entries.find((e) => e.id === entryId);
+                if (entry) {
+                    entry.bullets = entry.bullets.filter((b: Bullet) => b.id !== bulletId);
                 }
-                state.isDirty = true;
             }
+            state.isDirty = true;
         },
 
         toggleBullet(
             state,
-            action: PayloadAction<{ section: ContainsBullets, entryId: string; bulletId: string }>
+            action: PayloadAction<{ section: ContainsBullets; entryId: string; bulletId: string }>
         ) {
             const { section, entryId, bulletId } = action.payload;
-            if (section in state.resume){
-                const entry = state.resume[section]
-                if (entry && Array.isArray(entry)){
-                    const entity = entry.find((e) => e.id === entryId);
-                    const bullet = entity?.bullets.find((b: Bullet) => b.id === bulletId);
+            const entries = state.resume[section];
+            if (entries && Array.isArray(entries)) {
+                const entry = entries.find((e) => e.id === entryId);
+                if (entry) {
+                    const bullet = entry.bullets.find((b: Bullet) => b.id === bulletId);
                     if (bullet) bullet.enabled = !bullet.enabled;
-                    state.isDirty = true;
                 }
             }
+            state.isDirty = true;
         },
 
         reorderBullets(
             state,
-            action: PayloadAction<{
-                section: ContainsBullets
-                entryId: string;
-                fromIndex: number;
-                toIndex: number;
-            }>
+            action: PayloadAction<{ section: ContainsBullets; entryId: string; fromIndex: number; toIndex: number }>
         ) {
             const { section, entryId, fromIndex, toIndex } = action.payload;
-            if (section in state.resume){
-                const entry = state.resume[section]
-                if (entry){
-                    const entity = entry.find((e) => e.id === entryId);
-                    if (entity) {
-                        const [moved] = entity.bullets.splice(fromIndex, 1);
-                        entity.bullets.splice(toIndex, 0, moved);
-                    }
-                    state.isDirty = true;
+            const entries = state.resume[section];
+            if (entries && Array.isArray(entries)) {
+                const entry = entries.find((e) => e.id === entryId);
+                if (entry) {
+                    const temp = [...entry.bullets];
+                    const [moved] = temp.splice(fromIndex, 1);
+                    temp.splice(toIndex, 0, moved);
+                    entry.bullets = temp;
                 }
             }
+            state.isDirty = true;
         },
 
         // ── Education ───────────────────────────────────────────────────────────
@@ -462,12 +463,10 @@ export const resumeSlice = createSlice({
             action: PayloadAction<{ fromIndex: number; toIndex: number }>
         ) {
             const { fromIndex, toIndex } = action.payload;
-            // remove element at fromIndex
             if (state.resume.projects?.length){
                 const temp = [...state.resume.projects]
                 const from = temp[fromIndex];
                 temp.splice(fromIndex, 1)
-                // insert element at toIndex
                 temp.splice(toIndex, 0, from);
                 state.resume.projects = temp
                 state.isDirty = true;
@@ -506,6 +505,10 @@ export const resumeSlice = createSlice({
             state.parseStatus = action.payload.status;
             state.parseError = action.payload.error ?? null;
         },
+
+        setFocusedBulletId(state, action: PayloadAction<string | null>) {
+            state.focusedBulletId = action.payload;
+        },
     },
 });
 
@@ -515,6 +518,8 @@ export const {
     updateHeader,
     updateOrder,
     setTemplate,
+    setSuggestions,
+    dismissSuggestion,
     setSummary,
     addExperience,
     updateExperience,
@@ -548,7 +553,9 @@ export const {
     toggleSectionVisibility,
     toggleHeaderField,
     setActiveSection,
+    setTargetJobViewMode,
     setParseStatus,
+    setFocusedBulletId,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
