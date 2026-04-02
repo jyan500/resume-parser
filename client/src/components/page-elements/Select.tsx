@@ -34,7 +34,6 @@ export const Select = ({
 	onBlur,
 	menuInPortal=false,
 }: Props) => {
-    const [searchTerm, setSearchTerm] = useState("")
 	const [val, setVal] = useState<OptionType | null>(defaultValue ?? null)
 	const { isDarkMode } = useAppSelector((state) => state.resume)
 
@@ -46,12 +45,6 @@ export const Select = ({
     useEffect(() => {
         setVal(defaultValue ?? null)
     }, [defaultValue])
-
-    const handleInputChange = (newValue: string) => {
-		const inputValue = newValue.trim()
-		setSearchTerm(inputValue)
-		return inputValue
-	}
 
 	const handleChange = useCallback(
 		(selectedOption: OptionType | null) => {

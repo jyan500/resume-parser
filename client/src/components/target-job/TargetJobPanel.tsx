@@ -8,6 +8,7 @@ import {
     dismissSuggestion,
     updateBullet,
     setFocusedBulletId,
+    setHoveredBulletId,
     setTargetJobViewMode,
     type ContainsBullets,
 } from "../../slices/resumeSlice";
@@ -82,7 +83,7 @@ const FormView: React.FC<FormViewProps> = ({
 
     const registerOptions = {
         jobTitleId: {
-            validate: (value) => {
+            validate: (value: OptionType) => {
                 const jobDescription = getValues("jobDescription")
                 if (!value && !jobDescription?.trim()) {
                     return "Please provide at least a job title or job description"
@@ -91,7 +92,7 @@ const FormView: React.FC<FormViewProps> = ({
             }
         },
         jobDescription: {
-            validate: (value) => {
+            validate: (value: string) => {
                 const jobTitle = getValues("jobTitleId")
                 if (!value?.trim() && !jobTitle) {
                     return "Please provide at least a job title or job description"
@@ -287,6 +288,8 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                                 onApply={() => handleApply(sb)}
                                                 onDismiss={() => handleDismiss(sb)}
                                                 onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
+                                                onHover={() => dispatch(setHoveredBulletId(sb.id))}
+                                                onHoverEnd={() => dispatch(setHoveredBulletId(null))}
                                             />
                                         ))
                                     }
@@ -366,12 +369,18 @@ interface SuggestionCardProps {
     onApply: () => void;
     onDismiss: () => void;
     onScrollTo: () => void;
+    onHover: () => void
+    onHoverEnd: () => void
 }
 
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
-    index, suggestedBullet, onApply, onDismiss, onScrollTo,
+    index, suggestedBullet, onApply, onDismiss, onScrollTo, onHover, onHoverEnd,
 }) => (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div 
+        className="rounded-xl border border-slate-200 bg-white"
+        onMouseEnter={onHover}
+        onMouseLeave={onHoverEnd}
+    >
         {/* Card header — clicking scrolls the editor to the matching bullet */}
         <button
             onClick={onScrollTo}

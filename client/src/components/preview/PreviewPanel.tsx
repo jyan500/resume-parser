@@ -17,6 +17,7 @@ import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDisp
 import { useAsync } from "react-use"
 import { ORDERS, setTemplate } from "../../slices/resumeSlice"
 import type { ResumeTemplate } from "../../types/resume";
+import type { OptionType } from "../../types/api"
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
 
@@ -93,6 +94,10 @@ export const PreviewPanel: React.FC = () => {
         return () => observer.disconnect();
     }, []);
 
+    const displayTemplate = (label: string) => {
+        return label[0].toUpperCase() + label.slice(1)
+    }
+
     return (
         <div className="flex flex-col h-full">
 
@@ -105,16 +110,17 @@ export const PreviewPanel: React.FC = () => {
                             <Select
                                 id="template-select"
                                 className="w-32 text-xs"
-                                defaultValue={{ value: form.template, label: form.template[0].toUpperCase() + form.template.slice(1) }}
+                                defaultValue={{ value: form.template, label: displayTemplate(form.template) }}
                                 options={Object.keys(ORDERS).map((key) => ({
                                     value: key,
-                                    label: key[0].toUpperCase() + key.slice(1),
+                                    label: displayTemplate(key),
                                 }))}
                                 hideIndicatorSeparator={true}
                                 clearable={false}
-                                onChange={(selected) => {
+                                onSelect={(selected: OptionType | null) => {
+                                    console.log("selected: ", selected)
                                     if (selected) {
-                                        setForm({ ...form, template: selected.value as ResumeTemplate })
+                                        setForm((prev) => ({ ...prev, template: selected.value as ResumeTemplate }))
                                         dispatch(setTemplate({
                                             template: selected.value as ResumeTemplate,
                                             resetOrder: form.resetOrder,
@@ -219,6 +225,7 @@ export const PreviewPanel: React.FC = () => {
                                         pageNumber={i + 1}
                                         width={pageWidth}
                                         renderTextLayer={true}
+                                        // ── Highlight the hovered suggestion bullet ──
                                         renderAnnotationLayer={true}
                                         className="shadow-2xl"
                                         loading={null}

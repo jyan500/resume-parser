@@ -77,6 +77,7 @@ export interface ResumeState {
     parseError: string | null;
     isDirty: boolean;
     focusedBulletId: string | null;
+    hoveredBulletId: string | null;
     targetJobViewMode: TargetJobViewMode
     isDarkMode: boolean
 }
@@ -92,6 +93,7 @@ const initialState: ResumeState = {
     parseError: null,
     isDirty: false,
     focusedBulletId: null,
+    hoveredBulletId: null,
     targetJobViewMode: "form",
     isDarkMode: false
 };
@@ -509,6 +511,11 @@ export const resumeSlice = createSlice({
         setFocusedBulletId(state, action: PayloadAction<string | null>) {
             state.focusedBulletId = action.payload;
         },
+
+        setHoveredBulletId(state, action: PayloadAction<string | null>){
+            state.hoveredBulletId = action.payload
+        }
+        
     },
 });
 
@@ -556,6 +563,7 @@ export const {
     setTargetJobViewMode,
     setParseStatus,
     setFocusedBulletId,
+    setHoveredBulletId,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
