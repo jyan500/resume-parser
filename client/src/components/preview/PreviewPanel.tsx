@@ -74,6 +74,34 @@ export const PreviewPanel: React.FC = () => {
         a.download = `${resume.header.name || "resume"}.pdf`;
         a.click();
     }, [render.value, resume.header.name]);
+
+    const handleAnnotationLayerRendered = useCallback(() => {
+        /* 
+            find all link annotations and extract the region id, and transferring it to the section element's data-region-id instead ,
+            and remove the href and title to remove the default browser artifacts like the tooltips
+        */
+        document.querySelectorAll(".linkAnnotation").forEach((section) => {
+            const anchor = section.querySelector<HTMLAnchorElement>("a");
+            if (!anchor) return;
+    
+            const regionId = anchor.hash?.slice(1); // extracts "bullet-id" from "#bullet-id"
+            if (regionId) (section as HTMLElement).dataset.regionId = regionId;
+
+            anchor.removeAttribute("href");
+            anchor.removeAttribute("title");
+        });
+    }, []);
+
+    /* 
+        handle the clicks to retrieve the region id 
+        focus the specific region within the right editor pane 
+    */
+    const handleViewerClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        const regionId = (e.target as HTMLElement)
+            .closest<HTMLElement>(".linkAnnotation[data-region-id]")
+            ?.dataset.regionId;
+        // if (regionId) dispatch(setFocusedRegionId(regionId));
+    }, [dispatch]);
  
     // Mirrors the derived booleans from the original repo exactly.
     const isFirstRendering = previousRenderUrl === null;
@@ -118,7 +146,6 @@ export const PreviewPanel: React.FC = () => {
                                 hideIndicatorSeparator={true}
                                 clearable={false}
                                 onSelect={(selected: OptionType | null) => {
-                                    console.log("selected: ", selected)
                                     if (selected) {
                                         setForm((prev) => ({ ...prev, template: selected.value as ResumeTemplate }))
                                         dispatch(setTemplate({
@@ -174,7 +201,7 @@ export const PreviewPanel: React.FC = () => {
                 )}
 
                 {containerWidth > 0 && (
-                    <div className="relative flex flex-col items-center py-6 gap-4">
+                    <div onClick={handleViewerClick} className="relative flex flex-col items-center py-6 gap-4">
 
                         {/*
                             Previous document — stays fully visible while the next
@@ -224,11 +251,12 @@ export const PreviewPanel: React.FC = () => {
                                         key={i + 1}
                                         pageNumber={i + 1}
                                         width={pageWidth}
-                                        renderTextLayer={true}
                                         // ── Highlight the hovered suggestion bullet ──
                                         renderAnnotationLayer={true}
+                                        renderTextLayer={false}
                                         className="shadow-2xl"
                                         loading={null}
+                                        onRenderAnnotationLayerSuccess={handleAnnotationLayerRendered}
                                         onRenderSuccess={
                                             // Only the last page firing promotes the URL,
                                             // so multi-page resumes don't swap mid-render.

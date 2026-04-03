@@ -134,6 +134,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginTop: 2,
     },
+    bulletLinkContainer: {
+        textDecoration: "none"
+    },
     bulletRow: {
         flexDirection: "row",
         marginBottom: 1.5,
@@ -229,6 +232,7 @@ const bulletStyles = {
     bulletRow: styles.bulletRow,
     bulletDot: styles.bulletDot,
     bulletText: styles.bulletText,
+    bulletLinkContainer: styles.bulletLinkContainer
 };
 
 // ─── Section Components ───────────────────────────────────────────────────────

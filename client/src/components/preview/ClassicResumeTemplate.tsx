@@ -164,6 +164,9 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         marginTop: 0, // "No Space Here" between entry label row and bullets
     },
+    bulletLinkContainer: {
+        textDecoration: "none"
+    },
     bulletRow: {
         flexDirection: "row",
         marginBottom: 0,
@@ -256,6 +259,7 @@ const bulletStyles = {
     bulletRow: styles.bulletRow,
     bulletDot: styles.bulletDot,
     bulletText: styles.bulletText,
+    bulletLinkContainer: styles.bulletLinkContainer
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
