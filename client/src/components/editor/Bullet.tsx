@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../store";
-import { dismissSuggestion, updateBullet, setFocusedBulletId } from "../../slices/resumeSlice";
+import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
 import { TextArea } from "./TextArea";
 import type { Bullet as BulletType, SuggestedBullet } from "../../types/resume";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion"
 
 interface Bullet {
     bullet: BulletType;
@@ -30,13 +31,14 @@ export const Bullet: React.FC<Bullet> = ({
 
     // When the Target Job panel signals this bullet should be focused,
     // scroll it into view and briefly highlight it, then clear the signal.
-    const focusedBulletId = useAppSelector((s) => s.resume.focusedBulletId);
-    useEffect(() => {
-        if (focusedBulletId !== bullet.id) return;
-        rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-        setOpen(!!suggestion); // auto-open the suggestion card if one exists
-        dispatch(setFocusedBulletId(null)); // clear so it doesn't retrigger
-    }, [focusedBulletId, bullet.id, suggestion, dispatch]);
+    // const focusedRegionId = useAppSelector((s) => s.resume.focusedRegionId);
+    // useEffect(() => {
+    //     if (focusedRegionId !== bullet.id) return;
+    //     rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    //     setOpen(!!suggestion); // auto-open the suggestion card if one exists
+    //     dispatch(setFocusedRegionId(null)); // clear so it doesn't retrigger
+    // }, [focusedRegionId, bullet.id, suggestion, dispatch]);
+    useScrollToFocusedRegion(rootRef, bullet.id, () => setOpen(!!suggestion))
 
     const handleTextChange = (text: string) => {
         dispatch(updateBullet({ section, entryId, bulletId: bullet.id, text }));

@@ -298,14 +298,16 @@ const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSec
                     // "Single Space Here" between entries; no top gap on first entry
                     style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}
                 >
-                    <View style={styles.entryRow}>
-                        <Text style={styles.entryInlineLabel}>
-                            {buildEntryLabel(exp.title, exp.company, exp.location)}
-                        </Text>
-                        <Text style={styles.entryDate}>
-                            {buildDateRange(exp.startDate, exp.endDate)}
-                        </Text>
-                    </View>
+                    <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
+                        <View style={styles.entryRow}>
+                            <Text style={styles.entryInlineLabel}>
+                                {buildEntryLabel(exp.title, exp.company, exp.location)}
+                            </Text>
+                            <Text style={styles.entryDate}>
+                                {buildDateRange(exp.startDate, exp.endDate)}
+                            </Text>
+                        </View>
+                    </Link>
                     {/* marginTop: 0 on bulletList = "No Space Here" */}
                     <BulletList bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
                 </View>

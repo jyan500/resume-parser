@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     type ContainsBullets,
@@ -19,6 +19,7 @@ import { Bullet } from "./Bullet";
 import type { ExperienceEntry, SuggestedBullet } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion"
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -115,12 +116,16 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     dragHandleProps,
 }) => {
     const [expanded, setExpanded] = useState(true);
+    const rootRef = useRef<HTMLDivElement>(null)
 
     // Count pending suggestions so we can badge the collapsed header.
     const pendingCount = entry.bullets.filter((b) => suggestionsMap.has(b.id)).length;
 
+    useScrollToFocusedRegion(rootRef, entry.id)
+
     return (
         <div
+            ref={rootRef}
             className={`rounded-xl border transition-colors duration-150 ${
                 entry.enabled
                     ? "border-slate-200 bg-white"

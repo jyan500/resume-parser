@@ -7,7 +7,7 @@ import {
     setSuggestions,
     dismissSuggestion,
     updateBullet,
-    setFocusedBulletId,
+    setFocusedRegionId,
     setHoveredBulletId,
     setTargetJobViewMode,
     type ContainsBullets,
@@ -287,7 +287,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                                 suggestedBullet={sb}
                                                 onApply={() => handleApply(sb)}
                                                 onDismiss={() => handleDismiss(sb)}
-                                                onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
+                                                onScrollTo={() => dispatch(setFocusedRegionId(sb.id))}
                                                 onHover={() => dispatch(setHoveredBulletId(sb.id))}
                                                 onHoverEnd={() => dispatch(setHoveredBulletId(null))}
                                             />

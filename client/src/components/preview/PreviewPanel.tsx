@@ -15,7 +15,7 @@ import "../../styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
-import { ORDERS, setTemplate } from "../../slices/resumeSlice"
+import { ORDERS, setTemplate, setFocusedRegionId } from "../../slices/resumeSlice"
 import type { ResumeTemplate } from "../../types/resume";
 import type { OptionType } from "../../types/api"
 import { Checkbox } from "../page-elements/Checkbox";
@@ -106,7 +106,7 @@ export const PreviewPanel: React.FC = () => {
         const regionId = (e.target as HTMLElement)
             .closest<HTMLElement>(".linkAnnotation[data-region-id]")
             ?.dataset.regionId;
-        // if (regionId) dispatch(setFocusedRegionId(regionId));
+        if (regionId) dispatch(setFocusedRegionId(regionId));
     }, [dispatch]);
 
     // when hovered bullet id is not null,

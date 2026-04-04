@@ -92,7 +92,7 @@ const initialState: ResumeState = {
     parseStatus: "idle",
     parseError: null,
     isDirty: false,
-    focusedBulletId: null,
+    focusedRegionId: null,
     hoveredBulletId: null,
     targetJobViewMode: "form",
     isDarkMode: false
@@ -508,10 +508,12 @@ export const resumeSlice = createSlice({
             state.parseError = action.payload.error ?? null;
         },
 
-        setFocusedBulletId(state, action: PayloadAction<string | null>) {
-            state.focusedBulletId = action.payload;
+        // region id includes both separate experience section headers, education entries, etc
+        setFocusedRegionId(state, action: PayloadAction<string | null>) {
+            state.focusedRegionId = action.payload;
         },
 
+        // specifically for setting hover states when hovering the suggestion cards
         setHoveredBulletId(state, action: PayloadAction<string | null>){
             state.hoveredBulletId = action.payload
         }
@@ -562,7 +564,7 @@ export const {
     setActiveSection,
     setTargetJobViewMode,
     setParseStatus,
-    setFocusedBulletId,
+    setFocusedRegionId,
     setHoveredBulletId,
 } = resumeSlice.actions;
 
