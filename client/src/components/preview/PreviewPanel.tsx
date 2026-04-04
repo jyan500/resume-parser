@@ -77,20 +77,26 @@ export const PreviewPanel: React.FC = () => {
 
     const handleAnnotationLayerRendered = useCallback(() => {
         /* 
-            find all link annotations and extract the region id, and transferring it to the section element's data-region-id instead ,
+            find all link annotations and extract the region id, and transferring it to the section element's data-region-id instead,
             and remove the href and title to remove the default browser artifacts like the tooltips
-        */
-        document.querySelectorAll(".linkAnnotation").forEach((section) => {
-            const anchor = section.querySelector<HTMLAnchorElement>("a");
-            if (!anchor) return;
-    
-            const regionId = anchor.hash?.slice(1); // extracts "bullet-id" from "#bullet-id"
-            if (regionId) (section as HTMLElement).dataset.regionId = regionId;
 
-            anchor.removeAttribute("href");
-            anchor.removeAttribute("title");
-        });
-    }, []);
+            The request animation frame delays this code from running until the DOM is fully rendered, otherwise there will 
+            be a timing issue where page 1 loads first, and it is parsed properly, but page 2 has not fully finished
+            loading and as a result, it doesn't get parsed properly.
+        */
+        requestAnimationFrame(() => {
+            document.querySelectorAll(".linkAnnotation").forEach((section) => {
+                const anchor = section.querySelector<HTMLAnchorElement>("a");
+                if (!anchor) return;
+
+                const regionId = anchor.hash?.slice(1); // extracts "bullet-id" from "#bullet-id"
+                if (regionId) (section as HTMLElement).dataset.regionId = regionId;
+
+                anchor.removeAttribute("href");
+                anchor.removeAttribute("title");
+            });
+        })
+    }, [])
 
     /* 
         handle the clicks to retrieve the region id 
@@ -236,7 +242,7 @@ export const PreviewPanel: React.FC = () => {
                                         pageNumber={i + 1}
                                         width={pageWidth}
                                         renderTextLayer={false}
-                                        renderAnnotationLayer={false}
+                                        renderAnnotationLayer={true}
                                         className="shadow-2xl opacity-80 transition-opacity duration-300"
                                         loading={null}
                                     />
