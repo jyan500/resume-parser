@@ -11,7 +11,7 @@ different from @react-pdf/renderer
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
+import "../../styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
@@ -32,7 +32,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
-    const {resume, visibility, order, template} = useAppSelector((state) => state.resume)
+    const {resume, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
@@ -102,6 +102,22 @@ export const PreviewPanel: React.FC = () => {
             ?.dataset.regionId;
         // if (regionId) dispatch(setFocusedRegionId(regionId));
     }, [dispatch]);
+
+    // when hovered bullet id is not null,
+    // locate the section which has the bullet id as the data-region-id and emit mouseover on that element
+    useEffect(() => {
+        // Clear any previously highlighted section
+        document.querySelectorAll(".linkAnnotation.is-hovered").forEach((el) => {
+            el.classList.remove("is-hovered");
+        });
+    
+        // Apply to the newly hovered section
+        if (hoveredBulletId) {
+            document.querySelector(
+                `.linkAnnotation[data-region-id="${hoveredBulletId}"]`
+            )?.classList.add("is-hovered");
+        }
+    }, [hoveredBulletId]);
  
     // Mirrors the derived booleans from the original repo exactly.
     const isFirstRendering = previousRenderUrl === null;
