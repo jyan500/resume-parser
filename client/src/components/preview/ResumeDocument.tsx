@@ -8,6 +8,7 @@ interface ResumeDocumentProps {
     visibility: ResumeVisibility;
     order: Array<OrderableSection>
     template: ResumeTemplate
+    interactive?: boolean
 }
 
 export const ResumeDocument = ({
@@ -15,11 +16,13 @@ export const ResumeDocument = ({
     visibility,
     order,
     template,
+    interactive=true,
 }: ResumeDocumentProps) => {
     if (template === "modern"){
         return (
             <ModernResumeTemplate
                 resume={resume}
+                interactive={interactive}
                 visibility={visibility}
                 order={order}
             />
@@ -29,6 +32,7 @@ export const ResumeDocument = ({
         return (
             <ClassicResumeTemplate
                 resume={resume}
+                interactive={interactive}
                 visibility={visibility}
                 order={order}
             />

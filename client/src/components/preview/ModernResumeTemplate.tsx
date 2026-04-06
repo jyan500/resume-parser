@@ -396,12 +396,14 @@ interface ResumeDocumentProps {
     resume: Resume;
     visibility: ResumeVisibility;
     order: Array<OrderableSection>;
+    interactive?: boolean
 }
 
 export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
     resume,
     visibility,
     order,
+    interactive,
 }) => {
     const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;

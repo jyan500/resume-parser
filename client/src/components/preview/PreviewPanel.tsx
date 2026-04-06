@@ -20,6 +20,7 @@ import type { ResumeTemplate } from "../../types/resume";
 import type { OptionType } from "../../types/api"
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
+import { LoadingSpinner } from "../page-elements/LoadingSpinner";
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -32,13 +33,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
+    const [ downloadLoading, setDownloadLoading ] = useState(false)
     const {resume, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
     })
 
-    const resumePdfDocument = <ResumeDocument template={template} order={order} resume={resume} visibility={visibility} />;
+    const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} />;
     const render = useAsync(async () => {
         const blob = await pdf(resumePdfDocument).toBlob();
         return URL.createObjectURL(blob);
@@ -67,13 +69,28 @@ export const PreviewPanel: React.FC = () => {
     const [numPages, setNumPages] = useState(1);
     const [containerWidth, setContainerWidth] = useState(0);
 
-    const handleDownload = useCallback(() => {
-        if (!render.value) return;
+    const handleDownload = useCallback(async () => {
+        const cleanDocument = (
+            <ResumeDocument
+                template={template}
+                order={order}
+                resume={resume}
+                visibility={visibility}
+                interactive={false}  // ← strips all link annotations
+            />
+        );
+    
+        const blob = await pdf(cleanDocument).toBlob();
+        const url = URL.createObjectURL(blob);
+    
         const a = document.createElement("a");
-        a.href = render.value;
-        a.download = `${resume.header.name || "resume"}.pdf`;
+        a.href = url;
+        a.download = `${resume.header.name ? resume.header.name.split(" ").join("_") + "_Resume" : "Resume"}.pdf`;
         a.click();
-    }, [render.value, resume.header.name]);
+    
+        // Clean up immediately after the click is dispatched
+        URL.revokeObjectURL(url);
+    }, [template, order, resume, visibility]);
 
     const handleAnnotationLayerRendered = useCallback(() => {
         /* 
@@ -199,13 +216,21 @@ export const PreviewPanel: React.FC = () => {
                     </form>
                 </div>
                 <button
-                    onClick={handleDownload}
+                    onClick={async () => {
+                        setDownloadLoading(true)
+                        await handleDownload()
+                        setDownloadLoading(false)
+                    }}
                     disabled={!render.value}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors duration-150"
                 >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
+                    {
+                        !downloadLoading ? 
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        : <LoadingSpinner/>
+                    }
                     Export PDF
                 </button>
             </div>

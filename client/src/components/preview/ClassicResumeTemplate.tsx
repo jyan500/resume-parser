@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         color: COLORS.darkGray,
         paddingTop: 40,
         paddingBottom: 48,
-        paddingHorizontal: 56,
+        paddingHorizontal: 60,
         lineHeight: 1.6,
     },
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     },
     bulletRow: {
         flexDirection: "row",
-        marginBottom: 0,
+        marginBottom: 4,
     },
     bulletDot: {
         width: 14,
@@ -285,10 +285,25 @@ function buildDateRange(startDate?: string, endDate?: string): string {
 interface ExperienceSectionProps {
     visibility: ResumeVisibility;
     enabledExperience: Array<ExperienceEntry>;
+    interactive?: boolean
 }
 
-const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSectionProps) => {
+const ExperienceSection = ({ visibility: vis, enabledExperience, interactive }: ExperienceSectionProps) => {
     if (!vis.experience || enabledExperience.length === 0) return null;
+
+    const entry = (exp: ExperienceEntry) => {
+        return (
+            <View style={styles.entryRow}>
+                <Text style={styles.entryInlineLabel}>
+                    {buildEntryLabel(exp.title, exp.company, exp.location)}
+                </Text>
+                <Text style={styles.entryDate}>
+                    {buildDateRange(exp.startDate, exp.endDate)}
+                </Text>
+            </View>
+        )
+    }
+
     return (
         <View style={styles.section}>
             <SectionHeader title="Work History" styles={sectionHeaderStyles} />
@@ -298,18 +313,15 @@ const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSec
                     // "Single Space Here" between entries; no top gap on first entry
                     style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}
                 >
-                    <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
-                        <View style={styles.entryRow}>
-                            <Text style={styles.entryInlineLabel}>
-                                {buildEntryLabel(exp.title, exp.company, exp.location)}
-                            </Text>
-                            <Text style={styles.entryDate}>
-                                {buildDateRange(exp.startDate, exp.endDate)}
-                            </Text>
-                        </View>
-                    </Link>
+                    {
+                        interactive ? 
+                            <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
+                                {entry(exp)}
+                            </Link>
+                        : entry(exp)
+                    }
                     {/* marginTop: 0 on bulletList = "No Space Here" */}
-                    <BulletList bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
+                    <BulletList interactive={interactive} bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
                 </View>
             ))}
         </View>
@@ -452,12 +464,14 @@ interface ResumeDocumentClassicProps {
     resume: Resume;
     visibility: ResumeVisibility;
     order: Array<OrderableSection>;
+    interactive?: boolean
 }
 
 export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
     resume,
     visibility,
     order,
+    interactive,
 }) => {
     const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;

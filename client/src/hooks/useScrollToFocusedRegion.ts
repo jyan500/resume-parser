@@ -4,7 +4,7 @@ import { setFocusedRegionId } from "../slices/resumeSlice"
 
 // If a region on the resume is clicked within the live PDF preview (or the suggestion card for experience/project bullet points),
 // automatically scroll to where the id of that specified region is on the editor panel
-export const useScrollToFocusedRegion = (ref: HTMLDivElement,currentRegionId: number, openCard?: () => void) => {
+export const useScrollToFocusedRegion = (ref: React.RefObject<HTMLDivElement>, currentRegionId: string, openCard?: () => void) => {
     const dispatch = useAppDispatch()
     const focusedRegionId = useAppSelector((s) => s.resume.focusedRegionId);
 

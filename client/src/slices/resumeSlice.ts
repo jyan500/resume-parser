@@ -76,7 +76,7 @@ export interface ResumeState {
     parseStatus: ParseStatus;
     parseError: string | null;
     isDirty: boolean;
-    focusedBulletId: string | null;
+    focusedRegionId: string | null;
     hoveredBulletId: string | null;
     targetJobViewMode: TargetJobViewMode
     isDarkMode: boolean
