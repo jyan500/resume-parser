@@ -12,7 +12,6 @@ export const SummarySection: React.FC = () => {
     const rootRef = useRef<HTMLDivElement>(null)
 
     useScrollToFocusedRegion(rootRef, summary?.id ?? "")
-    console.log("summary.id: ", summary?.id)
  
     return (
         <SectionWrapper

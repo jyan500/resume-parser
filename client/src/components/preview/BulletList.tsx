@@ -42,7 +42,6 @@ export const BulletList: React.FC<BulletListProps> = ({
                     // Link wraps the whole row so the annotation covers the full
                     // bullet region including the dot. The View inside keeps
                     // wrap={false} so page-break behaviour is unchanged.
-                    console.log("interactive: ", interactive)
                     if (interactive){
                         return (
                             <Link style={styles.bulletLinkContainer} key={bullet.id} src={`http://r/#${bullet.id}`}>
