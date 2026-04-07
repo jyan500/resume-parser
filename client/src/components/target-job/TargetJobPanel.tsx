@@ -7,7 +7,8 @@ import {
     setSuggestions,
     dismissSuggestion,
     updateBullet,
-    setFocusedBulletId,
+    setFocusedRegionId,
+    setHoveredBulletId,
     setTargetJobViewMode,
     type ContainsBullets,
 } from "../../slices/resumeSlice";
@@ -15,6 +16,7 @@ import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 import { AsyncSelect } from "../page-elements/AsyncSelect";
 import type { OptionType } from "../../types/api";
 import { JOB_TITLE_URL } from "../../helpers/urls";
+import { LoadingSpinner } from "../page-elements/LoadingSpinner";
 
 interface TargetJobForm {
     jobTitleId: OptionType;
@@ -82,7 +84,7 @@ const FormView: React.FC<FormViewProps> = ({
 
     const registerOptions = {
         jobTitleId: {
-            validate: (value) => {
+            validate: (value: OptionType) => {
                 const jobDescription = getValues("jobDescription")
                 if (!value && !jobDescription?.trim()) {
                     return "Please provide at least a job title or job description"
@@ -91,7 +93,7 @@ const FormView: React.FC<FormViewProps> = ({
             }
         },
         jobDescription: {
-            validate: (value) => {
+            validate: (value: string) => {
                 const jobTitle = getValues("jobTitleId")
                 if (!value?.trim() && !jobTitle) {
                     return "Please provide at least a job title or job description"
@@ -170,10 +172,11 @@ const FormView: React.FC<FormViewProps> = ({
             >
                 {isLoading ? (
                     <>
-                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        {/* <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                        </svg>
+                        </svg> */}
+                        <LoadingSpinner/>
                         Generating…
                     </>
                 ) : (
@@ -286,7 +289,9 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                                 suggestedBullet={sb}
                                                 onApply={() => handleApply(sb)}
                                                 onDismiss={() => handleDismiss(sb)}
-                                                onScrollTo={() => dispatch(setFocusedBulletId(sb.id))}
+                                                onScrollTo={() => dispatch(setFocusedRegionId(sb.id))}
+                                                onHover={() => dispatch(setHoveredBulletId(sb.id))}
+                                                onHoverEnd={() => dispatch(setHoveredBulletId(null))}
                                             />
                                         ))
                                     }
@@ -366,12 +371,18 @@ interface SuggestionCardProps {
     onApply: () => void;
     onDismiss: () => void;
     onScrollTo: () => void;
+    onHover: () => void
+    onHoverEnd: () => void
 }
 
 const SuggestionCard: React.FC<SuggestionCardProps> = ({
-    index, suggestedBullet, onApply, onDismiss, onScrollTo,
+    index, suggestedBullet, onApply, onDismiss, onScrollTo, onHover, onHoverEnd,
 }) => (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div 
+        className="rounded-xl border border-slate-200 bg-white"
+        onMouseEnter={onHover}
+        onMouseLeave={onHoverEnd}
+    >
         {/* Card header — clicking scrolls the editor to the matching bullet */}
         <button
             onClick={onScrollTo}

@@ -10,6 +10,7 @@ import {
 import { SectionWrapper } from "./SectionWrapper";
 import { AddButton } from "../page-elements/AddButton";
 import type { SkillCategory } from "../../types/resume";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -64,6 +65,9 @@ interface SkillCategoryRowProps {
 const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, onRemove, onToggle }) => {
     const [tagInput, setTagInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
+    const rootRef=  useRef<HTMLDivElement>(null)
+
+    useScrollToFocusedRegion(rootRef, skill.id)
 
     const addItem = (raw: string) => {
         const trimmed = raw.trim();
@@ -80,7 +84,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
     };
 
     return (
-        <div className={`rounded-xl border p-3 transition-colors duration-150 ${skill.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
+        <div ref={rootRef} className={`rounded-xl border p-3 transition-colors duration-150 ${skill.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
             {/* Category name row */}
             <div className="flex items-center gap-2 mb-2.5">
                 <span className="text-slate-300 cursor-grab">

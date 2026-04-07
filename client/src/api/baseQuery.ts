@@ -15,7 +15,6 @@ export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, CustomError> = 
     extraOptions
 ) => {
     const result = await rawBaseQuery(args, api, extraOptions);
-    console.log("result: ", result);
 
     if ("error" in result) {
         const status = String(result?.error?.status);

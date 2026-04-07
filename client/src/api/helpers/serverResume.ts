@@ -136,13 +136,17 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
 
     const resume: Resume = {
         header: {
+            id: uuid(),
             name: fullName,
             email: server.header.email ?? "",
             phone: server.header.phone_number ?? "",
             location: server.header.location ?? "",
             urls: server.header.urls ?? [],
         },
-        summary: normalizeText(server.summary) ?? "",
+        summary: {
+            id: uuid(),
+            text: normalizeText(server.summary) ?? ""
+        },
         experience,
         education,
         certifications,

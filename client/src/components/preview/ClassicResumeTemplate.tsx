@@ -22,7 +22,7 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { ExperienceEntry, Resume, ResumeVisibility } from "../../types/resume";
+import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, Skill, SkillCategory } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ContactItem } from "./ContactItem";
 import { SectionHeader } from "./SectionHeader";
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         color: COLORS.darkGray,
         paddingTop: 40,
         paddingBottom: 48,
-        paddingHorizontal: 56,
+        paddingHorizontal: 60,
         lineHeight: 1.6,
     },
 
@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     header: {
         marginBottom: SINGLE_LINE_GAP,
         alignItems: "center",
+        color: COLORS.black,
     },
     // Name: 14pt, bold
     name: {
@@ -164,9 +165,12 @@ const styles = StyleSheet.create({
         marginLeft: 12,
         marginTop: 0, // "No Space Here" between entry label row and bullets
     },
+    bulletLinkContainer: {
+        textDecoration: "none"
+    },
     bulletRow: {
         flexDirection: "row",
-        marginBottom: 0,
+        marginBottom: 4,
     },
     bulletDot: {
         width: 14,
@@ -256,6 +260,7 @@ const bulletStyles = {
     bulletRow: styles.bulletRow,
     bulletDot: styles.bulletDot,
     bulletText: styles.bulletText,
+    bulletLinkContainer: styles.bulletLinkContainer
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -281,10 +286,25 @@ function buildDateRange(startDate?: string, endDate?: string): string {
 interface ExperienceSectionProps {
     visibility: ResumeVisibility;
     enabledExperience: Array<ExperienceEntry>;
+    interactive?: boolean
 }
 
-const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSectionProps) => {
+const ExperienceSection = ({ visibility: vis, enabledExperience, interactive }: ExperienceSectionProps) => {
     if (!vis.experience || enabledExperience.length === 0) return null;
+
+    const entry = (exp: ExperienceEntry) => {
+        return (
+            <View style={styles.entryRow}>
+                <Text style={styles.entryInlineLabel}>
+                    {buildEntryLabel(exp.title, exp.company, exp.location)}
+                </Text>
+                <Text style={styles.entryDate}>
+                    {buildDateRange(exp.startDate, exp.endDate)}
+                </Text>
+            </View>
+        )
+    }
+
     return (
         <View style={styles.section}>
             <SectionHeader title="Work History" styles={sectionHeaderStyles} />
@@ -294,16 +314,15 @@ const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSec
                     // "Single Space Here" between entries; no top gap on first entry
                     style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}
                 >
-                    <View style={styles.entryRow}>
-                        <Text style={styles.entryInlineLabel}>
-                            {buildEntryLabel(exp.title, exp.company, exp.location)}
-                        </Text>
-                        <Text style={styles.entryDate}>
-                            {buildDateRange(exp.startDate, exp.endDate)}
-                        </Text>
-                    </View>
+                    {
+                        interactive ? 
+                            <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
+                                {entry(exp)}
+                            </Link>
+                        : entry(exp)
+                    }
                     {/* marginTop: 0 on bulletList = "No Space Here" */}
-                    <BulletList bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
+                    <BulletList interactive={interactive} bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
                 </View>
             ))}
         </View>
@@ -313,29 +332,42 @@ const ExperienceSection = ({ visibility: vis, enabledExperience }: ExperienceSec
 interface ProjectsSectionProps {
     visibility: ResumeVisibility;
     enabledProjects: Array<NonNullable<Resume["projects"]>[number]>;
+    interactive?: boolean
 }
 
-const ProjectsSection = ({ visibility: vis, enabledProjects }: ProjectsSectionProps) => {
+const ProjectsSection = ({ visibility: vis, enabledProjects, interactive }: ProjectsSectionProps) => {
     if (!vis.projects || enabledProjects.length === 0) return null;
+
+    const projectHeader = (proj: ProjectEntry) => {
+        return (
+            <View style={styles.entryRow}>
+                <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
+                    <Text style={styles.entryInlineLabel}>{proj.name}</Text>
+                    {proj.url && (
+                        <Link style={styles.contactLink} src={proj.url}>↗</Link>
+                    )}
+                </View>
+                {proj.technologies && proj.technologies.length > 0 && (
+                    <Text style={styles.entryDate}>
+                        {proj.technologies.join(", ")}
+                    </Text>
+                )}
+            </View>
+        )
+    }
     return (
         <View style={styles.section}>
             <SectionHeader title="Projects" styles={sectionHeaderStyles} />
             {enabledProjects.map((proj, i) => (
                 <View key={proj.id} style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}>
-                    <View style={styles.entryRow}>
-                        <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
-                            <Text style={styles.entryInlineLabel}>{proj.name}</Text>
-                            {proj.url && (
-                                <Link style={styles.contactLink} src={proj.url}>↗</Link>
-                            )}
-                        </View>
-                        {proj.technologies && proj.technologies.length > 0 && (
-                            <Text style={styles.entryDate}>
-                                {proj.technologies.join(", ")}
-                            </Text>
-                        )}
-                    </View>
-                    <BulletList bullets={proj.bullets} styles={bulletStyles} bulletChar="•" />
+                    {
+                        interactive ? 
+                        <Link src={`http://r/#${proj.id}`} style={styles.bulletLinkContainer}>
+                            {projectHeader(proj)}     
+                        </Link> :
+                        projectHeader(proj)
+                    }
+                    <BulletList interactive={interactive} bullets={proj.bullets} styles={bulletStyles} bulletChar="•" />
                 </View>
             ))}
         </View>
@@ -345,9 +377,10 @@ const ProjectsSection = ({ visibility: vis, enabledProjects }: ProjectsSectionPr
 interface EducationSectionProps {
     visibility: ResumeVisibility;
     enabledEducation: Resume["education"];
+    interactive?: boolean
 }
 
-const EducationSection = ({ visibility: vis, enabledEducation }: EducationSectionProps) => {
+const EducationSection = ({ visibility: vis, enabledEducation, interactive }: EducationSectionProps) => {
     if (!vis.education || enabledEducation.length === 0) return null;
     return (
         <View style={styles.section}>
@@ -363,22 +396,33 @@ const EducationSection = ({ visibility: vis, enabledEducation }: EducationSectio
 
                 const statusOrDate = edu.endDate ? `${edu.endDate}` : "";
 
-                return (
-                    <View key={edu.id} style={styles.eduCertBulletRow}>
-                        <Text style={styles.eduCertBulletDot}>•</Text>
-                        {/* justify-between: degree text left, date right */}
-                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
-                            {/* "Do NOT Bold" — plain eduCertText */}
-                            <Text style={styles.eduCertText}>
-                                {degreeText}
-                                {edu.gpa ? `  GPA: ${edu.gpa}` : ""}
-                            </Text>
-                            {statusOrDate ? (
-                                <Text style={styles.entryDate}>{statusOrDate}</Text>
-                            ) : null}
+                const eduCertRow = (edu: EducationEntry) => {
+                    return (
+                        <View key={edu.id} style={styles.eduCertBulletRow}>
+                            <Text style={styles.eduCertBulletDot}>•</Text>
+                            {/* justify-between: degree text left, date right */}
+                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                                {/* "Do NOT Bold" — plain eduCertText */}
+                                <Text style={styles.eduCertText}>
+                                    {degreeText}
+                                    {edu.gpa ? `  GPA: ${edu.gpa}` : ""}
+                                </Text>
+                                {statusOrDate ? (
+                                    <Text style={styles.entryDate}>{statusOrDate}</Text>
+                                ) : null}
+                            </View>
                         </View>
-                    </View>
-                );
+                    )
+                } 
+
+                if (interactive){
+                    return (
+                        <Link src={`http://r/#${edu.id}`} style={styles.bulletLinkContainer}>
+                            {eduCertRow(edu)}
+                        </Link>
+                    )
+                }
+                return eduCertRow(edu)
             })}
         </View>
     );
@@ -387,9 +431,10 @@ const EducationSection = ({ visibility: vis, enabledEducation }: EducationSectio
 interface CertificationSectionProps {
     visibility: ResumeVisibility;
     enabledCertifications: Resume["certifications"];
+    interactive?: boolean
 }
 
-const CertificationSection = ({ visibility: vis, enabledCertifications }: CertificationSectionProps) => {
+const CertificationSection = ({ visibility: vis, enabledCertifications, interactive }: CertificationSectionProps) => {
     if (!vis.certifications || enabledCertifications.length === 0) return null;
     return (
         <View style={styles.section}>
@@ -398,15 +443,27 @@ const CertificationSection = ({ visibility: vis, enabledCertifications }: Certif
                 const label = cert.organization
                     ? `${cert.name} from ${cert.organization}`
                     : cert.name;
-                return (
-                    <View key={cert.id} style={styles.eduCertBulletRow}>
-                        <Text style={styles.eduCertBulletDot}>•</Text>
-                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
-                            <Text style={styles.eduCertText}>{label}</Text>
-                            <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
+                const certRow = (cert: CertificationEntry) => {
+                    return (
+                        <View key={cert.id} style={styles.eduCertBulletRow}>
+                            <Text style={styles.eduCertBulletDot}>•</Text>
+                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                                <Text style={styles.eduCertText}>{label}</Text>
+                                <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
+                            </View>
                         </View>
-                    </View>
-                );
+                    )
+                }
+                if (interactive){
+                    return (
+                        <Link src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
+                            {certRow(cert)}
+                        </Link>
+                    )
+                }
+                return (
+                    certRow(cert)
+                )
             })}
         </View>
     );
@@ -415,19 +472,32 @@ const CertificationSection = ({ visibility: vis, enabledCertifications }: Certif
 interface SkillsSectionProps {
     visibility: ResumeVisibility;
     enabledSkills: Resume["skills"];
+    interactive?: boolean
 }
 
-const SkillsSection = ({ visibility: vis, enabledSkills }: SkillsSectionProps) => {
+const SkillsSection = ({ visibility: vis, enabledSkills, interactive }: SkillsSectionProps) => {
     if (!vis.skills || enabledSkills.length === 0) return null;
     return (
         <View style={styles.section}>
             <SectionHeader title="Skills" styles={sectionHeaderStyles} />
-            {enabledSkills.map((skill) => (
-                <View key={skill.id} style={styles.skillRow}>
-                    <Text style={styles.skillCategory}>{skill.category}:</Text>
-                    <Text style={styles.skillItems}>{skill.items.join(", ")}</Text>
-                </View>
-            ))}
+            {enabledSkills.map((skill) => {
+                const skillRow = (skill: SkillCategory) => {
+                    return (
+                        <View key={skill.id} style={styles.skillRow}>
+                            <Text style={styles.skillCategory}>{skill.category}:</Text>
+                            <Text style={styles.skillItems}>{skill.items.join(", ")}</Text>
+                        </View>
+                    )
+                }
+                if (interactive){
+                    return (
+                        <Link src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
+                            {skillRow(skill)}
+                        </Link>
+                    )
+                }
+                return skillRow(skill)
+            })}
         </View>
     );
 };
@@ -446,12 +516,14 @@ interface ResumeDocumentClassicProps {
     resume: Resume;
     visibility: ResumeVisibility;
     order: Array<OrderableSection>;
+    interactive?: boolean
 }
 
 export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
     resume,
     visibility,
     order,
+    interactive,
 }) => {
     const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;
@@ -478,55 +550,68 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
         skills: { visibility: vis, enabledSkills },
     };
 
+    const headerElement = (contactItems: Array<{value?: string; isLink?: boolean}>) => (
+        <View style={styles.header}>
+            <Text style={styles.name}>{header.name || "Your Name"}</Text>
+            <View style={styles.contactRow}>
+                {contactItems
+                    .filter((item) => item.value !== "")
+                    .map((item, i) => (
+                        <ContactItem
+                            key={i}
+                            interactive={interactive}
+                            value={item.value}
+                            isLink={item.isLink}
+                            isFirst={i === 0}
+                            styles={contactStyles}
+                        />
+                    ))}
+            </View>
+            {vis.header.location ? (
+                <View style={styles.contactRow}>
+                    <Text style={styles.contactText}>{header.location}</Text>
+                </View>
+            ) : null}
+        </View>
+    );
+
     return (
         <Document>
             <Page size="LETTER" style={styles.page}>
 
                 {/* ── Header ── */}
-                <View style={styles.header}>
-                    <Text style={styles.name}>{header.name || "Your Name"}</Text>
-                    <View style={styles.contactRow}>
-                        {contactItems
-                            .filter((item) => item.value !== "")
-                            .map((item, i) => (
-                                <ContactItem
-                                    key={i}
-                                    value={item.value}
-                                    isLink={item.isLink}
-                                    isFirst={i === 0}
-                                    styles={contactStyles}
-                                />
-                            ))}
-                    </View>
-                    {
-                        vis.header.location ? 
-                        <View style={styles.contactRow}>
-                            <Text style={styles.contactText}>{header.location}</Text>
-                        </View>
-                        : null
-                    }
-                </View>
+                {interactive ? (
+                    <Link src={`http://r/#${header.id}`} style={styles.bulletLinkContainer}>
+                        {headerElement(contactItems)}
+                    </Link>
+                ) : headerElement(contactItems)}
 
                 {/* ── Summary ── */}
-                {vis.summary && summary && (
+                {vis.summary && summary && summary.text !== "" && (
                     <View style={styles.section}>
                         <SectionHeader title="Summary" styles={sectionHeaderStyles} />
-                        <Text style={styles.summaryText}>{summary}</Text>
+                        {interactive ? (
+                            <Link src={`http://r/#${summary.id}`} style={styles.bulletLinkContainer}>
+                                <Text style={styles.summaryText}>{summary.text}</Text>
+                            </Link>
+                        ) : (
+                            <Text style={styles.summaryText}>{summary.text}</Text>
+                        )}
                     </View>
                 )}
 
                 {order.map((section) => {
                     switch (section) {
                         case "experience":
-                            return <ExperienceSection key="resume-experience" {...sectionProps.experience} />;
+                            return <ExperienceSection interactive={interactive} key="resume-experience" {...sectionProps.experience} />;
                         case "projects":
-                            return <ProjectsSection key="resume-projects" {...sectionProps.projects} />;
+                            return <ProjectsSection interactive={interactive} key="resume-projects" {...sectionProps.projects} />;
                         case "education":
-                            return <EducationSection key="resume-education" {...sectionProps.education} />;
+                            return <EducationSection interactive={interactive} key="resume-education" {...sectionProps.education} />;
                         case "certifications":
-                            return <CertificationSection key="resume-certifications" {...sectionProps.certifications} />;
+                            return <CertificationSection interactive={interactive} key="resume-certifications" {...sectionProps.certifications} />;
                         case "skills":
-                            return <SkillsSection key="resume-skills" {...sectionProps.skills} />;
+                            return <SkillsSection interactive={interactive} key="resume-skills" {...sectionProps.skills} />;
                     }
                 })}
 

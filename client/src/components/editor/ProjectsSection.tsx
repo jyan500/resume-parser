@@ -19,6 +19,7 @@ import { Bullet } from "./Bullet";
 import type { ProjectEntry, SuggestedBullet } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -105,8 +106,11 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     const [expanded, setExpanded] = useState(true);
     const [techInput, setTechInput] = useState("");
     const techInputRef = useRef<HTMLInputElement>(null);
+    const rootRef = useRef<HTMLDivElement>(null)
 
     const pendingCount = project.bullets.filter((b) => suggestionsMap.has(b.id)).length;
+
+    useScrollToFocusedRegion(rootRef, project.id, () => {setExpanded(true)})
 
     const addTech = (raw: string) => {
         const trimmed = raw.trim();
@@ -125,7 +129,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     };
 
     return (
-        <div className={`rounded-xl border transition-colors duration-150 ${project.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
+        <div ref={rootRef} className={`rounded-xl border transition-colors duration-150 ${project.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
             {/* ── Header ── */}
             <div className="flex items-center gap-2 px-3 py-2.5">
                 <button

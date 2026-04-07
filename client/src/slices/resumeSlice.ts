@@ -14,6 +14,7 @@ import type {
     Bullet,
     ResumeTemplate,
     ResumeSuggestion,
+    SummaryEntry,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
@@ -28,13 +29,14 @@ export const ORDERS = {
 
 const DEFAULT_RESUME: Resume = {
     header: {
+        id: "",
         name: "",
         email: "",
         phone: "",
         location: "",
         urls: [],
     },
-    summary: "",
+    summary: {id: "", text: ""},
     experience: [],
     education: [],
     certifications: [],
@@ -76,7 +78,8 @@ export interface ResumeState {
     parseStatus: ParseStatus;
     parseError: string | null;
     isDirty: boolean;
-    focusedBulletId: string | null;
+    focusedRegionId: string | null;
+    hoveredBulletId: string | null;
     targetJobViewMode: TargetJobViewMode
     isDarkMode: boolean
 }
@@ -91,7 +94,8 @@ const initialState: ResumeState = {
     parseStatus: "idle",
     parseError: null,
     isDirty: false,
-    focusedBulletId: null,
+    focusedRegionId: null,
+    hoveredBulletId: null,
     targetJobViewMode: "form",
     isDarkMode: false
 };
@@ -165,7 +169,7 @@ export const resumeSlice = createSlice({
         },
 
         // ── Summary ─────────────────────────────────────────────────────────────
-        setSummary(state, action: PayloadAction<string>) {
+        setSummary(state, action: PayloadAction<SummaryEntry>) {
             state.resume.summary = action.payload;
             state.isDirty = true;
         },
@@ -506,9 +510,16 @@ export const resumeSlice = createSlice({
             state.parseError = action.payload.error ?? null;
         },
 
-        setFocusedBulletId(state, action: PayloadAction<string | null>) {
-            state.focusedBulletId = action.payload;
+        // region id includes both separate experience section headers, education entries, etc
+        setFocusedRegionId(state, action: PayloadAction<string | null>) {
+            state.focusedRegionId = action.payload;
         },
+
+        // specifically for setting hover states when hovering the suggestion cards
+        setHoveredBulletId(state, action: PayloadAction<string | null>){
+            state.hoveredBulletId = action.payload
+        }
+        
     },
 });
 
@@ -555,7 +566,8 @@ export const {
     setActiveSection,
     setTargetJobViewMode,
     setParseStatus,
-    setFocusedBulletId,
+    setFocusedRegionId,
+    setHoveredBulletId,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

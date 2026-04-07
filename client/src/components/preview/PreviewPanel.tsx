@@ -11,14 +11,16 @@ different from @react-pdf/renderer
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
+import "../../styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
-import { ORDERS, setTemplate } from "../../slices/resumeSlice"
+import { ORDERS, setTemplate, setFocusedRegionId } from "../../slices/resumeSlice"
 import type { ResumeTemplate } from "../../types/resume";
+import type { OptionType } from "../../types/api"
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
+import { LoadingSpinner } from "../page-elements/LoadingSpinner";
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -31,13 +33,14 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
-    const {resume, visibility, order, template} = useAppSelector((state) => state.resume)
+    const [ downloadLoading, setDownloadLoading ] = useState(false)
+    const {resume, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
     })
 
-    const resumePdfDocument = <ResumeDocument template={template} order={order} resume={resume} visibility={visibility} />;
+    const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} />;
     const render = useAsync(async () => {
         const blob = await pdf(resumePdfDocument).toBlob();
         return URL.createObjectURL(blob);
@@ -66,13 +69,82 @@ export const PreviewPanel: React.FC = () => {
     const [numPages, setNumPages] = useState(1);
     const [containerWidth, setContainerWidth] = useState(0);
 
-    const handleDownload = useCallback(() => {
-        if (!render.value) return;
+    const handleDownload = useCallback(async () => {
+        const cleanDocument = (
+            <ResumeDocument
+                template={template}
+                order={order}
+                resume={resume}
+                visibility={visibility}
+                interactive={false}  // ← strips all link annotations
+            />
+        );
+    
+        const blob = await pdf(cleanDocument).toBlob();
+        const url = URL.createObjectURL(blob);
+    
         const a = document.createElement("a");
-        a.href = render.value;
-        a.download = `${resume.header.name || "resume"}.pdf`;
+        a.href = url;
+        a.download = `${resume.header.name ? resume.header.name.split(" ").join("_") + "_Resume" : "Resume"}.pdf`;
         a.click();
-    }, [render.value, resume.header.name]);
+    
+        // Clean up immediately after the click is dispatched
+        URL.revokeObjectURL(url);
+    }, [template, order, resume, visibility]);
+
+    const handleAnnotationLayerRendered = useCallback(() => {
+        /* 
+            find all link annotations and extract the region id, and transferring it to the section element's data-region-id instead,
+            and remove the href and title to remove the default browser artifacts like the tooltips
+
+            The request animation frame delays this code from running until the DOM is fully rendered, otherwise there will 
+            be a timing issue where page 1 loads first, and it is parsed properly, but page 2 has not fully finished
+            loading and as a result, it doesn't get parsed properly.
+        */
+        requestAnimationFrame(() => {
+            document.querySelectorAll(".linkAnnotation").forEach((section) => {
+                const anchor = section.querySelector<HTMLAnchorElement>("a");
+                if (!anchor) return;
+
+                const regionId = anchor.hash?.slice(1); // extracts "bullet-id" from "#bullet-id"
+
+                // do not remove the href and title from actual urls
+                if (regionId) {
+                    (section as HTMLElement).dataset.regionId = regionId;
+                    anchor.removeAttribute("href");
+                    anchor.removeAttribute("title");
+                }
+
+            });
+        })
+    }, [])
+
+    /* 
+        handle the clicks to retrieve the region id 
+        focus the specific region within the right editor pane 
+    */
+    const handleViewerClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+        const regionId = (e.target as HTMLElement)
+            .closest<HTMLElement>(".linkAnnotation[data-region-id]")
+            ?.dataset.regionId;
+        if (regionId) dispatch(setFocusedRegionId(regionId));
+    }, [dispatch]);
+
+    // when hovered bullet id is not null,
+    // locate the section which has the bullet id as the data-region-id and emit mouseover on that element
+    useEffect(() => {
+        // Clear any previously highlighted section
+        document.querySelectorAll(".linkAnnotation.is-hovered").forEach((el) => {
+            el.classList.remove("is-hovered");
+        });
+    
+        // Apply to the newly hovered section
+        if (hoveredBulletId) {
+            document.querySelector(
+                `.linkAnnotation[data-region-id="${hoveredBulletId}"]`
+            )?.classList.add("is-hovered");
+        }
+    }, [hoveredBulletId]);
  
     // Mirrors the derived booleans from the original repo exactly.
     const isFirstRendering = previousRenderUrl === null;
@@ -93,6 +165,10 @@ export const PreviewPanel: React.FC = () => {
         return () => observer.disconnect();
     }, []);
 
+    const displayTemplate = (label: string) => {
+        return label[0].toUpperCase() + label.slice(1)
+    }
+
     return (
         <div className="flex flex-col h-full">
 
@@ -104,17 +180,18 @@ export const PreviewPanel: React.FC = () => {
                             <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
                             <Select
                                 id="template-select"
+                                menuInPortal={true}
                                 className="w-32 text-xs"
-                                defaultValue={{ value: form.template, label: form.template[0].toUpperCase() + form.template.slice(1) }}
+                                defaultValue={{ value: form.template, label: displayTemplate(form.template) }}
                                 options={Object.keys(ORDERS).map((key) => ({
                                     value: key,
-                                    label: key[0].toUpperCase() + key.slice(1),
+                                    label: displayTemplate(key),
                                 }))}
                                 hideIndicatorSeparator={true}
                                 clearable={false}
-                                onChange={(selected) => {
+                                onSelect={(selected: OptionType | null) => {
                                     if (selected) {
-                                        setForm({ ...form, template: selected.value as ResumeTemplate })
+                                        setForm((prev) => ({ ...prev, template: selected.value as ResumeTemplate }))
                                         dispatch(setTemplate({
                                             template: selected.value as ResumeTemplate,
                                             resetOrder: form.resetOrder,
@@ -144,13 +221,21 @@ export const PreviewPanel: React.FC = () => {
                     </form>
                 </div>
                 <button
-                    onClick={handleDownload}
+                    onClick={async () => {
+                        setDownloadLoading(true)
+                        await handleDownload()
+                        setDownloadLoading(false)
+                    }}
                     disabled={!render.value}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors duration-150"
                 >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                    </svg>
+                    {
+                        !downloadLoading ? 
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                        : <LoadingSpinner/>
+                    }
                     Export PDF
                 </button>
             </div>
@@ -168,7 +253,7 @@ export const PreviewPanel: React.FC = () => {
                 )}
 
                 {containerWidth > 0 && (
-                    <div className="relative flex flex-col items-center py-6 gap-4">
+                    <div onClick={handleViewerClick} className="relative flex flex-col items-center py-6 gap-4">
 
                         {/*
                             Previous document — stays fully visible while the next
@@ -187,7 +272,7 @@ export const PreviewPanel: React.FC = () => {
                                         pageNumber={i + 1}
                                         width={pageWidth}
                                         renderTextLayer={false}
-                                        renderAnnotationLayer={false}
+                                        renderAnnotationLayer={true}
                                         className="shadow-2xl opacity-80 transition-opacity duration-300"
                                         loading={null}
                                     />
@@ -218,10 +303,12 @@ export const PreviewPanel: React.FC = () => {
                                         key={i + 1}
                                         pageNumber={i + 1}
                                         width={pageWidth}
-                                        renderTextLayer={true}
+                                        // ── Highlight the hovered suggestion bullet ──
                                         renderAnnotationLayer={true}
+                                        renderTextLayer={false}
                                         className="shadow-2xl"
                                         loading={null}
+                                        onRenderAnnotationLayerSuccess={handleAnnotationLayerRendered}
                                         onRenderSuccess={
                                             // Only the last page firing promotes the URL,
                                             // so multi-page resumes don't swap mid-render.
