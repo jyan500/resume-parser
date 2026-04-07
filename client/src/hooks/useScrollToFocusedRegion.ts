@@ -10,10 +10,10 @@ export const useScrollToFocusedRegion = (ref: React.RefObject<HTMLDivElement>, c
 
     useEffect(() => {
         if (focusedRegionId !== currentRegionId) return;
-        ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
         if (openCard){
             openCard()
         }
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
         // setOpen(!!suggestion); // auto-open the suggestion card if one exists
         dispatch(setFocusedRegionId(null)); // clear so it doesn't retrigger
     }, [focusedRegionId, currentRegionId]);

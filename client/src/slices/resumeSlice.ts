@@ -14,6 +14,7 @@ import type {
     Bullet,
     ResumeTemplate,
     ResumeSuggestion,
+    SummaryEntry,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
@@ -28,13 +29,14 @@ export const ORDERS = {
 
 const DEFAULT_RESUME: Resume = {
     header: {
+        id: "",
         name: "",
         email: "",
         phone: "",
         location: "",
         urls: [],
     },
-    summary: "",
+    summary: {id: "", text: ""},
     experience: [],
     education: [],
     certifications: [],
@@ -167,7 +169,7 @@ export const resumeSlice = createSlice({
         },
 
         // ── Summary ─────────────────────────────────────────────────────────────
-        setSummary(state, action: PayloadAction<string>) {
+        setSummary(state, action: PayloadAction<SummaryEntry>) {
             state.resume.summary = action.payload;
             state.isDirty = true;
         },

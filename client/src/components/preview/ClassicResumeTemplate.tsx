@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
     header: {
         marginBottom: SINGLE_LINE_GAP,
         alignItems: "center",
+        color: COLORS.darkGray,
     },
     // Name: 14pt, bold
     name: {
@@ -549,40 +550,52 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
         skills: { visibility: vis, enabledSkills },
     };
 
+    const headerElement = (contactItems: Array<{value?: string; isLink?: boolean}>) => (
+        <View style={styles.header}>
+            <Text style={styles.name}>{header.name || "Your Name"}</Text>
+            <View style={styles.contactRow}>
+                {contactItems
+                    .filter((item) => item.value !== "")
+                    .map((item, i) => (
+                        <ContactItem
+                            key={i}
+                            value={item.value}
+                            isLink={item.isLink}
+                            isFirst={i === 0}
+                            styles={contactStyles}
+                        />
+                    ))}
+            </View>
+            {vis.header.location ? (
+                <View style={styles.contactRow}>
+                    <Text style={styles.contactText}>{header.location}</Text>
+                </View>
+            ) : null}
+        </View>
+    );
+
     return (
         <Document>
             <Page size="LETTER" style={styles.page}>
 
                 {/* ── Header ── */}
-                <View style={styles.header}>
-                    <Text style={styles.name}>{header.name || "Your Name"}</Text>
-                    <View style={styles.contactRow}>
-                        {contactItems
-                            .filter((item) => item.value !== "")
-                            .map((item, i) => (
-                                <ContactItem
-                                    key={i}
-                                    value={item.value}
-                                    isLink={item.isLink}
-                                    isFirst={i === 0}
-                                    styles={contactStyles}
-                                />
-                            ))}
-                    </View>
-                    {
-                        vis.header.location ? 
-                        <View style={styles.contactRow}>
-                            <Text style={styles.contactText}>{header.location}</Text>
-                        </View>
-                        : null
-                    }
-                </View>
+                {interactive ? (
+                    <Link src={`http://r/#${header.id}`} style={styles.bulletLinkContainer}>
+                        {headerElement(contactItems)}
+                    </Link>
+                ) : headerElement(contactItems)}
 
                 {/* ── Summary ── */}
-                {vis.summary && summary && (
+                {vis.summary && summary && summary.text !== "" && (
                     <View style={styles.section}>
                         <SectionHeader title="Summary" styles={sectionHeaderStyles} />
-                        <Text style={styles.summaryText}>{summary}</Text>
+                        {interactive ? (
+                            <Link src={`http://r/#${summary.id}`} style={styles.bulletLinkContainer}>
+                                <Text style={styles.summaryText}>{summary.text}</Text>
+                            </Link>
+                        ) : (
+                            <Text style={styles.summaryText}>{summary.text}</Text>
+                        )}
                     </View>
                 )}
 

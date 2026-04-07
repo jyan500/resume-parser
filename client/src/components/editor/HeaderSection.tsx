@@ -1,20 +1,24 @@
-import React from "react";
+import React, {useRef} from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import { updateHeader, toggleHeaderField } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field"
 import { DebouncedInput } from "./DebouncedInput";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
  
 export const HeaderSection: React.FC = () => {
     const dispatch = useAppDispatch();
     const header = useAppSelector(selectResume).header;
     const vis = useAppSelector(selectVisibility).header;
- 
+    const rootRef = useRef<HTMLDivElement>(null)
+    
+    useScrollToFocusedRegion(rootRef, header.id)
+
     const patch = (p: Partial<typeof header>) => dispatch(updateHeader(p));
  
     return (
-        <SectionWrapper title="Resume Header">
+        <SectionWrapper ref={rootRef} title="Resume Header">
             {/* Name */}
             <div className="mb-3">
                 <Field

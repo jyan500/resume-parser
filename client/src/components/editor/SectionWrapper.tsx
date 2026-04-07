@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, forwardRef } from "react";
 
 interface SectionWrapperProps {
     title: string;
@@ -7,12 +7,10 @@ interface SectionWrapperProps {
     children: React.ReactNode;
     defaultOpen?: boolean;
     rightSlot?: React.ReactNode;
-    // Injected by the section-level DndSortableWrapperPreview in EditorPanel.
-    // Absent for Header and Summary, which are never orderable.
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
-export const SectionWrapper: React.FC<SectionWrapperProps> = ({
+export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     title,
     visible = true,
     onToggleVisibility,
@@ -20,11 +18,11 @@ export const SectionWrapper: React.FC<SectionWrapperProps> = ({
     defaultOpen = true,
     rightSlot,
     dragHandleProps,
-}) => {
+}, ref) => {
     const [open, setOpen] = useState(defaultOpen);
 
     return (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
+        <div ref={ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
             {/* Section header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
                 <div className="flex items-center gap-2">
@@ -101,4 +99,4 @@ export const SectionWrapper: React.FC<SectionWrapperProps> = ({
             {open && <div className="px-4 py-3">{children}</div>}
         </div>
     );
-};
+});
