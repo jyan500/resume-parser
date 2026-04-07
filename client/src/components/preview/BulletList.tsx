@@ -38,16 +38,21 @@ export const BulletList: React.FC<BulletListProps> = ({
         <View style={styles.bulletList}>
             {bullets
                 .filter((b) => b.enabled && b.text)
-                .map((bullet) => (
+                .map((bullet) => {
                     // Link wraps the whole row so the annotation covers the full
                     // bullet region including the dot. The View inside keeps
                     // wrap={false} so page-break behaviour is unchanged.
-                    interactive ? 
-                        <Link style={styles.bulletLinkContainer} key={bullet.id} src={`http://r/#${bullet.id}`}>
-                            {showBullet(bullet)}          
-                        </Link>
-                    : showBullet(bullet)
-                ))}
+                    console.log("interactive: ", interactive)
+                    if (interactive){
+                        return (
+                            <Link style={styles.bulletLinkContainer} key={bullet.id} src={`http://r/#${bullet.id}`}>
+                                {showBullet(bullet)}          
+                            </Link>
+                        )
+                    }
+                    return showBullet(bullet)
+                })}
         </View>
     )
 };
+     
