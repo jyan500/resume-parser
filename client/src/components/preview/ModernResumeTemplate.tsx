@@ -492,6 +492,7 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
                         .map((item, i) => (
                             <ContactItem
                                 key={i}
+                                interactive={interactive}
                                 value={item.value}
                                 isLink={item.isLink}
                                 isFirst={i === 0}

@@ -107,10 +107,14 @@ export const PreviewPanel: React.FC = () => {
                 if (!anchor) return;
 
                 const regionId = anchor.hash?.slice(1); // extracts "bullet-id" from "#bullet-id"
-                if (regionId) (section as HTMLElement).dataset.regionId = regionId;
 
-                anchor.removeAttribute("href");
-                anchor.removeAttribute("title");
+                // do not remove the href and title from actual urls
+                if (regionId) {
+                    (section as HTMLElement).dataset.regionId = regionId;
+                    anchor.removeAttribute("href");
+                    anchor.removeAttribute("title");
+                }
+
             });
         })
     }, [])

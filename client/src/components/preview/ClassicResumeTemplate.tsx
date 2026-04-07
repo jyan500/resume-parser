@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     header: {
         marginBottom: SINGLE_LINE_GAP,
         alignItems: "center",
-        color: COLORS.darkGray,
+        color: COLORS.black,
     },
     // Name: 14pt, bold
     name: {
@@ -559,6 +559,7 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
                     .map((item, i) => (
                         <ContactItem
                             key={i}
+                            interactive={interactive}
                             value={item.value}
                             isLink={item.isLink}
                             isFirst={i === 0}
