@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     addCertification,
@@ -11,6 +11,7 @@ import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import type { CertificationEntry } from "../../types/resume";
+import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -64,9 +65,12 @@ interface CertificationEntryRowProps {
 
 const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, onUpdate, onRemove, onToggle }) => {
     const [expanded, setExpanded] = useState(true);
+    const rootRef = useRef<HTMLDivElement>(null)
+    
+    useScrollToFocusedRegion(rootRef, entry.id, () => {setExpanded(true)})
 
     return (
-        <div className={`rounded-xl border transition-colors duration-150 ${entry.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
+        <div ref={rootRef} className={`rounded-xl border transition-colors duration-150 ${entry.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
             {/* Header row */}
             <div className="flex items-center gap-2 px-3 py-2.5">
                 <span className="text-slate-300 cursor-grab flex-shrink-0">

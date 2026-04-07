@@ -1,4 +1,4 @@
-export const SELECT_Z_INDEX = "z-10"
+export const SELECT_Z_INDEX = "z-20"
 
 export const PRIMARY_MODAL_Z_INDEX = "z-20"
 

@@ -176,6 +176,7 @@ export const PreviewPanel: React.FC = () => {
                             <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
                             <Select
                                 id="template-select"
+                                menuInPortal={true}
                                 className="w-32 text-xs"
                                 defaultValue={{ value: form.template, label: displayTemplate(form.template) }}
                                 options={Object.keys(ORDERS).map((key) => ({

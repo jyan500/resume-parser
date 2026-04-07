@@ -22,7 +22,7 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility } from "../../types/resume";
+import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, Skill, SkillCategory } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ContactItem } from "./ContactItem";
 import { SectionHeader } from "./SectionHeader";
@@ -442,15 +442,27 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
                 const label = cert.organization
                     ? `${cert.name} from ${cert.organization}`
                     : cert.name;
-                return (
-                    <View key={cert.id} style={styles.eduCertBulletRow}>
-                        <Text style={styles.eduCertBulletDot}>•</Text>
-                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
-                            <Text style={styles.eduCertText}>{label}</Text>
-                            <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
+                const certRow = (cert: CertificationEntry) => {
+                    return (
+                        <View key={cert.id} style={styles.eduCertBulletRow}>
+                            <Text style={styles.eduCertBulletDot}>•</Text>
+                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                                <Text style={styles.eduCertText}>{label}</Text>
+                                <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
+                            </View>
                         </View>
-                    </View>
-                );
+                    )
+                }
+                if (interactive){
+                    return (
+                        <Link src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
+                            {certRow(cert)}
+                        </Link>
+                    )
+                }
+                return (
+                    certRow(cert)
+                )
             })}
         </View>
     );
@@ -467,12 +479,24 @@ const SkillsSection = ({ visibility: vis, enabledSkills, interactive }: SkillsSe
     return (
         <View style={styles.section}>
             <SectionHeader title="Skills" styles={sectionHeaderStyles} />
-            {enabledSkills.map((skill) => (
-                <View key={skill.id} style={styles.skillRow}>
-                    <Text style={styles.skillCategory}>{skill.category}:</Text>
-                    <Text style={styles.skillItems}>{skill.items.join(", ")}</Text>
-                </View>
-            ))}
+            {enabledSkills.map((skill) => {
+                const skillRow = (skill: SkillCategory) => {
+                    return (
+                        <View key={skill.id} style={styles.skillRow}>
+                            <Text style={styles.skillCategory}>{skill.category}:</Text>
+                            <Text style={styles.skillItems}>{skill.items.join(", ")}</Text>
+                        </View>
+                    )
+                }
+                if (interactive){
+                    return (
+                        <Link src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
+                            {skillRow(skill)}
+                        </Link>
+                    )
+                }
+                return skillRow(skill)
+            })}
         </View>
     );
 };
