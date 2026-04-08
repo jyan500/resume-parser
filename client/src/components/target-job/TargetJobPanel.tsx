@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useTailorResumeMutation } from "../../api/public/resume";
-import type { Resume, SuggestedBullet } from "../../types/resume";
+import type { Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
 import {
     setSuggestions,
     dismissSuggestion,
@@ -10,6 +10,8 @@ import {
     setFocusedRegionId,
     setHoveredBulletId,
     setTargetJobViewMode,
+    toggleSectionCollapseVisibility,
+    setSubToggleVisibility,
     type ContainsBullets,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
@@ -214,6 +216,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     onRetarget,
 }) => {
     const dispatch = useAppDispatch();
+    const { regionToSection, subRegionToRegion, toggleVisibility, subToggleVisibility } = useAppSelector((state) => state.resume) 
     const [recommendationsOpen, setRecommendationsOpen] = useState(false);
     const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
 
@@ -240,6 +243,23 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     const handleDismiss = (sb: SuggestedBullet) => {
         dispatch(dismissSuggestion(sb.id));
     };
+
+    const onScrollTo = (sb: SuggestedBullet) => {
+        // check whether the sub section is open
+        const regionId = sb.id
+        if (regionId in subRegionToRegion){
+            const mainRegionId = subRegionToRegion[regionId]
+            if (mainRegionId in subToggleVisibility){
+                dispatch(setSubToggleVisibility({regionId: mainRegionId, isOpen: true}))
+            }
+            // if the top level parent is collapsed, make sure it becomes visible
+            if (mainRegionId in regionToSection){
+                const sectionKey: keyof ToggleVisibility = regionToSection[mainRegionId]
+                dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: true}))
+            }
+        }
+        dispatch(setFocusedRegionId(sb.id))
+    }
 
     const allDone = suggestedBullets.length === 0;
 
@@ -289,7 +309,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                                 suggestedBullet={sb}
                                                 onApply={() => handleApply(sb)}
                                                 onDismiss={() => handleDismiss(sb)}
-                                                onScrollTo={() => dispatch(setFocusedRegionId(sb.id))}
+                                                onScrollTo={() => onScrollTo(sb)}
                                                 onHover={() => dispatch(setHoveredBulletId(sb.id))}
                                                 onHoverEnd={() => dispatch(setHoveredBulletId(null))}
                                             />
