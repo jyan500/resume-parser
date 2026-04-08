@@ -417,7 +417,7 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive }: Ed
 
                 if (interactive){
                     return (
-                        <Link src={`http://r/#${edu.id}`} style={styles.bulletLinkContainer}>
+                        <Link key={edu.id} src={`http://r/#${edu.id}`} style={styles.bulletLinkContainer}>
                             {eduCertRow(edu)}
                         </Link>
                     )
@@ -456,7 +456,7 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
                 }
                 if (interactive){
                     return (
-                        <Link src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
+                        <Link key={cert.id} src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
                             {certRow(cert)}
                         </Link>
                     )

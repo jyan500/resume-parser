@@ -15,8 +15,8 @@ import "../../styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
-import { ORDERS, setTemplate, setFocusedRegionId } from "../../slices/resumeSlice"
-import type { ResumeTemplate } from "../../types/resume";
+import { ORDERS, setTemplate, setFocusedRegionId, toggleSectionCollapseVisibility, setSubToggleVisibility } from "../../slices/resumeSlice"
+import type { ResumeTemplate, ToggleVisibility } from "../../types/resume";
 import type { OptionType } from "../../types/api"
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
@@ -34,7 +34,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const [ downloadLoading, setDownloadLoading ] = useState(false)
-    const {resume, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
+    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
@@ -127,7 +127,30 @@ export const PreviewPanel: React.FC = () => {
         const regionId = (e.target as HTMLElement)
             .closest<HTMLElement>(".linkAnnotation[data-region-id]")
             ?.dataset.regionId;
-        if (regionId) dispatch(setFocusedRegionId(regionId));
+
+        // TODO: need to make sure the region id is present in the DOM (not collapsed) before this method is called
+        if (regionId) {
+            // for experience and project sections with nested bullets,
+            if (regionId in subRegionToRegion){
+                const mainRegionId = subRegionToRegion[regionId]
+                if (mainRegionId in subToggleVisibility){
+                    console.log("mainRegionId found: ", mainRegionId)
+                    dispatch(setSubToggleVisibility({regionId: mainRegionId, isOpen: true}))
+                }
+                // if the top level parent is collapsed, make sure it becomes visible
+                if (mainRegionId in regionToSection){
+                    const sectionKey: keyof ToggleVisibility = regionToSection[mainRegionId]
+                    console.log("sectionKey: ", sectionKey)
+                    dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: true}))
+                }
+            }
+            // for every section that is not projects and experiences (that have nested sections)
+            else if (regionId in regionToSection){
+                const sectionKey: keyof ToggleVisibility = regionToSection[regionId]
+                dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: true}))
+            }
+            dispatch(setFocusedRegionId(regionId))
+        }
     }, [dispatch]);
 
     // when hovered bullet id is not null,

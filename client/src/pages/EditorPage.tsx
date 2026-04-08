@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PreviewPanel } from "../components/preview/PreviewPanel";
-import { useAppSelector, selectParseStatus } from "../store";
+import { persistor, useAppSelector, useAppDispatch, selectParseStatus } from "../store";
 import { EditorPanel } from "../components/editor/EditorPanel";
 import { TargetJobPanel } from "../components/target-job/TargetJobPanel";
+import { resetResume } from "../slices/resumeSlice";
 
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
     const parseStatus = useAppSelector(selectParseStatus);
+    const dispatch = useAppDispatch()
 
     // Guard: if someone navigates directly to /editor without a parsed resume,
     // send them back to the upload page.
@@ -16,6 +18,15 @@ export const EditorPage: React.FC = () => {
             navigate("/", { replace: true });
         }
     }, [parseStatus, navigate]);
+
+    // Reset in-memory Redux state, flush & purge the localStorage persistence,
+    // then navigate back. Awaiting purge ensures the key is removed before the
+    // upload page mounts and checks the store.
+    const handleBackToUpload = useCallback(async () => {
+        dispatch(resetResume());
+        await persistor.purge();
+        navigate("/");
+    }, [dispatch, navigate]);
 
     if (parseStatus !== "success") return null;
 
@@ -27,7 +38,7 @@ export const EditorPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                     {/* Back to upload */}
                     <button
-                        onClick={() => navigate("/")}
+                        onClick={() => handleBackToUpload()}
                         className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors duration-150"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">

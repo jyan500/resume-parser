@@ -6,6 +6,8 @@ import {
     removeEducation,
     toggleEducation,
     toggleSectionVisibility,
+    toggleSectionCollapseVisibility,
+    setSubToggleVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -29,6 +31,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ dragHandlePr
     return (
         <SectionWrapper
             title="Education"
+            sectionKey="education"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("education"))}
             dragHandleProps={dragHandleProps}
@@ -64,9 +67,11 @@ interface EducationEntryRowProps {
 }
 
 const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, onRemove, onToggle }) => {
-    const [expanded, setExpanded] = useState(true);
+    const dispatch = useAppDispatch();
+    // const [expanded, setExpanded] = useState(true);
+    const { subToggleVisibility } = useAppSelector((state) => state.resume)
     const rootRef = useRef<HTMLDivElement>(null)
-    useScrollToFocusedRegion(rootRef, entry.id, () => {setExpanded(true)})
+    useScrollToFocusedRegion(rootRef, entry.id)
 
     return (
         <div ref={rootRef} className={`rounded-xl border transition-colors duration-150 ${entry.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
@@ -109,11 +114,11 @@ const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, 
                         </svg>
                     </button>
                     <button
-                        onClick={() => setExpanded((v) => !v)}
+                        onClick={() => dispatch(setSubToggleVisibility({regionId: entry.id, isOpen: !subToggleVisibility[entry.id]}))}
                         className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors"
                     >
                         <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-0" : "-rotate-90"}`}
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${subToggleVisibility[entry.id] ? "rotate-0" : "-rotate-90"}`}
                             fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -123,7 +128,7 @@ const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, 
             </div>
 
             {/* Fields */}
-            {expanded && (
+            {subToggleVisibility[entry.id] && (
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <div className="col-span-2">

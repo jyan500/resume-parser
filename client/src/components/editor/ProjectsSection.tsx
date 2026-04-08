@@ -10,6 +10,8 @@ import {
     removeBullet,
     toggleBullet,
     toggleSectionVisibility,
+    toggleSectionCollapseVisibility,
+    setSubToggleVisibility,
     reorderProjects,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
@@ -41,6 +43,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
     return (
         <SectionWrapper
             title="Projects"
+            sectionKey="projects"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("projects"))}
             dragHandleProps={dragHandleProps}
@@ -103,14 +106,16 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     project, suggestionsMap, onUpdate, onRemove, onToggle, onAddBullet,
     onRemoveBullet, onToggleBullet, dragHandleProps,
 }) => {
-    const [expanded, setExpanded] = useState(true);
+    const dispatch = useAppDispatch();
+    // const [expanded, setExpanded] = useState(true);
+    const { subToggleVisibility } = useAppSelector((state) => state.resume)
     const [techInput, setTechInput] = useState("");
     const techInputRef = useRef<HTMLInputElement>(null);
     const rootRef = useRef<HTMLDivElement>(null)
 
     const pendingCount = project.bullets.filter((b) => suggestionsMap.has(b.id)).length;
 
-    useScrollToFocusedRegion(rootRef, project.id, () => {setExpanded(true)})
+    useScrollToFocusedRegion(rootRef, project.id)
 
     const addTech = (raw: string) => {
         const trimmed = raw.trim();
@@ -165,7 +170,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     </div>
 
                     {/* Pending suggestions pill — only when collapsed */}
-                    {!expanded && pendingCount > 0 && (
+                    {!subToggleVisibility[project.id] && pendingCount > 0 && (
                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-600 text-xs font-medium flex-shrink-0">
                             <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
@@ -181,9 +186,9 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
                         </svg>
                     </button>
-                    <button onClick={() => setExpanded((v) => !v)} className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors">
+                    <button onClick={() => dispatch(setSubToggleVisibility({regionId: project.id, isOpen: !subToggleVisibility[project.id]}))} className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors">
                         <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-0" : "-rotate-90"}`}
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${subToggleVisibility[project.id] ? "rotate-0" : "-rotate-90"}`}
                             fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -193,7 +198,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
             </div>
 
             {/* ── Fields ── */}
-            {expanded && (
+            {subToggleVisibility[project.id] && (
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <div className="col-span-2">

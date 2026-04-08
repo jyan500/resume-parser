@@ -6,6 +6,7 @@ import {
     removeSkillCategory,
     toggleSkillCategory,
     toggleSectionVisibility,
+    toggleSectionCollapseVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { AddButton } from "../page-elements/AddButton";
@@ -28,6 +29,7 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({ dragHandleProps })
     return (
         <SectionWrapper
             title="Skills"
+            sectionKey="skills"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("skills"))}
             dragHandleProps={dragHandleProps}
@@ -63,6 +65,7 @@ interface SkillCategoryRowProps {
 }
 
 const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, onRemove, onToggle }) => {
+    const dispatch = useAppDispatch();
     const [tagInput, setTagInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const rootRef=  useRef<HTMLDivElement>(null)

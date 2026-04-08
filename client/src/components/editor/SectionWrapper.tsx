@@ -1,7 +1,11 @@
-import React, { useState, forwardRef } from "react";
+import React, { forwardRef } from "react";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { toggleSectionCollapseVisibility } from "../../slices/resumeSlice"
+import type { ToggleVisibility } from "../../types/resume";
 
 interface SectionWrapperProps {
     title: string;
+    sectionKey: keyof ToggleVisibility 
     visible?: boolean;
     onToggleVisibility?: () => void;
     children: React.ReactNode;
@@ -12,6 +16,7 @@ interface SectionWrapperProps {
 
 export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     title,
+    sectionKey,
     visible = true,
     onToggleVisibility,
     children,
@@ -19,7 +24,9 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     rightSlot,
     dragHandleProps,
 }, ref) => {
-    const [open, setOpen] = useState(defaultOpen);
+
+    const { toggleVisibility } = useAppSelector((state) => state.resume)
+    const dispatch = useAppDispatch()
 
     return (
         <div ref={ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
@@ -49,11 +56,11 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                         </button>
                     )}
                     <button
-                        onClick={() => setOpen((o) => !o)}
+                        onClick={() => dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: !toggleVisibility[sectionKey]}))}
                         className="text-slate-700 hover:text-slate-900 transition-colors"
                     >
                         <svg
-                            className={`w-4 h-4 transition-transform duration-200 ${open ? "rotate-0" : "-rotate-90"}`}
+                            className={`w-4 h-4 transition-transform duration-200 ${toggleVisibility[sectionKey] ? "rotate-0" : "-rotate-90"}`}
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth={2.5}
@@ -96,7 +103,7 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                 </div>
             </div>
             {/* Content */}
-            {open && <div className="px-4 py-3">{children}</div>}
+            {toggleVisibility[sectionKey] && <div className="px-4 py-3">{children}</div>}
         </div>
     );
 });

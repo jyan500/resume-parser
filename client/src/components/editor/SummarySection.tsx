@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
-import { setSummary, toggleSectionVisibility } from "../../slices/resumeSlice";
+import { setSummary, toggleSectionVisibility, toggleSectionCollapseVisibility } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextArea } from "./TextArea"
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
@@ -15,6 +15,7 @@ export const SummarySection: React.FC = () => {
  
     return (
         <SectionWrapper
+            sectionKey="summary"
             title="Professional Summary"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("summary"))}
