@@ -320,6 +320,8 @@ export const resumeSlice = createSlice({
                     );
                     if (entity) {
                         const newId = uuid()
+                        console.log("newId: ", newId)
+                        console.log("entityId: ", entity.id)
                         entity.bullets.push({ id: newId, text: "", enabled: true });
                         state.subRegionToRegion[newId] = entity.id
                     }

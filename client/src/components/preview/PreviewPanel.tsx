@@ -123,7 +123,7 @@ export const PreviewPanel: React.FC = () => {
         handle the clicks to retrieve the region id 
         focus the specific region within the right editor pane 
     */
-    const handleViewerClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const handleViewerClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const regionId = (e.target as HTMLElement)
             .closest<HTMLElement>(".linkAnnotation[data-region-id]")
             ?.dataset.regionId;
@@ -134,13 +134,11 @@ export const PreviewPanel: React.FC = () => {
             if (regionId in subRegionToRegion){
                 const mainRegionId = subRegionToRegion[regionId]
                 if (mainRegionId in subToggleVisibility){
-                    console.log("mainRegionId found: ", mainRegionId)
                     dispatch(setSubToggleVisibility({regionId: mainRegionId, isOpen: true}))
                 }
                 // if the top level parent is collapsed, make sure it becomes visible
                 if (mainRegionId in regionToSection){
                     const sectionKey: keyof ToggleVisibility = regionToSection[mainRegionId]
-                    console.log("sectionKey: ", sectionKey)
                     dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: true}))
                 }
             }
@@ -151,7 +149,7 @@ export const PreviewPanel: React.FC = () => {
             }
             dispatch(setFocusedRegionId(regionId))
         }
-    }, [dispatch]);
+    }
 
     // when hovered bullet id is not null,
     // locate the section which has the bullet id as the data-region-id and emit mouseover on that element
