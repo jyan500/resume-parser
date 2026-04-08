@@ -1,5 +1,6 @@
 import React, { useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { CustomError } from "../../types/api";
 import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";

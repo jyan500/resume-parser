@@ -1,5 +1,6 @@
 // ─── Primitives ───────────────────────────────────────────────────────────────
 export interface ResumeHeader {
+    id: string
     name: string;
     email: string;
     phone: string;
@@ -61,10 +62,15 @@ export interface CertificationEntry {
     enabled: boolean;
 }
 
+export interface SummaryEntry {
+    id: string
+    text: string
+}
+
 // ─── Root Resume ──────────────────────────────────────────────────────────────
 export interface Resume {
     header: ResumeHeader;
-    summary?: string;
+    summary?: SummaryEntry;
     experience: ExperienceEntry[];
     education: EducationEntry[];
     certifications: CertificationEntry[];
@@ -87,6 +93,20 @@ export interface ResumeVisibility {
         location: boolean;
         urls: boolean;
     };
+}
+
+export interface ToggleVisibility {
+    summary: boolean;
+    experience: boolean;
+    education: boolean;
+    skills: boolean;
+    certifications: boolean;
+    projects: boolean;
+    header: boolean;
+}
+
+export interface SubToggleVisibility {
+    [regionId: string]: boolean
 }
 
 export type SuggestedBullet = Bullet & {

@@ -31,13 +31,6 @@ export const Bullet: React.FC<Bullet> = ({
 
     // When the Target Job panel signals this bullet should be focused,
     // scroll it into view and briefly highlight it, then clear the signal.
-    // const focusedRegionId = useAppSelector((s) => s.resume.focusedRegionId);
-    // useEffect(() => {
-    //     if (focusedRegionId !== bullet.id) return;
-    //     rootRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    //     setOpen(!!suggestion); // auto-open the suggestion card if one exists
-    //     dispatch(setFocusedRegionId(null)); // clear so it doesn't retrigger
-    // }, [focusedRegionId, bullet.id, suggestion, dispatch]);
     useScrollToFocusedRegion(rootRef, bullet.id, () => setOpen(!!suggestion))
 
     const handleTextChange = (text: string) => {

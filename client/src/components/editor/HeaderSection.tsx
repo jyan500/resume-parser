@@ -1,6 +1,6 @@
 import React, {useRef} from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
-import { updateHeader, toggleHeaderField } from "../../slices/resumeSlice";
+import { updateHeader, toggleHeaderField, toggleSectionCollapseVisibility } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field"
 import { DebouncedInput } from "./DebouncedInput";
@@ -18,7 +18,7 @@ export const HeaderSection: React.FC = () => {
     const patch = (p: Partial<typeof header>) => dispatch(updateHeader(p));
  
     return (
-        <SectionWrapper ref={rootRef} title="Resume Header">
+        <SectionWrapper sectionKey={"header"} ref={rootRef} title="Resume Header">
             {/* Name */}
             <div className="mb-3">
                 <Field

@@ -9,10 +9,12 @@ import type {
     ExperienceEntry,
     EducationEntry,
     CertificationEntry,
+    ToggleVisibility,
     SkillCategory,
     ProjectEntry,
     Bullet,
     ResumeTemplate,
+    SubToggleVisibility,
     ResumeSuggestion,
     SummaryEntry,
 } from "../types/resume";
@@ -25,6 +27,14 @@ type TargetJobViewMode = "form" | "suggestions"
 export const ORDERS = {
     "modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
     "classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
+}
+
+export type RegionToSection = {
+    [key: string]: keyof ToggleVisibility
+}
+
+export type SubRegionToRegion = {
+    [key: string]: string
 }
 
 const DEFAULT_RESUME: Resume = {
@@ -60,6 +70,16 @@ const DEFAULT_VISIBILITY: ResumeVisibility = {
     },
 };
 
+const TOGGLE_VISIBILITY: ToggleVisibility = {
+    summary: false,
+    experience: false,
+    education: false,
+    certifications: false,
+    skills: false,
+    projects: false,
+    header: true
+};
+
 const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
     suggestedBullets: [],
     missingKeywords: [],
@@ -71,6 +91,10 @@ const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
 export interface ResumeState {
     resume: Resume;
     visibility: ResumeVisibility;
+    toggleVisibility: ToggleVisibility;
+    regionToSection: RegionToSection;
+    subRegionToRegion: SubRegionToRegion;
+    subToggleVisibility: SubToggleVisibility;
     template: ResumeTemplate;
     suggestions: ResumeSuggestion;
     order: Array<OrderableSection>;
@@ -88,6 +112,10 @@ const initialState: ResumeState = {
     resume: DEFAULT_RESUME,
     suggestions: DEFAULT_SUGGESTIONS,
     visibility: DEFAULT_VISIBILITY,
+    toggleVisibility: TOGGLE_VISIBILITY,
+    subRegionToRegion: {},
+    subToggleVisibility: {},
+    regionToSection: {},
     template: "classic",
     order: ORDERS["classic"],
     activeSection: null,
@@ -109,15 +137,68 @@ export const resumeSlice = createSlice({
         // ── Bulk ────────────────────────────────────────────────────────────────
         setResume(state, action: PayloadAction<Resume>) {
             state.resume = action.payload;
+            /* 
+                map each resume region id to it's corresponding section for the purposes 
+                of allowing the click on the live preview to scroll to the right section
+                on the editor.
+                
+                For experience, projects, education and certifications, they need their own subToggleVisibility object
+                because the nested content has its own 
+                toggle. So we need to map the bullets to the individual experience sections
+                and determine their visibility.
+
+                For the other sections,
+                regionToSection is enough because the individual sections (i.e skills, education) which can be clicked
+                on the live PDF preview,
+                do not have their own individual toggles, so mapping to the parent section is enough here.
+            */
+            const regionToSection = {} as RegionToSection
+            // header
+            regionToSection[state.resume.header.id] = "header"
+            // summary
+            if (state.resume.summary){
+                regionToSection[state.resume.summary.id] = "summary"
+            }
+            // education
+            state.resume.education.forEach((edu) => {
+                regionToSection[edu.id] = "education"
+                state.subToggleVisibility[edu.id] = true 
+            })
+            // certifications
+            state.resume.certifications.forEach((cert) => {
+                regionToSection[cert.id] = "certifications"
+                state.subToggleVisibility[cert.id] = true 
+            })
+            //  experience
+            state.resume.experience.forEach((experience) => {
+                regionToSection[experience.id] = "experience"
+                state.subToggleVisibility[experience.id] = true 
+                // map each sub bullet to its parent container
+                experience.bullets.forEach((bullet) => {
+                    state.subRegionToRegion[bullet.id] = experience.id 
+                })
+            })
+
+            // projects
+            state.resume.projects?.forEach((project) => {
+                regionToSection[project.id] = "projects"
+                state.subToggleVisibility[project.id] = true
+                // map each sub bullet to its parent container
+                project.bullets.forEach((bullet) => {
+                    state.subRegionToRegion[bullet.id] = project.id
+                })
+            })
+
+            // skills
+            state.resume.skills.forEach((skillRow) => {
+                regionToSection[skillRow.id] = "skills"
+            })
+            state.regionToSection = regionToSection
             state.isDirty = false;
         },
 
         resetResume(state) {
-            state.resume = DEFAULT_RESUME;
-            state.visibility = DEFAULT_VISIBILITY;
-            state.isDirty = false;
-            state.parseStatus = "idle";
-            state.parseError = null;
+           state = initialState 
         },
 
         setTargetJobViewMode(state, action: PayloadAction<TargetJobViewMode>){
@@ -176,8 +257,9 @@ export const resumeSlice = createSlice({
 
         // ── Experience ──────────────────────────────────────────────────────────
         addExperience(state) {
+            const id = uuid()
             state.resume.experience.push({
-                id: uuid(),
+                id: id,
                 company: "",
                 title: "",
                 location: "",
@@ -186,6 +268,8 @@ export const resumeSlice = createSlice({
                 bullets: [],
                 enabled: true,
             });
+            state.regionToSection[id] = "experience"
+            state.subToggleVisibility[id] = true
             state.isDirty = true;
         },
 
@@ -203,6 +287,8 @@ export const resumeSlice = createSlice({
                 (e) => e.id !== action.payload
             );
             state.isDirty = true;
+            delete state.regionToSection[action.payload]
+            delete state.subToggleVisibility[action.payload]
         },
 
         reorderExperience(
@@ -233,7 +319,11 @@ export const resumeSlice = createSlice({
                         (e) => e.id === action.payload.entryId
                     );
                     if (entity) {
-                        entity.bullets.push({ id: uuid(), text: "", enabled: true });
+                        const newId = uuid()
+                        console.log("newId: ", newId)
+                        console.log("entityId: ", entity.id)
+                        entity.bullets.push({ id: newId, text: "", enabled: true });
+                        state.subRegionToRegion[newId] = entity.id
                     }
                 }
                 state.isDirty = true;
@@ -266,6 +356,7 @@ export const resumeSlice = createSlice({
                 const entry = entries.find((e) => e.id === entryId);
                 if (entry) {
                     entry.bullets = entry.bullets.filter((b: Bullet) => b.id !== bulletId);
+                    delete state.subRegionToRegion[bulletId]
                 }
             }
             state.isDirty = true;
@@ -307,8 +398,9 @@ export const resumeSlice = createSlice({
 
         // ── Education ───────────────────────────────────────────────────────────
         addEducation(state) {
+            const id = uuid()
             state.resume.education.push({
-                id: uuid(),
+                id: id,
                 school: "",
                 degree: "",
                 field: "",
@@ -318,6 +410,8 @@ export const resumeSlice = createSlice({
                 gpa: "",
                 enabled: true,
             });
+            state.regionToSection[id] = "education"
+            state.subToggleVisibility[id] = true
             state.isDirty = true;
         },
 
@@ -334,6 +428,9 @@ export const resumeSlice = createSlice({
             state.resume.education = state.resume.education.filter(
                 (e) => e.id !== action.payload
             );
+            // also remove from the sub toggle visibility
+            delete state.regionToSection[action.payload]
+            delete state.subToggleVisibility[action.payload]
             state.isDirty = true;
         },
 
@@ -345,13 +442,16 @@ export const resumeSlice = createSlice({
 
         // ── Certifications ──────────────────────────────────────────────────────
         addCertification(state) {
+            const id = uuid()
             state.resume.certifications.push({
-                id: uuid(),
+                id: id,
                 name: "",
                 organization: "",
                 date: "",
                 enabled: true,
             });
+            state.regionToSection[id] = "certifications"
+            state.subToggleVisibility[id] = true
             state.isDirty = true;
         },
 
@@ -368,6 +468,8 @@ export const resumeSlice = createSlice({
             state.resume.certifications = state.resume.certifications.filter(
                 (c) => c.id !== action.payload
             );
+            delete state.regionToSection[action.payload]
+            delete state.subToggleVisibility[action.payload]
             state.isDirty = true;
         },
 
@@ -415,6 +517,7 @@ export const resumeSlice = createSlice({
                 (s) => s.id !== action.payload
             );
             state.isDirty = true;
+            delete state.regionToSection[action.payload]
         },
 
         toggleSkillCategory(state, action: PayloadAction<string>) {
@@ -426,8 +529,9 @@ export const resumeSlice = createSlice({
         // ── Projects ────────────────────────────────────────────────────────────
         addProject(state) {
             if (!state.resume.projects) state.resume.projects = [];
+            const id = uuid()
             state.resume.projects.push({
-                id: uuid(),
+                id: id,
                 name: "",
                 description: "",
                 url: "",
@@ -435,6 +539,8 @@ export const resumeSlice = createSlice({
                 bullets: [],
                 enabled: true,
             });
+            state.regionToSection[id] = "projects"
+            state.subToggleVisibility[id] = true
             state.isDirty = true;
         },
 
@@ -453,6 +559,8 @@ export const resumeSlice = createSlice({
                     (p) => p.id !== action.payload
                 );
             }
+            delete state.regionToSection[action.payload]
+            delete state.subToggleVisibility[action.payload]
             state.isDirty = true;
         },
 
@@ -489,6 +597,14 @@ export const resumeSlice = createSlice({
             state.visibility[action.payload] = !state.visibility[action.payload];
         },
 
+        toggleSectionCollapseVisibility(
+            state,
+            action: PayloadAction<{key: keyof ToggleVisibility, isOpen: boolean}>
+        ){
+            const {key, isOpen} = action.payload
+            state.toggleVisibility[key] = isOpen
+        },
+
         toggleHeaderField(
             state,
             action: PayloadAction<keyof ResumeVisibility["header"]>
@@ -518,8 +634,13 @@ export const resumeSlice = createSlice({
         // specifically for setting hover states when hovering the suggestion cards
         setHoveredBulletId(state, action: PayloadAction<string | null>){
             state.hoveredBulletId = action.payload
+        },
+
+        setSubToggleVisibility(state, action: PayloadAction<{regionId: string, isOpen: boolean}>){
+            const { regionId, isOpen } = action.payload
+            state.subToggleVisibility[regionId] = isOpen
         }
-        
+
     },
 });
 
@@ -568,6 +689,8 @@ export const {
     setParseStatus,
     setFocusedRegionId,
     setHoveredBulletId,
+    toggleSectionCollapseVisibility,
+    setSubToggleVisibility,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

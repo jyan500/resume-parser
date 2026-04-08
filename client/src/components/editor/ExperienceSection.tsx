@@ -11,6 +11,8 @@ import {
     removeBullet,
     toggleBullet,
     toggleSectionVisibility,
+    toggleSectionCollapseVisibility,
+    setSubToggleVisibility,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -42,6 +44,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
 
     return (
         <SectionWrapper
+            sectionKey="experience"
             title="Professional Experience"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("experience"))}
@@ -115,7 +118,9 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     onToggleBullet,
     dragHandleProps,
 }) => {
-    const [expanded, setExpanded] = useState(true);
+    const dispatch = useAppDispatch();
+    const { subToggleVisibility } = useAppSelector((state) => state.resume)
+    // const [expanded, setExpanded] = useState(true);
     const rootRef = useRef<HTMLDivElement>(null)
 
     // Count pending suggestions so we can badge the collapsed header.
@@ -157,7 +162,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                     </div>
 
                     {/* Pending suggestions pill — only when collapsed */}
-                    {!expanded && pendingCount > 0 && (
+                    {!subToggleVisibility[entry.id] && pendingCount > 0 && (
                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-600 text-xs font-medium flex-shrink-0">
                             <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
@@ -178,11 +183,11 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                         </svg>
                     </button>
                     <button
-                        onClick={() => setExpanded((v) => !v)}
+                        onClick={() => dispatch(setSubToggleVisibility({regionId: entry.id, isOpen: !subToggleVisibility[entry.id]}))}
                         className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors"
                     >
                         <svg
-                            className={`w-3.5 h-3.5 transition-transform duration-200 ${expanded ? "rotate-0" : "-rotate-90"}`}
+                            className={`w-3.5 h-3.5 transition-transform duration-200 ${subToggleVisibility[entry.id] ? "rotate-0" : "-rotate-90"}`}
                             fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
@@ -192,7 +197,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
             </div>
 
             {/* ── Expanded fields ── */}
-            {expanded && (
+            {subToggleVisibility[entry.id] && (
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <Field label="Job Title" value={entry.title} onChange={(v) => onUpdate({ title: v })} placeholder="Software Engineer" />
