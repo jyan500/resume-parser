@@ -10,6 +10,7 @@ import {
     addBullet,
     removeBullet,
     toggleBullet,
+    reorderBullets,
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
@@ -18,10 +19,48 @@ import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import { Bullet } from "./Bullet";
-import type { ExperienceEntry, SuggestedBullet } from "../../types/resume";
+import type { ExperienceEntry, SuggestedBullet, Bullet as BulletType } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion"
+import type { SectionDragHandleProps } from "./EditorPanel";
+
+// ─── BulletShell ──────────────────────────────────────────────────────────────
+// Thin intermediary consumed by DndSortableWrapperPreview for bullet reordering.
+// Receives `bullet` from childProps and `dragHandleProps` injected automatically
+// by DndSortableWrapperPreview.
+
+export interface BulletShellProps {
+    bullet: BulletType;
+    section: ContainsBullets;
+    entryId: string;
+    suggestion: SuggestedBullet | undefined;
+    onRemoveBullet: () => void;
+    onToggleBullet: () => void;
+    dragHandleProps?: SectionDragHandleProps;
+}
+
+export const BulletShell: React.FC<BulletShellProps> = ({
+    bullet,
+    section,
+    entryId,
+    suggestion,
+    onRemoveBullet,
+    onToggleBullet,
+    dragHandleProps,
+}) => {
+    return (
+        <Bullet
+            bullet={bullet}
+            section={section}
+            entryId={entryId}
+            suggestion={suggestion}
+            onRemoveBullet={onRemoveBullet}
+            onToggleBullet={onToggleBullet}
+            dragHandleProps={dragHandleProps}
+        />
+    );
+};
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -84,6 +123,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
                                     dispatch(removeBullet({ ...payload, bulletId })),
                                 onToggleBullet: (bulletId) =>
                                     dispatch(toggleBullet({ ...payload, bulletId })),
+                                onReorderBullets: (fromIndex, toIndex) =>
+                                    dispatch(reorderBullets({ ...payload, fromIndex, toIndex })),
                             } as ExperienceEntryProps}
                         />
                     );
@@ -104,6 +145,7 @@ interface ExperienceEntryProps {
     onAddBullet: () => void;
     onRemoveBullet: (bulletId: string) => void;
     onToggleBullet: (bulletId: string) => void;
+    onReorderBullets: (fromIndex: number, toIndex: number) => void;
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
@@ -116,6 +158,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     onAddBullet,
     onRemoveBullet,
     onToggleBullet,
+    onReorderBullets,
     dragHandleProps,
 }) => {
     const dispatch = useAppDispatch();
@@ -215,17 +258,26 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                             Bullet Points
                         </label>
                         <div className="flex flex-col gap-1.5">
-                            {entry.bullets.map((bullet) => (
-                                <Bullet
-                                    key={bullet.id}
-                                    bullet={bullet}
-                                    section="experience"
-                                    entryId={entry.id}
-                                    suggestion={suggestionsMap.get(bullet.id)}
-                                    onRemoveBullet={() => onRemoveBullet(bullet.id)}
-                                    onToggleBullet={() => onToggleBullet(bullet.id)}
-                                />
-                            ))}
+                            <DndSortableWrapper<BulletType>
+                                elements={entry.bullets}
+                                dragEndAction={onReorderBullets}
+                            >
+                                {entry.bullets.map((bullet) => (
+                                    <DndSortableWrapperPreview
+                                        key={bullet.id}
+                                        elementId={bullet.id}
+                                        childComponent={BulletShell}
+                                        childProps={{
+                                            bullet,
+                                            section: "experience",
+                                            entryId: entry.id,
+                                            suggestion: suggestionsMap.get(bullet.id),
+                                            onRemoveBullet: () => onRemoveBullet(bullet.id),
+                                            onToggleBullet: () => onToggleBullet(bullet.id),
+                                        } as BulletShellProps}
+                                    />
+                                ))}
+                            </DndSortableWrapper>
                         </div>
                         <button
                             onClick={onAddBullet}

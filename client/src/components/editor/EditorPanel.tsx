@@ -17,7 +17,7 @@ import type { OrderableSection } from "../../slices/resumeSlice";
 // map must accept an optional `dragHandleProps` prop so the section-level
 // drag handle can be rendered inside the section's own header row.
 
-type SectionDragHandleProps = React.HTMLAttributes<HTMLButtonElement>;
+export type SectionDragHandleProps = React.HTMLAttributes<HTMLButtonElement>;
 
 type OrderableSectionComponent = React.FC<{
     dragHandleProps?: SectionDragHandleProps;

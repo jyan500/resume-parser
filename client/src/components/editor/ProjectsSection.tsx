@@ -9,6 +9,7 @@ import {
     addBullet,
     removeBullet,
     toggleBullet,
+    reorderBullets,
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
@@ -18,10 +19,12 @@ import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { AddButton } from "../page-elements/AddButton";
 import { Bullet } from "./Bullet";
-import type { ProjectEntry, SuggestedBullet } from "../../types/resume";
+import type { ProjectEntry, SuggestedBullet, Bullet as BulletType } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
+import type { SectionDragHandleProps } from "./EditorPanel";
+import { BulletShell, type BulletShellProps } from "./ExperienceSection"
 
 // ─── Section ──────────────────────────────────────────────────────────────────
 
@@ -79,6 +82,8 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
                                     dispatch(removeBullet({ ...payload, bulletId })),
                                 onToggleBullet: (bulletId) =>
                                     dispatch(toggleBullet({ ...payload, bulletId })),
+                                onReorderBullets: (fromIndex, toIndex) =>
+                                    dispatch(reorderBullets({ ...payload, fromIndex, toIndex })),
                             } as ProjectRowProps}
                         />
                     );
@@ -99,12 +104,13 @@ interface ProjectRowProps {
     onAddBullet: () => void;
     onRemoveBullet: (bulletId: string) => void;
     onToggleBullet: (bulletId: string) => void;
+    onReorderBullets: (fromIndex: number, toIndex: number) => void;
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 const ProjectRow: React.FC<ProjectRowProps> = ({
     project, suggestionsMap, onUpdate, onRemove, onToggle, onAddBullet,
-    onRemoveBullet, onToggleBullet, dragHandleProps,
+    onRemoveBullet, onToggleBullet, onReorderBullets, dragHandleProps,
 }) => {
     const dispatch = useAppDispatch();
     // const [expanded, setExpanded] = useState(true);
@@ -251,17 +257,26 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     <div className="mt-3">
                         <label className="text-xs font-medium text-slate-500 mb-2 block">Bullet Points</label>
                         <div className="flex flex-col gap-1.5">
-                            {project.bullets.map((bullet) => (
-                                <Bullet
-                                    key={bullet.id}
-                                    bullet={bullet}
-                                    section="projects"
-                                    entryId={project.id}
-                                    suggestion={suggestionsMap.get(bullet.id)}
-                                    onRemoveBullet={() => onRemoveBullet(bullet.id)}
-                                    onToggleBullet={() => onToggleBullet(bullet.id)}
-                                />
-                            ))}
+                            <DndSortableWrapper<BulletType>
+                                elements={project.bullets}
+                                dragEndAction={onReorderBullets}
+                            >
+                                {project.bullets.map((bullet) => (
+                                    <DndSortableWrapperPreview
+                                        key={bullet.id}
+                                        elementId={bullet.id}
+                                        childComponent={BulletShell}
+                                        childProps={{
+                                            bullet,
+                                            section: "projects",
+                                            entryId: project.id,
+                                            suggestion: suggestionsMap.get(bullet.id),
+                                            onRemoveBullet: () => onRemoveBullet(bullet.id),
+                                            onToggleBullet: () => onToggleBullet(bullet.id),
+                                        } as BulletShellProps}
+                                    />
+                                ))}
+                            </DndSortableWrapper>
                         </div>
                         <button onClick={onAddBullet} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 mt-2 transition-colors">
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
