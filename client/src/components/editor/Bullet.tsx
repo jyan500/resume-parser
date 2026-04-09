@@ -15,6 +15,7 @@ interface Bullet {
     suggestion?: SuggestedBullet;
     onRemoveBullet: () => void;
     onToggleBullet: () => void;
+    dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
 }
 
 export const Bullet: React.FC<Bullet> = ({
@@ -24,6 +25,7 @@ export const Bullet: React.FC<Bullet> = ({
     suggestion,
     onRemoveBullet,
     onToggleBullet,
+    dragHandleProps,
 }) => {
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState(false);
@@ -58,6 +60,17 @@ export const Bullet: React.FC<Bullet> = ({
         >
             {/* ── Bullet row ── */}
             <div className="flex items-start gap-2">
+                {/* Drag handle */}
+                <button
+                    className="mt-2 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing flex-shrink-0 touch-none"
+                    aria-label="Drag to reorder"
+                    {...dragHandleProps}
+                >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                    </svg>
+                </button>
+
                 {/* Enabled toggle */}
                 <button
                     onClick={onToggleBullet}

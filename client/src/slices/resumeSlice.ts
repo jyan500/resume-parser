@@ -605,6 +605,15 @@ export const resumeSlice = createSlice({
             state.toggleVisibility[key] = isOpen
         },
 
+        toggleAllSectionCollapse(
+            state,
+            action: PayloadAction<boolean>
+        ){
+            Object.keys(state.toggleVisibility).forEach((key) => {
+                state.toggleVisibility[key as keyof ToggleVisibility] = action.payload
+            })
+        },
+
         toggleHeaderField(
             state,
             action: PayloadAction<keyof ResumeVisibility["header"]>
@@ -691,6 +700,7 @@ export const {
     setHoveredBulletId,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
+    toggleAllSectionCollapse,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

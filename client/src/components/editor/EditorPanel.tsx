@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useMemo} from "react";
 import { selectOrder, useAppDispatch, useAppSelector } from "../../store";
 import { HeaderSection } from "./HeaderSection";
 import { SummarySection } from "./SummarySection";
@@ -9,7 +9,7 @@ import { ProjectsSection } from "./ProjectsSection";
 import { CertificationSection } from "./CertificationSection";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
-import { updateOrder } from "../../slices/resumeSlice";
+import { updateOrder, toggleAllSectionCollapse } from "../../slices/resumeSlice";
 import type { OrderableSection } from "../../slices/resumeSlice";
 
 // ─── Section map ──────────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@ import type { OrderableSection } from "../../slices/resumeSlice";
 // map must accept an optional `dragHandleProps` prop so the section-level
 // drag handle can be rendered inside the section's own header row.
 
-type SectionDragHandleProps = React.HTMLAttributes<HTMLButtonElement>;
+export type SectionDragHandleProps = React.HTMLAttributes<HTMLButtonElement>;
 
 type OrderableSectionComponent = React.FC<{
     dragHandleProps?: SectionDragHandleProps;
@@ -52,18 +52,21 @@ const SectionShell: React.FC<SectionShellProps> = ({ sectionKey, dragHandleProps
 
 export const EditorPanel: React.FC = () => {
     const dispatch = useAppDispatch();
-    const order = useAppSelector(selectOrder);
+    const { order, toggleVisibility } = useAppSelector((state) => state.resume)
 
     // DndSortableWrapper requires items with an `id` field.
     const orderItems = order.map((key) => ({ id: key }));
 
+    const isAllCollapsed = useMemo(() => {
+        return Object.values(toggleVisibility).every((val: boolean) => !val)
+    }, [toggleVisibility])
+
     return (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-y-3">
             {/* Header and Summary are always fixed at the top — not orderable. */}
-            <div className = "flex flex-col gap-y-3">
-                <HeaderSection />
-                <SummarySection />
-            </div>
+            <button onClick={(e) => dispatch(toggleAllSectionCollapse(isAllCollapsed))} className = "btn btn-sm self-start">{isAllCollapsed ? "Expand All" : "Collapse All"}</button>
+            <HeaderSection />
+            <SummarySection />
 
             {/* The remaining 5 sections are freely reorderable. */}
             <DndSortableWrapper<{ id: string }>
