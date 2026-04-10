@@ -4,6 +4,8 @@ GEMINI_FLASH_LITE_MODEL = "gemini-2.5-flash-lite"
 # GEMINI_FLASH_MODEL = "gemini-3-flash-preview"
 GEMINI_FLASH_MODEL = "gemini-2.5-flash"
 # Match exact words to categorize as a section
+MINIMAX_M2_5_MODEL = "minimax-m2.5"
+
 SECTION_PATTERNS = {
     'summary': r'(?i)^(summary|profile|objective|about|personal summary|professional summary)$',
     'experience': r'(?i)^(experience|work history|employment|professional experience|work experience)$',

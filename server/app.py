@@ -21,6 +21,8 @@ load_dotenv()
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY")
+app.config["OPENROUTER_BASE_URL"] = os.environ.get("OPENROUTER_BASE_URL")
+app.config["OPENROUTER_API_KEY"] = os.environ.get("OPENROUTER_API_KEY")
 CORS(app)  # Allow frontend to make requests
 
 # load SQL
