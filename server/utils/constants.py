@@ -5,6 +5,7 @@ GEMINI_FLASH_LITE_MODEL = "gemini-2.5-flash-lite"
 GEMINI_FLASH_MODEL = "gemini-2.5-flash"
 # Match exact words to categorize as a section
 MINIMAX_M2_5_MODEL = "minimax-m2.5"
+OPENAI_GPT_OSS_120B_MODEL = "openai/gpt-oss-120b:free"
 
 SECTION_PATTERNS = {
     'summary': r'(?i)^(summary|profile|objective|about|personal summary|professional summary)$',

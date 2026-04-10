@@ -1,7 +1,7 @@
 from google import genai
 from openai import OpenAI
 import os
-from utils.constants import ( GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL )
+from utils.constants import ( GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL)
 from pydantic import BaseModel
 import traceback
 import json
@@ -47,7 +47,7 @@ class LLMClient:
         response = None
         try:
             response = self.client.chat.completions.create(
-                model=MINIMAX_M2_5_MODEL,
+                model=OPENAI_GPT_OSS_120B_MODEL,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={
                     "type": "json_schema",
@@ -61,7 +61,7 @@ class LLMClient:
         except Exception:
             try:
                 response = self.client.chat.completions.create(
-                    model=MINIMAX_M2_5_MODEL,
+                    model=OPENAI_GPT_OSS_120B_MODEL,
                     messages=[
                         {
                             "role": "system",

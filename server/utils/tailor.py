@@ -19,8 +19,8 @@ class TailorResume:
     def __init__(self):
         ## render using jinja2 to escape curly braces
         self.client = LLMClient("openrouter")
-        self.template = Template(load_prompt("tailor-resume"))
-        self.job_title_template = Template(load_prompt("tailor-resume-job-title"))
+        self.template = Template(load_prompt("tailor-resume-job-v2"))
+        self.job_title_template = Template(load_prompt("tailor-resume-job-title-v2"))
         self.keyword_template = Template(load_prompt("derive-keywords"))
     
     # tailor based on both the job description

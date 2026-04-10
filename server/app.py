@@ -137,7 +137,7 @@ def tailor_resume():
         traceback.print_exc()
         return jsonify({"status": 500, "errors": ["Something went wrong!"]}), 500
 
-    return jsonify(suggestions)
+    return jsonify(humps.camelize(suggestions))
 
 @app.route(JOB_TITLE_URL, methods=["GET"])
 def get_job_titles():

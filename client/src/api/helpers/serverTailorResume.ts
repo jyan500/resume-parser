@@ -2,20 +2,20 @@ import type { ResumeSuggestion, SuggestedBullet, Keyword, Resume } from "../../t
 import { v4 as uuidv4 } from "uuid"
 
 export interface ServerTailorResumeSchema {
-    missing_keywords: Array<Keyword>
+    missingKeywords: Array<Keyword>
     recommendations: Array<string>
-    suggested_bullets: Array<SuggestedBullet>
+    suggestedBullets: Array<SuggestedBullet>
 }
 
 export const mapServerTailorResumeToClient = (data: ServerTailorResumeSchema) => {
     return {
-        missingKeywords: data.missing_keywords.map((keyword) => {
+        missingKeywords: data.missingKeywords.map((keyword) => {
             return {
                 ...keyword,
                 id: uuidv4()
             }
         }),
         recommendations: data.recommendations,
-        suggestedBullets: data.suggested_bullets,
+        suggestedBullets: data.suggestedBullets,
     } as ResumeSuggestion
 }
