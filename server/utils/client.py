@@ -1,13 +1,16 @@
 from google import genai
 from openai import OpenAI
 import os
-from utils.constants import ( GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL)
+from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL, NVIDIA_NEMOTRON_3 )
 from pydantic import BaseModel
 import traceback
 import json
 
 class LLMClient:
     def __init__(self, mode):
+        # self.open_router_model = NVIDIA_NEMOTRON_3
+        self.open_router_model = OPENAI_GPT_OSS_120B_MODEL 
+        # self.open_router_model = MINIMAX_M2_5_MODEL
         self.client = genai.Client() if mode == "gemini" else OpenAI(
             api_key=os.environ.get("OPENROUTER_API_KEY"),
             base_url=os.environ.get("OPENROUTER_BASE_URL"),
@@ -25,7 +28,7 @@ class LLMClient:
         """
         try:
             response = self.client.models.generate_content(
-                model=GEMINI_FLASH_LITE_MODEL,
+                model=GEMINI_FLASH_MODEL,
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",
@@ -47,7 +50,7 @@ class LLMClient:
         response = None
         try:
             response = self.client.chat.completions.create(
-                model=OPENAI_GPT_OSS_120B_MODEL,
+                model=self.open_router_model,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={
                     "type": "json_schema",
@@ -61,7 +64,7 @@ class LLMClient:
         except Exception:
             try:
                 response = self.client.chat.completions.create(
-                    model=OPENAI_GPT_OSS_120B_MODEL,
+                    model=self.open_router_model,
                     messages=[
                         {
                             "role": "system",
@@ -80,9 +83,11 @@ class LLMClient:
                 traceback.print_exc()
                 raise Exception("Something went wrong")
         
-        if response:
+        if response and response.choices and len(response.choices) > 0:
             raw_text = response.choices[0].message.content
+            if not raw_text:
+                raise Exception("Model returned an empty response")
             validated_schema = schema.model_validate_json(raw_text)
             return validated_schema
 
-        return {}
+        raise Exception("No valid response from model")
