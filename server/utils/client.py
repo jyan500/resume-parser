@@ -89,3 +89,4 @@ class LLMClient:
             return validated_schema
 
         raise Exception("No valid response from model")
+        
