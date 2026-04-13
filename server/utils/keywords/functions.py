@@ -38,3 +38,4 @@ def get_cached_keywords(job_title_id: str) -> list[dict] | None:
         {"text": kw.name, "type": kw.keyword_type.name}
         for kw in job_title_row.keywords
     ]
+

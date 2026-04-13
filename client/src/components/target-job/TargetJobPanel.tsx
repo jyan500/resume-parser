@@ -236,7 +236,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     const handleApply = (sb: SuggestedBullet) => {
         const loc = bulletLocationMap.get(sb.id);
         if (!loc) return;
-        dispatch(updateBullet({ ...loc, bulletId: sb.id, text: sb.recommendation }));
+        dispatch(updateBullet({ ...loc, bulletId: sb.id, text: sb.newText }));
         dispatch(dismissSuggestion(sb.id));
     };
 
@@ -434,11 +434,18 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
                 </p>
             </div>
 
+            <div>
+                <p className="text-xs font-medium text-slate-500 mb-1">Suggested</p>
+                <p className="text-xs text-slate-700 leading-relaxed">
+                    {suggestedBullet.newText}
+                </p>
+            </div>
+
             {/* Suggested */}
             <div>
                 <p className="text-xs font-medium text-slate-500 mb-1">Tips</p>
                 <p className="text-xs text-slate-700 leading-relaxed">
-                    {suggestedBullet.recommendation}
+                    {suggestedBullet.reasoning}
                 </p>
             </div>
 
