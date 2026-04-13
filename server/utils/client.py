@@ -1,16 +1,14 @@
 from google import genai
 from openai import OpenAI
 import os
-from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL, NVIDIA_NEMOTRON_3 )
+from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL, NVIDIA_NEMOTRON_3, ARCEE_AI_TRINITY_LARGE_MODEL, GEMMA_4_MODEL )
 from pydantic import BaseModel
 import traceback
 import json
 
 class LLMClient:
     def __init__(self, mode):
-        # self.open_router_model = NVIDIA_NEMOTRON_3
-        self.open_router_model = OPENAI_GPT_OSS_120B_MODEL 
-        # self.open_router_model = MINIMAX_M2_5_MODEL
+        self.open_router_model = OPENAI_GPT_OSS_120B_MODEL
         self.client = genai.Client() if mode == "gemini" else OpenAI(
             api_key=os.environ.get("OPENROUTER_API_KEY"),
             base_url=os.environ.get("OPENROUTER_BASE_URL"),

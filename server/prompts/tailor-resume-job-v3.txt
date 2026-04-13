@@ -12,13 +12,12 @@ LITMUS TEST — Apply this before including any keyword:
   - NO  → Discard it entirely (e.g., "modern JavaScript frameworks", "frontend state management", "distributed systems")
 
 TECHNICAL SKILLS — Must pass the litmus test AND be one of:
-  - Programming language:     Python, TypeScript, Go
-  - Framework / Library:      React, Next.js, FastAPI, Tailwind CSS
-  - Platform / Service:       AWS, Vercel, Kubernetes, GitHub Actions
-  - Named software tool:      Microsoft Office, Figma, Jira, Datadog, Claude Code
+  - Programming language:     i.e Python, TypeScript, Go
+  - Framework / Library:      i.e React, Next.js, FastAPI, Tailwind CSS
+  - Platform / Service:       i.e AWS, Vercel, Kubernetes, GitHub Actions
+  - Named software tool:      i.e Microsoft Office, Figma, Jira, Datadog, Claude Code
 
 HARD DISCARD — Never include these, even if they appear in the job description:
-  - Phrases describing techniques:   "server-side rendering", "CI/CD pipelines", "frontend state management"
   - Phrases describing attributes:   "responsive UI", "reusable components", "cross-browser compatibility"
   - Phrases describing outcomes:     "page load performance", "scalability", "debugging capabilities"
   - Vague umbrella terms:            "modern build tools", "component libraries", "cloud-hosted platforms"
