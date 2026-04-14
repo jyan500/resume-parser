@@ -74,11 +74,9 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
     const visible = useAppSelector(selectVisibility).experience;
 
     // Build a bulletId → SuggestedBullet map once so every entry card can do
-    // O(1) lookups without re-deriving on each render.
+    // O(1) lookups
     const suggestedBullets = useAppSelector((s) => s.resume.suggestions.suggestedBullets);
-    console.log("suggestedBullets: ", suggestedBullets)
     const suggestionsMap = new Map(suggestedBullets.map((sb) => [sb.id, sb]))
-    console.log("suggestionsMap: ", suggestionsMap)
 
     return (
         <SectionWrapper
