@@ -97,16 +97,15 @@ export const Bullet: React.FC<Bullet> = ({
                     <button
                         onClick={() => setOpen((v) => !v)}
                         title={open ? "Hide suggestion" : "View AI suggestion"}
-                        className={`mt-2 flex items-center gap-1 px-1.5 py-0.5 rounded-md text-xs font-medium transition-colors flex-shrink-0 border ${
+                        className={`mt-2 flex justify-center items-center gap-1 px-1 py-0.5 rounded-md text-xs font-medium transition-colors flex-shrink-0 border ${
                             open
                                 ? "bg-blue-600 border-blue-600 text-white"
                                 : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
                         }`}
                     >
-                        <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
                         </svg>
-                        tip
                     </button>
                 )}
 
