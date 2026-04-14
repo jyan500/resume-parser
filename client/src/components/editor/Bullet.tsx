@@ -41,7 +41,7 @@ export const Bullet: React.FC<Bullet> = ({
 
     const handleApply = () => {
         if (!suggestion) return;
-        dispatch(updateBullet({ section, entryId, bulletId: bullet.id, text: suggestion.recommendation }));
+        dispatch(updateBullet({ section, entryId, bulletId: bullet.id, text: suggestion.newText }));
         dispatch(dismissSuggestion(bullet.id));
         setOpen(false);
     };
@@ -130,23 +130,23 @@ export const Bullet: React.FC<Bullet> = ({
 
                     {/* Suggested text */}
                     <p className="px-3 py-2.5 text-xs text-slate-700 leading-relaxed">
-                        {suggestion.recommendation}
+                        {suggestion.newText}
                     </p>
 
                     {/* Actions */}
                     <div className="flex gap-2 px-3 pb-3">
-                        {/* <button
+                        <button
                             onClick={handleApply}
-                            className="flex-1 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
+                            className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
                         >
                             Apply
-                        </button> */}
-                        <button
+                        </button>
+{/*                        <button
                             onClick={handleDismiss}
                             className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
                         >
                             Got it
-                        </button>
+                        </button>*/}
                         <button 
                             onClick={() => setOpen(!open)}
                             className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"

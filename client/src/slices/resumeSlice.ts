@@ -108,7 +108,7 @@ export interface ResumeState {
     isDarkMode: boolean
 }
 
-const initialState: ResumeState = {
+const defaultState: ResumeState = {
     resume: DEFAULT_RESUME,
     suggestions: DEFAULT_SUGGESTIONS,
     visibility: DEFAULT_VISIBILITY,
@@ -126,6 +126,10 @@ const initialState: ResumeState = {
     hoveredBulletId: null,
     targetJobViewMode: "form",
     isDarkMode: false
+}
+
+const initialState: ResumeState = {
+   ...defaultState 
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -198,7 +202,12 @@ export const resumeSlice = createSlice({
         },
 
         resetResume(state) {
-           state = initialState 
+            const { visibility, toggleVisibility, ...resettedState } = defaultState;
+            state = {
+                ...resettedState,
+                visibility: state.visibility,
+                toggleVisibility: state.toggleVisibility,
+            }
         },
 
         setTargetJobViewMode(state, action: PayloadAction<TargetJobViewMode>){

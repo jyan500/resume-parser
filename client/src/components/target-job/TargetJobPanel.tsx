@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useTailorResumeMutation } from "../../api/public/resume";
-import type { Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
+import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
 import {
     setSuggestions,
     dismissSuggestion,
@@ -45,6 +45,7 @@ export const TargetJobPanel: React.FC = () => {
             ) : (
                 <SuggestionsView
                     suggestedBullets={suggestions.suggestedBullets}
+                    missingKeywords={suggestions.missingKeywords}
                     recommendations={suggestions.recommendations}
                     resume={resume}
                     onRetarget={() => dispatch(setTargetJobViewMode("form"))}
@@ -204,6 +205,7 @@ const FormView: React.FC<FormViewProps> = ({
 
 interface SuggestionsViewProps {
     suggestedBullets: SuggestedBullet[];
+    missingKeywords: Keyword[];
     recommendations: string[];
     resume: Resume;
     onRetarget: () => void;
@@ -214,11 +216,13 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     recommendations,
     resume,
     onRetarget,
+    missingKeywords,
 }) => {
     const dispatch = useAppDispatch();
     const { regionToSection, subRegionToRegion, toggleVisibility, subToggleVisibility } = useAppSelector((state) => state.resume) 
     const [recommendationsOpen, setRecommendationsOpen] = useState(false);
     const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
+    const [missingKeywordsOpen, setMissingKeywordsOpen] = useState(true)
 
     // Build a bulletId → { section, entryId } lookup so each card can dispatch
     // updateBullet without needing to know the resume structure.
@@ -348,6 +352,52 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                     </div>
                 )}
 
+                {/* ── Missing Keywords ── */}
+                {missingKeywords.length > 0 && (
+                    <div className="rounded-xl border border-slate-200 overflow-hidden">
+                        <button
+                            onClick={() => setMissingKeywordsOpen((v) => !v)}
+                            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+                        >
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium text-slate-600">
+                                    Missing Keywords
+                                </span>
+                                <span className="inline-flex items-center justify-center px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium leading-none">
+                                    {missingKeywords.length}
+                                </span>
+                            </div>
+                            <svg
+                                className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${missingKeywordsOpen ? "rotate-0" : "-rotate-90"}`}
+                                fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </button>
+ 
+                        {missingKeywordsOpen && (
+                            <div className="px-3.5 py-3 flex flex-col gap-3">
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                    Add these keywords to your resume to improve your match score.
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    {missingKeywords.map((keyword) => (
+                                        <button
+                                            key={keyword.id}
+                                            className={`
+                                                ${keyword.type === "Soft Skill" ? "border-purple-500 text-purple-500" : "border-blue-500 text-blue-500"}
+                                                inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`
+                                            }
+                                        >
+                                            {keyword.text}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ── General recommendations (collapsible) ── */}
                 {recommendations.length > 0 && (
                     <div className="rounded-xl border border-slate-200 overflow-hidden">
@@ -451,17 +501,23 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
 
             {/* Actions */}
             <div className="flex gap-2">
-                {/* <button
-                    onClick={onApply}
-                    className="flex-1 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
+                <button
+                    onClick={() => {
+                        onHoverEnd()
+                        onApply()
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
                 >
                     Apply
-                </button> */}
+                </button>
                 <button
-                    onClick={onDismiss}
+                    onClick={() => {
+                        onHoverEnd()
+                        onDismiss()
+                    }}
                     className="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
                 >
-                    Got it
+                    Dismiss
                 </button>
             </div>
         </div>
