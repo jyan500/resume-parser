@@ -262,7 +262,6 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                                 dragEndAction={onReorderBullets}
                             >
                                 {entry.bullets.map((bullet) => {
-                                    console.log("entry bullet.id: ", bullet.id)
                                     return (
                                         <DndSortableWrapperPreview
                                             key={bullet.id}

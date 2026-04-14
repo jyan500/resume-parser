@@ -203,7 +203,8 @@ export const resumeSlice = createSlice({
 
         resetResume(state) {
             const { visibility, toggleVisibility, ...resettedState } = defaultState;
-            state = {
+            // make sure to return here to reset the state
+            return {
                 ...resettedState,
                 visibility: state.visibility,
                 toggleVisibility: state.toggleVisibility,
@@ -329,8 +330,6 @@ export const resumeSlice = createSlice({
                     );
                     if (entity) {
                         const newId = uuid()
-                        console.log("newId: ", newId)
-                        console.log("entityId: ", entity.id)
                         entity.bullets.push({ id: newId, text: "", enabled: true });
                         state.subRegionToRegion[newId] = entity.id
                     }
