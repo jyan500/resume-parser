@@ -1,7 +1,7 @@
 from google import genai
 from openai import OpenAI
 import os
-from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL, OPENAI_GPT_OSS_120B_MODEL, NVIDIA_NEMOTRON_3, ARCEE_AI_TRINITY_LARGE_MODEL, GEMMA_4_MODEL )
+from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, OPENAI_GPT_OSS_120B_MODEL)
 from pydantic import BaseModel
 import traceback
 import json

@@ -108,7 +108,7 @@ export interface ResumeState {
     isDarkMode: boolean
 }
 
-const initialState: ResumeState = {
+const defaultState: ResumeState = {
     resume: DEFAULT_RESUME,
     suggestions: DEFAULT_SUGGESTIONS,
     visibility: DEFAULT_VISIBILITY,
@@ -126,6 +126,10 @@ const initialState: ResumeState = {
     hoveredBulletId: null,
     targetJobViewMode: "form",
     isDarkMode: false
+}
+
+const initialState: ResumeState = {
+   ...defaultState 
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -198,7 +202,13 @@ export const resumeSlice = createSlice({
         },
 
         resetResume(state) {
-           state = initialState 
+            const { visibility, toggleVisibility, ...resettedState } = defaultState;
+            // make sure to return here to reset the state
+            return {
+                ...resettedState,
+                visibility: state.visibility,
+                toggleVisibility: state.toggleVisibility,
+            }
         },
 
         setTargetJobViewMode(state, action: PayloadAction<TargetJobViewMode>){
@@ -320,8 +330,6 @@ export const resumeSlice = createSlice({
                     );
                     if (entity) {
                         const newId = uuid()
-                        console.log("newId: ", newId)
-                        console.log("entityId: ", entity.id)
                         entity.bullets.push({ id: newId, text: "", enabled: true });
                         state.subRegionToRegion[newId] = entity.id
                     }

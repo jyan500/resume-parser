@@ -7,7 +7,6 @@ from jinja2 import Template
 from google import genai
 from openai import OpenAI
 from db.models import JobTitle
-from utils.constants import GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, MINIMAX_M2_5_MODEL
 from utils.schemas.tailor_resume_schema import TailorJobSchema
 from utils.schemas.keywords_schema import KeywordListSchema
 from utils.keywords.functions import save_keywords, get_cached_keywords
@@ -18,7 +17,7 @@ from pydantic import BaseModel
 class TailorResume:
     def __init__(self):
         ## render using jinja2 to escape curly braces
-        self.client = LLMClient("openrouter")
+        self.client = LLMClient("gemini")
         self.template = Template(load_prompt("tailor-resume-job-v3"))
         self.job_title_template = Template(load_prompt("tailor-resume-job-title-v2"))
         self.keyword_template = Template(load_prompt("derive-keywords"))

@@ -74,12 +74,9 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
     const visible = useAppSelector(selectVisibility).experience;
 
     // Build a bulletId → SuggestedBullet map once so every entry card can do
-    // O(1) lookups without re-deriving on each render.
+    // O(1) lookups
     const suggestedBullets = useAppSelector((s) => s.resume.suggestions.suggestedBullets);
-    const suggestionsMap = useMemo<Map<string, SuggestedBullet>>(
-        () => new Map(suggestedBullets.map((sb) => [sb.id, sb])),
-        [suggestedBullets],
-    );
+    const suggestionsMap = new Map(suggestedBullets.map((sb) => [sb.id, sb]))
 
     return (
         <SectionWrapper
@@ -262,21 +259,23 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                                 elements={entry.bullets}
                                 dragEndAction={onReorderBullets}
                             >
-                                {entry.bullets.map((bullet) => (
-                                    <DndSortableWrapperPreview
-                                        key={bullet.id}
-                                        elementId={bullet.id}
-                                        childComponent={BulletShell}
-                                        childProps={{
-                                            bullet,
-                                            section: "experience",
-                                            entryId: entry.id,
-                                            suggestion: suggestionsMap.get(bullet.id),
-                                            onRemoveBullet: () => onRemoveBullet(bullet.id),
-                                            onToggleBullet: () => onToggleBullet(bullet.id),
-                                        } as BulletShellProps}
-                                    />
-                                ))}
+                                {entry.bullets.map((bullet) => {
+                                    return (
+                                        <DndSortableWrapperPreview
+                                            key={bullet.id}
+                                            elementId={bullet.id}
+                                            childComponent={BulletShell}
+                                            childProps={{
+                                                bullet,
+                                                section: "experience",
+                                                entryId: entry.id,
+                                                suggestion: suggestionsMap.get(bullet.id),
+                                                onRemoveBullet: () => onRemoveBullet(bullet.id),
+                                                onToggleBullet: () => onToggleBullet(bullet.id),
+                                            } as BulletShellProps}
+                                        />
+                                    )
+                                })}
                             </DndSortableWrapper>
                         </div>
                         <button
