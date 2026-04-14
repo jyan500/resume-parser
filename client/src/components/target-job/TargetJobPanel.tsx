@@ -48,7 +48,15 @@ export const TargetJobPanel: React.FC = () => {
                     missingKeywords={suggestions.missingKeywords}
                     recommendations={suggestions.recommendations}
                     resume={resume}
-                    onRetarget={() => dispatch(setTargetJobViewMode("form"))}
+                    onRetarget={() => {
+                        dispatch(setHoveredBulletId(null))
+                        dispatch(setSuggestions({
+                            missingKeywords: [], 
+                            suggestedBullets: [],
+                            recommendations: [],
+                        }))
+                        dispatch(setTargetJobViewMode("form"))
+                    }}
                 />
             )}
         </div>
