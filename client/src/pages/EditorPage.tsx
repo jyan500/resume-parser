@@ -6,13 +6,14 @@ import { persistor, useAppSelector, useAppDispatch, selectParseStatus } from "..
 import { EditorPanel } from "../components/editor/EditorPanel";
 import { TargetJobPanel } from "../components/target-job/TargetJobPanel";
 import { resetResume } from "../slices/resumeSlice";
+import { HOVER_Z_INDEX } from "../helpers/constants"
 
 const ResizeHandle = () => (
-    <Separator className="w-1.5 bg-slate-200 hover:bg-blue-400 active:bg-blue-500 transition-colors duration-75 flex items-center justify-center group outline-none">
-        <div className="flex flex-col gap-[3px] pointer-events-none">
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-white transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-white transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-white transition-colors duration-75" />
+    <Separator title={"Drag to resize"} className="w-1.5 bg-slate-200 flex items-center justify-center group outline-none cursor-col-resize">
+        <div className={`${HOVER_Z_INDEX} pointer-events-none bg-white p-3 rounded-lg shadow-md flex flex-col gap-[3px]`}>
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
         </div>
     </Separator>
 );
@@ -83,7 +84,7 @@ export const EditorPage: React.FC = () => {
             <Group orientation="horizontal" className="flex-1 overflow-hidden">
 
                 {/* Left — editor panel */}
-                <Panel defaultSize={"33%"} minSize={"15%"} className="flex flex-col bg-white overflow-hidden">
+                <Panel defaultSize={"33%"} minSize={"25%"} maxSize={"36%"} className="flex flex-col bg-white overflow-hidden">
                     <div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                             Editor
@@ -115,7 +116,7 @@ export const EditorPage: React.FC = () => {
                 <ResizeHandle />
 
                 {/* Far right — target job panel */}
-                <Panel defaultSize={"20%"} minSize={"12%"} className="flex flex-col overflow-hidden">
+                <Panel defaultSize={"20%"} minSize={"14%"} maxSize={"25%"} className="flex flex-col overflow-hidden">
                     <TargetJobPanel />
                 </Panel>
 
