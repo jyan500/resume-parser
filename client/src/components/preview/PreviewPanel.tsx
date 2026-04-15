@@ -308,12 +308,12 @@ export const PreviewPanel: React.FC = () => {
                 )}
 
                 <div ref={outerRef} className="py-6">
-                <div
-                    ref={wrapperRef}
-                    onClick={handleViewerClick}
-                    className="relative flex flex-col items-center gap-4"
-                    style={{ width: FIXED_PDF_WIDTH, visibility: 'hidden' }}
-                >
+                    <div
+                        ref={wrapperRef}
+                        onClick={handleViewerClick}
+                        className="relative flex flex-col items-center gap-4"
+                        style={{ width: FIXED_PDF_WIDTH, visibility: 'hidden' }}
+                    >
 
                         {/*
                             Previous document — stays fully visible while the next
@@ -333,7 +333,7 @@ export const PreviewPanel: React.FC = () => {
                                         width={FIXED_PDF_WIDTH}
                                         renderTextLayer={false}
                                         renderAnnotationLayer={true}
-                                        className="shadow-2xl opacity-80 transition-opacity duration-300"
+                                        className="shadow-2xl opacity-60 transition-opacity duration-300"
                                         loading={null}
                                     />
                                 ))}

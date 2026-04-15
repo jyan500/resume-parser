@@ -7,16 +7,7 @@ import { EditorPanel } from "../components/editor/EditorPanel";
 import { TargetJobPanel } from "../components/target-job/TargetJobPanel";
 import { resetResume } from "../slices/resumeSlice";
 import { HOVER_Z_INDEX } from "../helpers/constants"
-
-const ResizeHandle = () => (
-    <Separator title={"Drag to resize"} className="w-1.5 bg-slate-200 flex items-center justify-center group outline-none cursor-col-resize">
-        <div className={`${HOVER_Z_INDEX} pointer-events-none bg-white p-3 rounded-lg shadow-md flex flex-col gap-[3px]`}>
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
-        </div>
-    </Separator>
-);
+import { ResizeHandle } from "../components/page-elements/ResizeHandle"
 
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
