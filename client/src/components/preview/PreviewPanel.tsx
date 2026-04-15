@@ -67,7 +67,10 @@ export const PreviewPanel: React.FC = () => {
     const [previousRenderUrl, setPreviousRenderUrl] = useState<string | null>(null);
  
     const [numPages, setNumPages] = useState(1);
-    const [containerWidth, setContainerWidth] = useState(0);
+    const FIXED_PDF_WIDTH = 816; // letter at 96 dpi — never changes, so Page never re-renders on resize
+    const hasInitialized = useRef(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const outerRef = useRef<HTMLDivElement>(null);
 
     const handleDownload = useCallback(async () => {
         const cleanDocument = (
@@ -175,13 +178,27 @@ export const PreviewPanel: React.FC = () => {
     const shouldShowTextLoader = isFirstRendering && isBusy;
     const shouldShowPreviousDocument = !isFirstRendering && isBusy;
  
-    const pageWidth = containerWidth > 48 ? containerWidth - 48 : containerWidth;
-
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;
-        const observer = new ResizeObserver(([entry]) =>
-            setContainerWidth(entry.contentRect.width)
-        );
+        const observer = new ResizeObserver(([entry]) => {
+            const availableWidth = entry.contentRect.width;
+            if (availableWidth === 0) return;
+            const scale = Math.min(availableWidth / FIXED_PDF_WIDTH, 1);
+            // Explicit side padding keeps the PDF centered without relying on flex
+            // alignment (which uses pre-zoom dimensions and would mis-center).
+            const sidePadding = Math.max(0, (availableWidth - FIXED_PDF_WIDTH * scale) / 2);
+            if (wrapperRef.current) {
+                wrapperRef.current.style.zoom = String(scale);
+                if (!hasInitialized.current) {
+                    wrapperRef.current.style.visibility = '';
+                    hasInitialized.current = true;
+                }
+            }
+            if (outerRef.current) {
+                outerRef.current.style.paddingLeft = `${sidePadding}px`;
+                outerRef.current.style.paddingRight = `${sidePadding}px`;
+            }
+        });
         observer.observe(node);
         return () => observer.disconnect();
     }, []);
@@ -264,17 +281,22 @@ export const PreviewPanel: React.FC = () => {
             {/* Viewer */}
             <div
                 ref={containerRef}
-                className="flex-1 overflow-y-auto bg-slate-700 relative"
+                className="overflow-y-auto relative"
             >
                 {/* First-load message — only shown before any render has completed */}
                 {shouldShowTextLoader && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <p className="text-sm text-slate-400">Rendering PDF…</p>
+                        <p className="text-sm text-slate-400"><LoadingSpinner/></p>
                     </div>
                 )}
 
-                {containerWidth > 0 && (
-                    <div onClick={handleViewerClick} className="relative flex flex-col items-center py-6 gap-4">
+                <div ref={outerRef} className="py-6">
+                <div
+                    ref={wrapperRef}
+                    onClick={handleViewerClick}
+                    className="relative flex flex-col items-center gap-4"
+                    style={{ width: FIXED_PDF_WIDTH, visibility: 'hidden' }}
+                >
 
                         {/*
                             Previous document — stays fully visible while the next
@@ -291,7 +313,7 @@ export const PreviewPanel: React.FC = () => {
                                     <Page
                                         key={i + 1}
                                         pageNumber={i + 1}
-                                        width={pageWidth}
+                                        width={FIXED_PDF_WIDTH}
                                         renderTextLayer={false}
                                         renderAnnotationLayer={true}
                                         className="shadow-2xl opacity-80 transition-opacity duration-300"
@@ -323,7 +345,7 @@ export const PreviewPanel: React.FC = () => {
                                     <Page
                                         key={i + 1}
                                         pageNumber={i + 1}
-                                        width={pageWidth}
+                                        width={FIXED_PDF_WIDTH}
                                         // ── Highlight the hovered suggestion bullet ──
                                         renderAnnotationLayer={true}
                                         renderTextLayer={false}
@@ -342,7 +364,7 @@ export const PreviewPanel: React.FC = () => {
                             </Document>
                         )}
                     </div>
-                )}
+                </div>
             </div>
 
         </div>
