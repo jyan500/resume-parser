@@ -183,10 +183,14 @@ export const PreviewPanel: React.FC = () => {
         const observer = new ResizeObserver(([entry]) => {
             const availableWidth = entry.contentRect.width;
             if (availableWidth === 0) return;
-            const scale = Math.min(availableWidth / FIXED_PDF_WIDTH, 1);
-            // Explicit side padding keeps the PDF centered without relying on flex
-            // alignment (which uses pre-zoom dimensions and would mis-center).
-            const sidePadding = Math.max(0, (availableWidth - FIXED_PDF_WIDTH * scale) / 2);
+            const MIN_SIDE_PADDING = 8;
+            // When the panel is wider than the PDF, render at natural size (zoom=1) and
+            // center it — no blur. When narrower, scale down and reserve MIN_SIDE_PADDING
+            // on each side so the PDF never touches the container edges.
+            const scale = availableWidth >= FIXED_PDF_WIDTH
+                ? 1
+                : (availableWidth - 2 * MIN_SIDE_PADDING) / FIXED_PDF_WIDTH;
+            const sidePadding = (availableWidth - FIXED_PDF_WIDTH * scale) / 2;
             if (wrapperRef.current) {
                 wrapperRef.current.style.zoom = String(scale);
                 if (!hasInitialized.current) {
