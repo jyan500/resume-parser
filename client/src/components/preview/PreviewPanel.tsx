@@ -186,6 +186,10 @@ export const PreviewPanel: React.FC = () => {
 
       When the panel is wider than 816px: zoom = 1 (crisp, natural size), PDF centered.
       When narrower: zoom < 1 (scaled down), with MIN_SIDE_PADDING reserved on each side.
+
+      Note the tradeoff here is that normally, text layer and annotation layer would go out
+      of sync with each other since the PDF is not actually re-rendered to account for the size change,
+      but since we're only displaying the annotation layer, the link annotation effects and clicking still works.
     */ 
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;
