@@ -177,7 +177,16 @@ export const PreviewPanel: React.FC = () => {
  
     const shouldShowTextLoader = isFirstRendering && isBusy;
     const shouldShowPreviousDocument = !isFirstRendering && isBusy;
- 
+    
+    /* 
+      Resize without re-rendering: the PDF canvas is fixed at FIXED_PDF_WIDTH (816px)
+      and never changes, so react-pdf never redraws it on resize. Instead, CSS zoom
+      is applied directly to the DOM to scale the visual output — no React state update,
+      no canvas re-render, no flash.
+
+      When the panel is wider than 816px: zoom = 1 (crisp, natural size), PDF centered.
+      When narrower: zoom < 1 (scaled down), with MIN_SIDE_PADDING reserved on each side.
+    */ 
     const containerRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;
         const observer = new ResizeObserver(([entry]) => {
