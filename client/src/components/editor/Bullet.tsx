@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { GripVertical, Sparkle, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
@@ -66,9 +67,7 @@ export const Bullet: React.FC<Bullet> = ({
                     aria-label="Drag to reorder"
                     {...dragHandleProps}
                 >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                    </svg>
+                    <GripVertical className="w-3.5 h-3.5" strokeWidth={2} />
                 </button>
 
                 {/* Enabled toggle */}
@@ -103,9 +102,7 @@ export const Bullet: React.FC<Bullet> = ({
                                 : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
                         }`}
                     >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                        </svg>
+                        <Sparkle className="w-4 h-4" />
                     </button>
                 )}
 
@@ -114,9 +111,7 @@ export const Bullet: React.FC<Bullet> = ({
                     onClick={onRemoveBullet}
                     className="mt-2 p-0.5 text-slate-300 hover:text-red-500 transition-colors flex-shrink-0"
                 >
-                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-3 h-3" strokeWidth={2.5} />
                 </button>
             </div>
 

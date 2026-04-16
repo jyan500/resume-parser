@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { GripVertical, Check, X } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     addSkillCategory,
@@ -91,9 +92,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
             {/* Category name row */}
             <div className="flex items-center gap-2 mb-2.5">
                 <span className="text-slate-300 cursor-grab">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                    </svg>
+                    <GripVertical className="w-4 h-4" strokeWidth={2} />
                 </span>
                 <button
                     onClick={onToggle}
@@ -102,9 +101,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                     }`}
                 >
                     {skill.enabled && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                     )}
                 </button>
                 <input
@@ -118,9 +115,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                     onClick={onRemove}
                     className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
                 >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                    </svg>
+                    <X className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </button>
             </div>
 
@@ -139,9 +134,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                             onClick={(e) => { e.stopPropagation(); removeItem(item); }}
                             className="text-blue-500 hover:text-blue-800 transition-colors"
                         >
-                            <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                            </svg>
+                            <X className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
                     </span>
                 ))}

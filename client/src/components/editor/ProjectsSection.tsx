@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useRef } from "react";
+import { GripVertical, Check, Sparkle, X, ChevronDown, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     type ContainsBullets,
@@ -148,9 +149,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     aria-label="Drag to reorder"
                     {...dragHandleProps}
                 >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                    </svg>
+                    <GripVertical className="w-4 h-4" strokeWidth={2} />
                 </button>
                 <button
                     onClick={onToggle}
@@ -159,9 +158,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     }`}
                 >
                     {project.enabled && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                     )}
                 </button>
 
@@ -178,9 +175,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                     {/* Pending suggestions pill — only when collapsed */}
                     {!subToggleVisibility[project.id] && pendingCount > 0 && (
                         <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-600 text-xs font-medium flex-shrink-0">
-                            <svg className="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                            </svg>
+                            <Sparkle className="w-2.5 h-2.5" />
                             {pendingCount}
                         </span>
                     )}
@@ -188,17 +183,13 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
 
                 <div className="flex items-center gap-1 flex-shrink-0">
                     <button onClick={onRemove} className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-3.5 h-3.5" strokeWidth={2.5} />
                     </button>
                     <button onClick={() => dispatch(setSubToggleVisibility({regionId: project.id, isOpen: !subToggleVisibility[project.id]}))} className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors">
-                        <svg
+                        <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform duration-200 ${subToggleVisibility[project.id] ? "rotate-0" : "-rotate-90"}`}
-                            fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
+                            strokeWidth={2.5}
+                        />
                     </button>
                 </div>
             </div>
@@ -229,9 +220,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                                         onClick={(e) => { e.stopPropagation(); removeTech(tech); }}
                                         className="text-emerald-500 hover:text-emerald-800 transition-colors"
                                     >
-                                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                                        </svg>
+                                        <X className="w-2.5 h-2.5" strokeWidth={3} />
                                     </button>
                                 </span>
                             ))}
@@ -279,9 +268,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                             </DndSortableWrapper>
                         </div>
                         <button onClick={onAddBullet} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 mt-2 transition-colors">
-                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
+                            <Plus className="w-3 h-3" strokeWidth={2.5} />
                             Add bullet
                         </button>
                     </div>

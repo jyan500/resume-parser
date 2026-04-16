@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { GripVertical, Check, X, ChevronDown } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
     addCertification,
@@ -78,9 +79,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
             {/* Header row */}
             <div className="flex items-center gap-2 px-3 py-2.5">
                 <span className="text-slate-300 cursor-grab flex-shrink-0">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-                    </svg>
+                    <GripVertical className="w-4 h-4" strokeWidth={2} />
                 </span>
                 <button
                     onClick={onToggle}
@@ -89,9 +88,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                     }`}
                 >
                     {entry.enabled && (
-                        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
+                        <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
                     )}
                 </button>
                 <div className="flex-1 min-w-0">
@@ -109,20 +106,16 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                         onClick={onRemove}
                         className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
                     >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-                        </svg>
+                        <X className="w-3.5 h-3.5" strokeWidth={2.5} />
                     </button>
                     <button
                         onClick={() => dispatch(setSubToggleVisibility({regionId: entry.id, isOpen: !subToggleVisibility[entry.id]}))}
                         className="p-1 text-slate-400 hover:text-slate-600 rounded-md transition-colors"
                     >
-                        <svg
+                        <ChevronDown
                             className={`w-3.5 h-3.5 transition-transform duration-200 ${subToggleVisibility[entry.id] ? "rotate-0" : "-rotate-90"}`}
-                            fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                        </svg>
+                            strokeWidth={2.5}
+                        />
                     </button>
                 </div>
             </div>
