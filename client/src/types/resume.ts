@@ -150,3 +150,5 @@ export type ActiveSection =
     | null;
 
 export type ParseStatus = "idle" | "parsing" | "success" | "error";
+
+export type MobilePane = "editor" | "preview" | "targetJob";
