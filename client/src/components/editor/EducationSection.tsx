@@ -9,6 +9,8 @@ import {
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
+    updateSectionTitle,
+    DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -28,13 +30,16 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ dragHandlePr
     const dispatch = useAppDispatch();
     const education = useAppSelector(selectResume).education;
     const visible = useAppSelector(selectVisibility).education;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.education);
 
     return (
         <SectionWrapper
-            title="Education"
+            title={sectionTitle}
             sectionKey="education"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("education"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "education", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.education}
             dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Education" onClick={() => dispatch(addEducation())} />

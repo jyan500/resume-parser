@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
-import { setSummary, toggleSectionVisibility, toggleSectionCollapseVisibility } from "../../slices/resumeSlice";
+import { setSummary, toggleSectionVisibility, toggleSectionCollapseVisibility, updateSectionTitle, DEFAULT_SECTION_TITLES } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { TextArea } from "./TextArea"
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
@@ -9,6 +9,7 @@ export const SummarySection: React.FC = () => {
     const dispatch = useAppDispatch();
     const summary = useAppSelector(selectResume).summary;
     const visible = useAppSelector(selectVisibility).summary;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.summary);
     const rootRef = useRef<HTMLDivElement>(null)
 
     useScrollToFocusedRegion(rootRef, summary?.id ?? "")
@@ -16,9 +17,11 @@ export const SummarySection: React.FC = () => {
     return (
         <SectionWrapper
             sectionKey="summary"
-            title="Professional Summary"
+            title={sectionTitle}
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("summary"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "summary", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.summary}
         >
             <div ref={rootRef}>
                 <TextArea

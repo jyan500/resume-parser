@@ -67,6 +67,16 @@ export interface SummaryEntry {
     text: string
 }
 
+// ─── Section Titles ───────────────────────────────────────────────────────────
+export interface SectionTitles {
+    summary: string;
+    experience: string;
+    education: string;
+    certifications: string;
+    skills: string;
+    projects: string;
+}
+
 // ─── Root Resume ──────────────────────────────────────────────────────────────
 export interface Resume {
     header: ResumeHeader;

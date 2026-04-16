@@ -8,6 +8,8 @@ import {
     toggleSkillCategory,
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
+    updateSectionTitle,
+    DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { AddButton } from "../page-elements/AddButton";
@@ -26,13 +28,16 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({ dragHandleProps })
     const dispatch = useAppDispatch();
     const skills = useAppSelector(selectResume).skills;
     const visible = useAppSelector(selectVisibility).skills;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.skills);
 
     return (
         <SectionWrapper
-            title="Skills"
+            title={sectionTitle}
             sectionKey="skills"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("skills"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "skills", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.skills}
             dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Category" onClick={() => dispatch(addSkillCategory())} />

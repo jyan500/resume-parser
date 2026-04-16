@@ -15,6 +15,8 @@ import {
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     reorderProjects,
+    updateSectionTitle,
+    DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -37,6 +39,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
     const dispatch = useAppDispatch();
     const projects = useAppSelector(selectResume).projects ?? [];
     const visible = useAppSelector(selectVisibility).projects;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.projects);
 
     const suggestedBullets = useAppSelector((s) => s.resume.suggestions.suggestedBullets);
     const suggestionsMap = useMemo<Map<string, SuggestedBullet>>(
@@ -46,10 +49,12 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
 
     return (
         <SectionWrapper
-            title="Projects"
+            title={sectionTitle}
             sectionKey="projects"
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("projects"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "projects", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.projects}
             dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Project" onClick={() => dispatch(addProject())} />

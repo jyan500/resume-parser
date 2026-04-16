@@ -35,17 +35,17 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const [ downloadLoading, setDownloadLoading ] = useState(false)
-    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId} = useAppSelector((state) => state.resume)
+    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
     })
 
-    const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} />;
+    const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} sectionTitles={sectionTitles} />;
     const render = useAsync(async () => {
         const blob = await pdf(resumePdfDocument).toBlob();
         return URL.createObjectURL(blob);
-    }, [resume, visibility, order, template]); 
+    }, [resume, visibility, order, template, sectionTitles]);
  
     // Revoke old blob URLs to prevent memory leaks.
     const previousBlobRef = useRef<string | null>(null);
@@ -81,6 +81,7 @@ export const PreviewPanel: React.FC = () => {
                 resume={resume}
                 visibility={visibility}
                 interactive={false}  // ← strips all link annotations
+                sectionTitles={sectionTitles}
             />
         );
     
@@ -94,7 +95,7 @@ export const PreviewPanel: React.FC = () => {
     
         // Clean up immediately after the click is dispatched
         URL.revokeObjectURL(url);
-    }, [template, order, resume, visibility]);
+    }, [template, order, resume, visibility, sectionTitles]);
 
     const handleAnnotationLayerRendered = useCallback(() => {
         /* 

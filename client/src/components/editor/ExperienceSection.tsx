@@ -15,6 +15,8 @@ import {
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
+    updateSectionTitle,
+    DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -73,6 +75,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
     const dispatch = useAppDispatch();
     const experience = useAppSelector(selectResume).experience;
     const visible = useAppSelector(selectVisibility).experience;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.experience);
 
     // Build a bulletId → SuggestedBullet map once so every entry card can do
     // O(1) lookups
@@ -82,9 +85,11 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
     return (
         <SectionWrapper
             sectionKey="experience"
-            title="Professional Experience"
+            title={sectionTitle}
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("experience"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "experience", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.experience}
             dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Experience" onClick={() => dispatch(addExperience())} />

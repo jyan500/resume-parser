@@ -22,7 +22,7 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, Skill, SkillCategory } from "../../types/resume";
+import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, Skill, SkillCategory, SectionTitles } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ContactItem } from "./ContactItem";
 import { SectionHeader } from "./SectionHeader";
@@ -286,10 +286,11 @@ function buildDateRange(startDate?: string, endDate?: string): string {
 interface ExperienceSectionProps {
     visibility: ResumeVisibility;
     enabledExperience: Array<ExperienceEntry>;
-    interactive?: boolean
+    interactive?: boolean;
+    title: string;
 }
 
-const ExperienceSection = ({ visibility: vis, enabledExperience, interactive }: ExperienceSectionProps) => {
+const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, title }: ExperienceSectionProps) => {
     if (!vis.experience || enabledExperience.length === 0) return null;
 
     const entry = (exp: ExperienceEntry) => {
@@ -307,7 +308,7 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive }: 
 
     return (
         <View style={styles.section}>
-            <SectionHeader title="Work History" styles={sectionHeaderStyles} />
+            <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledExperience.map((exp, i) => (
                 <View
                     key={exp.id}
@@ -332,10 +333,11 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive }: 
 interface ProjectsSectionProps {
     visibility: ResumeVisibility;
     enabledProjects: Array<NonNullable<Resume["projects"]>[number]>;
-    interactive?: boolean
+    interactive?: boolean;
+    title: string;
 }
 
-const ProjectsSection = ({ visibility: vis, enabledProjects, interactive }: ProjectsSectionProps) => {
+const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title }: ProjectsSectionProps) => {
     if (!vis.projects || enabledProjects.length === 0) return null;
 
     const projectHeader = (proj: ProjectEntry) => {
@@ -357,7 +359,7 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive }: Proj
     }
     return (
         <View style={styles.section}>
-            <SectionHeader title="Projects" styles={sectionHeaderStyles} />
+            <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledProjects.map((proj, i) => (
                 <View key={proj.id} style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}>
                     {
@@ -377,14 +379,15 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive }: Proj
 interface EducationSectionProps {
     visibility: ResumeVisibility;
     enabledEducation: Resume["education"];
-    interactive?: boolean
+    interactive?: boolean;
+    title: string;
 }
 
-const EducationSection = ({ visibility: vis, enabledEducation, interactive }: EducationSectionProps) => {
+const EducationSection = ({ visibility: vis, enabledEducation, interactive, title }: EducationSectionProps) => {
     if (!vis.education || enabledEducation.length === 0) return null;
     return (
         <View style={styles.section}>
-            <SectionHeader title="Education" styles={sectionHeaderStyles} />
+            <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledEducation.map((edu) => {
                 const degreeText = [
                     edu.degree,
@@ -431,14 +434,15 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive }: Ed
 interface CertificationSectionProps {
     visibility: ResumeVisibility;
     enabledCertifications: Resume["certifications"];
-    interactive?: boolean
+    interactive?: boolean;
+    title: string;
 }
 
-const CertificationSection = ({ visibility: vis, enabledCertifications, interactive }: CertificationSectionProps) => {
+const CertificationSection = ({ visibility: vis, enabledCertifications, interactive, title }: CertificationSectionProps) => {
     if (!vis.certifications || enabledCertifications.length === 0) return null;
     return (
         <View style={styles.section}>
-            <SectionHeader title="Certifications" styles={sectionHeaderStyles} />
+            <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledCertifications.map((cert) => {
                 const label = cert.organization
                     ? `${cert.name} from ${cert.organization}`
@@ -472,14 +476,15 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
 interface SkillsSectionProps {
     visibility: ResumeVisibility;
     enabledSkills: Resume["skills"];
-    interactive?: boolean
+    interactive?: boolean;
+    title: string;
 }
 
-const SkillsSection = ({ visibility: vis, enabledSkills, interactive }: SkillsSectionProps) => {
+const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title }: SkillsSectionProps) => {
     if (!vis.skills || enabledSkills.length === 0) return null;
     return (
         <View style={styles.section}>
-            <SectionHeader title="Skills" styles={sectionHeaderStyles} />
+            <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledSkills.map((skill) => {
                 const skillRow = (skill: SkillCategory) => {
                     return (
@@ -516,7 +521,8 @@ interface ResumeDocumentClassicProps {
     resume: Resume;
     visibility: ResumeVisibility;
     order: Array<OrderableSection>;
-    interactive?: boolean
+    interactive?: boolean;
+    sectionTitles: SectionTitles;
 }
 
 export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
@@ -524,6 +530,7 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
     visibility,
     order,
     interactive,
+    sectionTitles,
 }) => {
     const { header, summary, experience, education, certifications, skills, projects } = resume;
     const vis = visibility;
@@ -543,11 +550,11 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
     const enabledProjects = projects?.filter((p) => p.enabled) ?? [];
 
     const sectionProps: SectionPropsByKey = {
-        experience: { visibility: vis, enabledExperience },
-        projects: { visibility: vis, enabledProjects },
-        education: { visibility: vis, enabledEducation },
-        certifications: { visibility: vis, enabledCertifications },
-        skills: { visibility: vis, enabledSkills },
+        experience: { visibility: vis, enabledExperience, title: sectionTitles.experience },
+        projects: { visibility: vis, enabledProjects, title: sectionTitles.projects },
+        education: { visibility: vis, enabledEducation, title: sectionTitles.education },
+        certifications: { visibility: vis, enabledCertifications, title: sectionTitles.certifications },
+        skills: { visibility: vis, enabledSkills, title: sectionTitles.skills },
     };
 
     const headerElement = (contactItems: Array<{value?: string; isLink?: boolean}>) => (
@@ -589,7 +596,7 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
                 {/* ── Summary ── */}
                 {vis.summary && summary && summary.text !== "" && (
                     <View style={styles.section}>
-                        <SectionHeader title="Summary" styles={sectionHeaderStyles} />
+                        <SectionHeader title={sectionTitles.summary} styles={sectionHeaderStyles} />
                         {interactive ? (
                             <Link src={`http://r/#${summary.id}`} style={styles.bulletLinkContainer}>
                                 <Text style={styles.summaryText}>{summary.text}</Text>

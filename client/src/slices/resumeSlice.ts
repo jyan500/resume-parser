@@ -17,6 +17,7 @@ import type {
     SubToggleVisibility,
     ResumeSuggestion,
     SummaryEntry,
+    SectionTitles,
 } from "../types/resume";
 
 // ─── Default State ────────────────────────────────────────────────────────────
@@ -86,12 +87,22 @@ const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
     recommendations: [],
 }
 
+export const DEFAULT_SECTION_TITLES: SectionTitles = {
+    summary: "Professional Summary",
+    experience: "Professional Experience",
+    education: "Education",
+    certifications: "Certifications",
+    skills: "Skills",
+    projects: "Projects",
+}
+
 // ─── Slice State Type ─────────────────────────────────────────────────────────
 
 export interface ResumeState {
     resume: Resume;
     visibility: ResumeVisibility;
     toggleVisibility: ToggleVisibility;
+    sectionTitles: SectionTitles;
     regionToSection: RegionToSection;
     subRegionToRegion: SubRegionToRegion;
     subToggleVisibility: SubToggleVisibility;
@@ -113,6 +124,7 @@ const defaultState: ResumeState = {
     suggestions: DEFAULT_SUGGESTIONS,
     visibility: DEFAULT_VISIBILITY,
     toggleVisibility: TOGGLE_VISIBILITY,
+    sectionTitles: DEFAULT_SECTION_TITLES,
     subRegionToRegion: {},
     subToggleVisibility: {},
     regionToSection: {},
@@ -141,6 +153,7 @@ export const resumeSlice = createSlice({
         // ── Bulk ────────────────────────────────────────────────────────────────
         setResume(state, action: PayloadAction<Resume>) {
             state.resume = action.payload;
+            state.sectionTitles = DEFAULT_SECTION_TITLES;
             /* 
                 map each resume region id to it's corresponding section for the purposes 
                 of allowing the click on the live preview to scroll to the right section
@@ -656,7 +669,12 @@ export const resumeSlice = createSlice({
         setSubToggleVisibility(state, action: PayloadAction<{regionId: string, isOpen: boolean}>){
             const { regionId, isOpen } = action.payload
             state.subToggleVisibility[regionId] = isOpen
-        }
+        },
+
+        updateSectionTitle(state, action: PayloadAction<{ key: keyof SectionTitles; title: string }>) {
+            state.sectionTitles[action.payload.key] = action.payload.title;
+            state.isDirty = true;
+        },
 
     },
 });
@@ -709,6 +727,7 @@ export const {
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     toggleAllSectionCollapse,
+    updateSectionTitle,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
