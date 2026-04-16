@@ -22,6 +22,7 @@ import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
 import { LoadingSpinner } from "../page-elements/LoadingSpinner";
 import { Download } from "lucide-react";
+import { FIXED_PDF_WIDTH } from "../../helpers/constants"
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -68,7 +69,6 @@ export const PreviewPanel: React.FC = () => {
     const [previousRenderUrl, setPreviousRenderUrl] = useState<string | null>(null);
  
     const [numPages, setNumPages] = useState(1);
-    const FIXED_PDF_WIDTH = 816; // letter at 96 dpi — never changes, so Page never re-renders on resize
     const hasInitialized = useRef(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const outerRef = useRef<HTMLDivElement>(null);
