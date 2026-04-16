@@ -106,10 +106,8 @@ export const EditorPage: React.FC = () => {
                         )}
                         {activePane === "preview" && (
                             <div className="flex flex-col h-full bg-slate-100 overflow-hidden">
-                                <div className="flex-1 overflow-hidden p-6">
-                                    <div className="h-full rounded-xl overflow-hidden shadow-lg border border-slate-200">
-                                        <PreviewPanel />
-                                    </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <PreviewPanel />
                                 </div>
                             </div>
                         )}
@@ -148,10 +146,8 @@ export const EditorPage: React.FC = () => {
                                 Preview
                             </h2>
                         </div>
-                        <div className="flex-1 overflow-hidden p-6">
-                            <div className="h-full rounded-xl overflow-hidden shadow-lg border border-slate-200">
-                                <PreviewPanel />
-                            </div>
+                        <div className="flex-1 overflow-hidden">
+                            <PreviewPanel />
                         </div>
                     </Panel>
 
