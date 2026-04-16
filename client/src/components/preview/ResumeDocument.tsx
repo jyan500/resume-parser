@@ -1,4 +1,4 @@
-import type { ResumeTemplate, Resume, ResumeVisibility } from "../../types/resume";
+import type { ResumeTemplate, Resume, ResumeVisibility, SectionTitles } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ModernResumeTemplate } from "./ModernResumeTemplate";
 import { ClassicResumeTemplate } from "./ClassicResumeTemplate";
@@ -9,6 +9,7 @@ interface ResumeDocumentProps {
     order: Array<OrderableSection>
     template: ResumeTemplate
     interactive?: boolean
+    sectionTitles: SectionTitles
 }
 
 export const ResumeDocument = ({
@@ -17,6 +18,7 @@ export const ResumeDocument = ({
     order,
     template,
     interactive=true,
+    sectionTitles,
 }: ResumeDocumentProps) => {
     if (template === "modern"){
         return (
@@ -25,6 +27,7 @@ export const ResumeDocument = ({
                 interactive={interactive}
                 visibility={visibility}
                 order={order}
+                sectionTitles={sectionTitles}
             />
         )
     }
@@ -35,6 +38,7 @@ export const ResumeDocument = ({
                 interactive={interactive}
                 visibility={visibility}
                 order={order}
+                sectionTitles={sectionTitles}
             />
         )
     }

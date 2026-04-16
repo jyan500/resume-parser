@@ -9,6 +9,8 @@ import {
     toggleSectionVisibility,
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
+    updateSectionTitle,
+    DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
@@ -28,13 +30,16 @@ export const CertificationSection: React.FC<CertificationSectionProps> = ({ drag
     const dispatch = useAppDispatch();
     const certifications = useAppSelector(selectResume).certifications;
     const visible = useAppSelector(selectVisibility).certifications;
+    const sectionTitle = useAppSelector((state) => state.resume.sectionTitles.certifications);
 
     return (
         <SectionWrapper
             sectionKey={"certifications"}
-            title="Certifications"
+            title={sectionTitle}
             visible={visible}
             onToggleVisibility={() => dispatch(toggleSectionVisibility("certifications"))}
+            onTitleChange={(t) => dispatch(updateSectionTitle({ key: "certifications", title: t }))}
+            defaultTitle={DEFAULT_SECTION_TITLES.certifications}
             dragHandleProps={dragHandleProps}
             rightSlot={
                 <AddButton label="Add Certification" onClick={() => dispatch(addCertification())} />
