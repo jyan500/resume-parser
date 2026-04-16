@@ -160,3 +160,8 @@ Starts the Flask server at http://localhost:5000
 - Use RTK Query for data fetching and caching
 - Maintain accessibility standards in UI components
 - Keep PDF generation considerations in mind when styling components
+
+## TypeScript Import Style
+- When importing **only** types from a module, use `import type { Foo } from "..."`.
+- When importing both values and types from the same module, use inline `type` modifiers: `import { someValue, type SomeType } from "..."`.
+- Never mix plain type imports with value imports in a single `import` statement without the `type` keyword on each type.

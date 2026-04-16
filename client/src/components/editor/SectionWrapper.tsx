@@ -107,7 +107,7 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                             {onTitleChange && (
                                 <button
                                     onClick={handlePencilClick}
-                                    className="text-slate-300 hover:text-slate-500 transition-colors flex-shrink-0"
+                                    className="text-slate-400 hover:text-slate-500 transition-colors flex-shrink-0"
                                     aria-label="Edit section title"
                                 >
                                     <Pencil className="w-3.5 h-3.5" strokeWidth={2} />
