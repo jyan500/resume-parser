@@ -26,7 +26,7 @@ export const HeaderSection: React.FC = () => {
                     label="Full Name"
                     value={header.name}
                     onChange={(v) => patch({ name: v })}
-                    placeholder="Jane Smith"
+                    placeholder="Full Name"
                 />
             </div>
  
@@ -36,7 +36,7 @@ export const HeaderSection: React.FC = () => {
                     label="Email"
                     value={header.email}
                     onChange={(v) => patch({ email: v })}
-                    placeholder="jane@example.com"
+                    placeholder="Email"
                     type="email"
                 />
             </div>
@@ -47,7 +47,7 @@ export const HeaderSection: React.FC = () => {
                     label={"Location"}
                     value={header.location}
                     onChange={v => patch({location: v})}
-                    placeholder={"San Francisco, CA, USA"}
+                    placeholder={"City, State"}
                     inlineItem={
                         <button
                             onClick={() => dispatch(toggleHeaderField("location"))}
@@ -111,7 +111,7 @@ export const HeaderSection: React.FC = () => {
                                     updated[i] = v
                                     patch({urls: updated})
                                 }}
-                                placeholder="https://linkedin.com/in/my-profile"
+                                placeholder="URL"
                             />
                             <button
                                 onClick={() => {

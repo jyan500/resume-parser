@@ -134,44 +134,44 @@ const EducationEntryRow: React.FC<EducationEntryRowProps> = ({ entry, onUpdate, 
                                 label="School"
                                 value={entry.school}
                                 onChange={(v) => onUpdate({ school: v })}
-                                placeholder="University of California, Berkeley"
+                                placeholder="School Name"
                             />
                         </div>
                         <Field
                             label="Degree"
                             value={entry.degree}
                             onChange={(v) => onUpdate({ degree: v })}
-                            placeholder="Bachelor's"
+                            placeholder="Degree"
                         />
                         <Field
                             label="Field of Study"
                             value={entry.field ?? ""}
                             onChange={(v) => onUpdate({ field: v })}
-                            placeholder="Computer Science"
+                            placeholder="Field of Study"
                         />
                         <Field
                             label="Start Date"
                             value={entry.startDate ?? ""}
                             onChange={(v) => onUpdate({ startDate: v })}
-                            placeholder="Aug 2018"
+                            placeholder="Date"
                         />
                         <Field
                             label="End Date"
                             value={entry.endDate}
                             onChange={(v) => onUpdate({ endDate: v })}
-                            placeholder="May 2022"
+                            placeholder="Date"
                         />
                         <Field
                             label="GPA"
                             value={entry.gpa ?? ""}
                             onChange={(v) => onUpdate({ gpa: v })}
-                            placeholder="3.8"
+                            placeholder="GPA"
                         />
                         <Field
                             label="Location"
                             value={entry.location ?? ""}
                             onChange={(v) => onUpdate({ location: v })}
-                            placeholder="Berkeley, CA"
+                            placeholder="Location"
                         />
                     </div>
                 </div>

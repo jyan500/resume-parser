@@ -134,7 +134,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                                 label="Certification Name"
                                 value={entry.name}
                                 onChange={(v) => onUpdate({ name: v })}
-                                placeholder="AWS Certified Solutions Architect"
+                                placeholder="Certification Name"
                             />
                         </div>
                         <div className="col-span-2">
@@ -142,7 +142,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                                 label="Issuing Organization"
                                 value={entry.organization}
                                 onChange={(v) => onUpdate({ organization: v })}
-                                placeholder="Amazon Web Services"
+                                placeholder="Issuing Organization"
                             />
                         </div>
                         <div className="col-span-2">
@@ -150,7 +150,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                                 label="Date"
                                 value={entry.date}
                                 onChange={(v) => onUpdate({ date: v })}
-                                placeholder="Jun 2023"
+                                placeholder="Date"
                             />
                         </div>
                     </div>
