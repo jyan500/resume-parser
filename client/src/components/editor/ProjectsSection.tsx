@@ -204,7 +204,7 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
                         <div className="col-span-2">
-                            <Field label="Project Name" value={project.name} onChange={(v) => onUpdate({ name: v })} placeholder="My Awesome Project" />
+                            <Field label="Project Name" value={project.name} onChange={(v) => onUpdate({ name: v })} placeholder="Project Name" />
                         </div>
                         <div className="col-span-2">
                             <Field label="URL" value={project.url ?? ""} onChange={(v) => onUpdate({ url: v })} placeholder="https://github.com/you/project" />

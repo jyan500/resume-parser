@@ -238,12 +238,12 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
             {subToggleVisibility[entry.id] && (
                 <div className="px-3 pb-3 border-t border-slate-100">
                     <div className="grid grid-cols-2 gap-2 mt-3">
-                        <Field label="Job Title" value={entry.title} onChange={(v) => onUpdate({ title: v })} placeholder="Software Engineer" />
-                        <Field label="Company" value={entry.company} onChange={(v) => onUpdate({ company: v })} placeholder="Acme Corp" />
-                        <Field label="Start Date" value={entry.startDate} onChange={(v) => onUpdate({ startDate: v })} placeholder="Jan 2022" />
-                        <Field label="End Date" value={entry.endDate} onChange={(v) => onUpdate({ endDate: v })} placeholder="Present" />
+                        <Field label="Job Title" value={entry.title} onChange={(v) => onUpdate({ title: v })} placeholder="Job Title" />
+                        <Field label="Company" value={entry.company} onChange={(v) => onUpdate({ company: v })} placeholder="Company Name" />
+                        <Field label="Start Date" value={entry.startDate} onChange={(v) => onUpdate({ startDate: v })} placeholder="Date" />
+                        <Field label="End Date" value={entry.endDate} onChange={(v) => onUpdate({ endDate: v })} placeholder="Date" />
                         <div className="col-span-2">
-                            <Field label="Location" value={entry.location ?? ""} onChange={(v) => onUpdate({ location: v })} placeholder="San Francisco, CA" />
+                            <Field label="Location" value={entry.location ?? ""} onChange={(v) => onUpdate({ location: v })} placeholder="City, State" />
                         </div>
                     </div>
 

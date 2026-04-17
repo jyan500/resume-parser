@@ -340,7 +340,7 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive, titl
             <View style={styles.educationLeft}>
                 <Text style={styles.educationSchool}>{edu.school}</Text>
                 <Text style={styles.educationDegree}>
-                    {edu.degree}{edu.field ? `, ${edu.field}` : ""}
+                    {edu.degree}{edu.field ? ` ${edu.field}` : ""}
                 </Text>
                 {edu.gpa && (
                     <Text style={styles.educationGpa}>GPA: {edu.gpa}</Text>

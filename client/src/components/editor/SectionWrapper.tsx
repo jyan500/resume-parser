@@ -59,7 +59,7 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     return (
         <div ref={ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
             {/* Section header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-white">
+            <div className="flex items-center justify-between gap-x-2 px-4 py-3 border-b border-slate-100 bg-white">
                 <div className="flex items-center gap-2">
                     {/* Section-level drag handle — only rendered for orderable sections */}
                     {dragHandleProps && (
