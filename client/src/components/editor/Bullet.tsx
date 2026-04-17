@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { GripVertical, Sparkle, X } from "lucide-react";
+import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
@@ -73,19 +73,21 @@ export const Bullet: React.FC<Bullet> = ({
                 {/* Enabled toggle */}
                 <button
                     onClick={onToggleBullet}
-                    className={`mt-2 w-3.5 h-3.5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
-                        bullet.enabled
-                            ? "bg-blue-600 border-blue-600"
-                            : "bg-white border-slate-300"
-                    }`}
-                />
+                    className="mt-2 flex-shrink-0 transition-colors text-slate-400 hover:text-slate-600"
+                    aria-label={bullet.enabled ? "Hide bullet" : "Show bullet"}
+                >
+                    {bullet.enabled
+                        ? <Eye className="w-3.5 h-3.5" strokeWidth={2} />
+                        : <EyeOff className="w-3.5 h-3.5" strokeWidth={2} />
+                    }
+                </button>
 
                 {/* Textarea — writes through dispatch so Apply can also write here */}
                 <TextArea
                     value={bullet.text}
                     onChange={(v) => handleTextChange(v)}
                     placeholder="Describe an achievement or responsibility..."
-                    rows={2}
+                    rows={4}
                     className={`${
                         bullet.enabled ? "border-slate-200" : "border-slate-100 opacity-60"
                     }`}
