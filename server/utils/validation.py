@@ -97,7 +97,7 @@ class TailorRequest(BaseModel):
         for section_name, entries in sections:
             for entry in entries:
                 bullets = entry.get("bullets", [])
-                if len(bullets) > 10:
+                if len(bullets) > 20:
                     raise ValueError(
                         f"An entry in '{section_name}' has too many bullet points."
                     )
