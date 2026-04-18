@@ -115,7 +115,7 @@ def parse_resume():
 @validate_tailor_request
 def tailor_resume():
     data = request.json
-    
+
     resume = data.get("resume")
     job_description = data.get("jobDescription")
     job_title_id = data.get("jobTitleId")
@@ -125,7 +125,7 @@ def tailor_resume():
     experience = resume.get("experience", [])
     projects = resume.get("projects", [])
 
-    suggestions = {} 
+    suggestions = {}
     try:
         # only include the resume's experience and projects section
         resume_json = json.dumps({"experience": experience, "projects": projects})

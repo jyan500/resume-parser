@@ -15,18 +15,18 @@ class LLMClient:
         )
         self.mode = mode
     
-    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel) -> BaseModel:
+    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None) -> BaseModel:
         if (self.mode == "gemini"):
-            return self._gemini_structured_response(prompt, schema)
+            return self._gemini_structured_response(prompt, schema, model)
         return self._openrouter_gen_structured_response(prompt, schema_name, schema)
 
-    def _gemini_structured_response(self, prompt: str, schema: BaseModel) -> dict:
+    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None) -> dict:
         """
         Uses gemini to create structured response that is validated by json schema
         """
         try:
             response = self.client.models.generate_content(
-                model=GEMINI_FLASH_MODEL,
+                model=model or GEMINI_FLASH_LITE_MODEL,
                 contents=[prompt],
                 config={
                     "response_mime_type": "application/json",

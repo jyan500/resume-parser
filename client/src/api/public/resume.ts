@@ -59,7 +59,7 @@ export const resumeApi = publicApi.injectEndpoints({
                     resume: {
                         "projects": body.resume?.projects ?? [],
                         "experience": body.resume?.experience ?? [],
-                    } 
+                    }
                 }
             }),
             transformResponse: (raw: TailorResumeServerResponse) => ({
