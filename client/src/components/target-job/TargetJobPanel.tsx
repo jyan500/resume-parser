@@ -6,7 +6,9 @@ import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../t
 import {
     setSuggestions,
     dismissSuggestion,
+    dismissAllSuggestions,
     updateBullet,
+    updateBullets,
     setFocusedRegionId,
     setHoveredBulletId,
     setTargetJobViewMode,
@@ -237,6 +239,18 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         dispatch(dismissSuggestion(sb.id));
     };
 
+    const handleApplyAll = () => {
+        // pull all suggested bullets 
+        const bulletsToText = suggestedBullets.reduce((acc, obj) => {
+            acc[obj.id] = obj.newText
+            return acc
+        }, {})
+        if (Object.keys(bulletsToText).length){
+            dispatch(updateBullets({bulletsToText}))
+            dispatch(dismissAllSuggestions())
+        }
+    }
+
     const handleDismiss = (sb: SuggestedBullet) => {
         dispatch(dismissSuggestion(sb.id));
     };
@@ -264,7 +278,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         <div className="flex flex-col gap-4 py-6 overflow-y-auto">
             {/* Sub-header */}
             <div className = "flex flex-col gap-3 px-5">
-                {
+                <div className = "flex flex-row justify-between gap-3">
                     <button
                         onClick={onRetarget}
                         className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
@@ -272,7 +286,17 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
                         Retarget
                     </button>
-                }
+                    {
+                        suggestedBullets.length > 0 ? 
+                            <button
+                                onClick={handleApplyAll}
+                                className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
+                            >
+                                Apply all suggestions                        
+                            </button> 
+                        : null
+                    }
+                </div>
                 {suggestedBullets.length > 0 && (
                     <>
                         <div className="rounded-xl border border-slate-200 overflow-hidden">
