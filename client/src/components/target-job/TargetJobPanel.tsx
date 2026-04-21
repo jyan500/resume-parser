@@ -213,7 +213,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
 }) => {
     const dispatch = useAppDispatch();
     const { regionToSection, subRegionToRegion, toggleVisibility, subToggleVisibility } = useAppSelector((state) => state.resume) 
-    const [recommendationsOpen, setRecommendationsOpen] = useState(false);
+    const [recommendationsOpen, setRecommendationsOpen] = useState(true);
     const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
     const [missingKeywordsOpen, setMissingKeywordsOpen] = useState(true)
 
@@ -265,15 +265,13 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
             {/* Sub-header */}
             <div className = "flex flex-col gap-3 px-5">
                 {
-                    suggestedBullets.length > 0 ? 
-                        <button
-                            onClick={onRetarget}
-                            className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
-                        >
-                            <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
-                            Retarget
-                        </button>
-                    : null
+                    <button
+                        onClick={onRetarget}
+                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+                    >
+                        <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
+                        Retarget
+                    </button>
                 }
                 {suggestedBullets.length > 0 && (
                     <>
