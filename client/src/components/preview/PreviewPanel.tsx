@@ -200,8 +200,14 @@ export const PreviewPanel: React.FC = () => {
       of sync with each other since the PDF is not actually re-rendered to account for the size change,
       but since we're only displaying the annotation layer, the link annotation effects and clicking still works.
     */ 
+    const observerRef = useRef<ResizeObserver | null>(null);
     const containerRef = useCallback((node: HTMLDivElement | null) => {
-        if (!node) return;
+        if (!node) {
+            // the observerRef.current = observer line below ensures that observerRef won't be null here during the unmount phase
+            observerRef.current?.disconnect();
+            observerRef.current = null;
+            return;
+        }
         const observer = new ResizeObserver(([entry]) => {
             const availableWidth = entry.contentRect.width;
             if (availableWidth === 0) return;
@@ -226,7 +232,8 @@ export const PreviewPanel: React.FC = () => {
             }
         });
         observer.observe(node);
-        return () => observer.disconnect();
+        // Store the current observer so the null branch (unmount) can call disconnect() on the same instance.
+        observerRef.current = observer;
     }, []);
 
     const displayTemplate = (label: string) => {
@@ -351,6 +358,7 @@ export const PreviewPanel: React.FC = () => {
                                         width={FIXED_PDF_WIDTH}
                                         renderTextLayer={false}
                                         renderAnnotationLayer={true}
+                                        /* If there's an error while rendering, the user should be able to see their last good preview without the opacity effect */
                                         className={`shadow-2xl transition-opacity duration-300 ${render.error ? "" : "opacity-60"}`}
                                         loading={null}
                                     />
