@@ -3,7 +3,7 @@ import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
-import { TextArea } from "./TextArea";
+import { DebouncedTextArea } from "./DebouncedTextArea";
 import type { Bullet as BulletType, SuggestedBullet } from "../../types/resume";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion"
 
@@ -83,7 +83,7 @@ export const Bullet: React.FC<Bullet> = ({
                 </button>
 
                 {/* Textarea — writes through dispatch so Apply can also write here */}
-                <TextArea
+                <DebouncedTextArea
                     value={bullet.text}
                     onChange={(v) => handleTextChange(v)}
                     placeholder="Describe an achievement or responsibility..."

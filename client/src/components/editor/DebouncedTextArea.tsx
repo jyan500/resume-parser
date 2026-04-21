@@ -9,7 +9,7 @@ interface TextAreaProps {
     className?: string;
 }
  
-export const TextArea: React.FC<TextAreaProps> = ({
+export const DebouncedTextArea: React.FC<TextAreaProps> = ({
     value,
     onChange,
     placeholder,

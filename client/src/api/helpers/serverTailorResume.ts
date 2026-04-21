@@ -5,6 +5,7 @@ export interface ServerTailorResumeSchema {
     missingKeywords: Array<Keyword>
     recommendations: Array<string>
     suggestedBullets: Array<SuggestedBullet>
+    numSuggestions: number
 }
 
 export const mapServerTailorResumeToClient = (data: ServerTailorResumeSchema) => {
@@ -17,5 +18,6 @@ export const mapServerTailorResumeToClient = (data: ServerTailorResumeSchema) =>
         }),
         recommendations: data.recommendations,
         suggestedBullets: data.suggestedBullets,
+        numSuggestions: data.suggestedBullets.length,
     } as ResumeSuggestion
 }

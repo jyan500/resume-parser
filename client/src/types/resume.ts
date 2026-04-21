@@ -135,6 +135,7 @@ export interface ResumeSuggestion {
     recommendations: Array<string>
     missingKeywords: Array<Keyword>
     suggestedBullets: Array<SuggestedBullet>
+    numSuggestions: number
 }
 
 export type ResumeTemplate = "modern" | "classic"

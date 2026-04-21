@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import { setSummary, toggleSectionVisibility, toggleSectionCollapseVisibility, updateSectionTitle, DEFAULT_SECTION_TITLES } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
-import { TextArea } from "./TextArea"
+import { DebouncedTextArea } from "./DebouncedTextArea"
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
  
 export const SummarySection: React.FC = () => {
@@ -24,7 +24,7 @@ export const SummarySection: React.FC = () => {
             defaultTitle={DEFAULT_SECTION_TITLES.summary}
         >
             <div ref={rootRef}>
-                <TextArea
+                <DebouncedTextArea
                     value={summary?.text ?? ""}
                     onChange={(v) => {
                         if (summary){

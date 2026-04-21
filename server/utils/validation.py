@@ -1,10 +1,8 @@
 from functools import wraps
 from flask import request, jsonify
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
-from utils.keywords.functions import get_cached_keywords
 from typing import Any
 import traceback
-from db.models import JobTitle
 
 JD_ANCHOR_KEYWORDS = [
     "responsibilities", "requirements", "qualifications",
@@ -15,37 +13,22 @@ JD_ANCHOR_KEYWORDS = [
 JD_ANCHOR_MIN_MATCHES = 2
 
 class TailorRequest(BaseModel):
-    jobTitleId: str
+    jobTitle: str
     jobDescription: str
     resume: dict[str, Any]
 
-    @field_validator("jobTitleId")
+    @field_validator("jobTitle")
     @classmethod
-    def validate_job_title_id(cls, v: str) -> str:
+    def validate_job_title(cls, v: str) -> str:
         v = v.strip()
-        # we allow an empty string, assuming job description is also submitted
-        if (v == ""):
-            return v
-        cached = get_cached_keywords(v)
-        job_title = JobTitle.query.get(v)
-        if not job_title:
-            raise ValueError("Job Title not found!")
-        if not cached:
-            raise ValueError("No keywords found!")
-        # if not v:
-        #     return v
-        # if len(v) < 2:
-        #     raise ValueError("Job title is too short.")
-        # if "\n" in v:
-        #     raise ValueError("Job title must be a single line.")
-        # if len(v) > 100:
-        #     raise ValueError(
-        #         "Job title is too long — please enter just the role name, e.g. 'Senior Frontend Engineer'."
-        #     )
-        # if len(v.split()) > 15:
-        #     raise ValueError(
-        #         "Job title seems too long. Please enter just the role name, e.g. 'Senior Frontend Engineer'."
-        #     )
+        if len(v) < 2:
+            raise ValueError("Job title is too short.")
+        if "\n" in v:
+            raise ValueError("Job title must be a single line.")
+        if len(v) > 100:
+            raise ValueError(
+                "Job title is too long — please enter just the role name, e.g. 'Senior Frontend Engineer'."
+            )
         return v
 
     @field_validator("jobDescription")
@@ -82,17 +65,9 @@ class TailorRequest(BaseModel):
             raise ValueError(
                 "Resume is missing experience/projects section and cannot be evaluated."
             )
-        return v
-
-    @model_validator(mode="after")
-    def validate_title_or_description_and_bullets(self) -> "TailorRequest":
-        if not self.jobTitleId.strip() and not self.jobDescription.strip():
-            raise ValueError(
-                "Provide either a job title or a job description (both cannot be empty)."
-            )
         sections = [
-            ("experience", self.resume.get("experience", [])),
-            ("projects", self.resume.get("projects", [])),
+            ("experience", v.get("experience", [])),
+            ("projects", v.get("projects", [])),
         ]
         for section_name, entries in sections:
             for entry in entries:
@@ -108,8 +83,7 @@ class TailorRequest(BaseModel):
                             f"A bullet point in '{section_name}' is too long. "
                             "Each bullet should be a single concise sentence."
                         )
-        return self
-
+        return v
 
 def validate_tailor_request(f):
     """Decorator that validates the request body against TailorRequest before the endpoint executes."""
@@ -120,6 +94,7 @@ def validate_tailor_request(f):
             TailorRequest.model_validate(data)
         except ValueError as e:
             # Collect all Pydantic error messages into a single list
+            print("raised value error: ", e.errors())
             errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
             return jsonify({"errors": errors}), 422
         except Exception as e:
