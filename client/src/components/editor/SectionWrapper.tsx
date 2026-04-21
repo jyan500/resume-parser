@@ -121,22 +121,18 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                     {onToggleVisibility && (
                         <button
                             onClick={onToggleVisibility}
-                            className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md transition-colors duration-150 ${
+                            title={visible ? "Hide section" : "Show section"}
+                            aria-label={visible ? "Hide section" : "Show section"}
+                            className={`flex items-center justify-center p-1.5 rounded-md transition-colors duration-150 ${
                                 visible
                                     ? "text-slate-500 hover:text-slate-700 hover:bg-slate-50"
                                     : "text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                             }`}
                         >
                             {visible ? (
-                                <>
-                                    <Eye className="w-3.5 h-3.5" strokeWidth={2} />
-                                    Hide
-                                </>
+                                <Eye className="w-3.5 h-3.5" strokeWidth={2} />
                             ) : (
-                                <>
-                                    <EyeOff className="w-3.5 h-3.5" strokeWidth={2} />
-                                    Show
-                                </>
+                                <EyeOff className="w-3.5 h-3.5" strokeWidth={2} />
                             )}
                         </button>
                     )}
