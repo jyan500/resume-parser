@@ -250,6 +250,11 @@ export const resumeSlice = createSlice({
             );
         },
 
+        // Removes all suggested bullets
+        dismissAllSuggestions(state) {
+            state.suggestions.suggestedBullets = []
+        },
+
         /*
             Reorders the section order array.
             Same splice pattern as reorderExperience / reorderProjects:
@@ -366,6 +371,30 @@ export const resumeSlice = createSlice({
                 }
             }
             state.isDirty = true;
+        },
+
+        updateBullets(
+            state,
+            action: PayloadAction<{ bulletsToText: {[bulletId: string]: string}}>
+        ) {
+            const { bulletsToText } = action.payload
+            state.resume.experience.forEach((exp) => {
+                exp.bullets.forEach((b) => {
+                    if (b.id in bulletsToText){
+                        const text = bulletsToText[b.id]
+                        b.text = text
+                    }
+                })
+            });
+            (state.resume.projects ?? []).forEach((proj) =>
+                proj.bullets.forEach((b) => {
+                    if (b.id in bulletsToText){
+                        const text = bulletsToText[b.id]
+                        b.text = text
+                    }
+                })
+            );
+            
         },
 
         removeBullet(
@@ -688,6 +717,7 @@ export const {
     setTemplate,
     setSuggestions,
     dismissSuggestion,
+    dismissAllSuggestions,
     setSummary,
     addExperience,
     updateExperience,
@@ -696,6 +726,7 @@ export const {
     toggleExperience,
     addBullet,
     updateBullet,
+    updateBullets,
     removeBullet,
     toggleBullet,
     reorderBullets,

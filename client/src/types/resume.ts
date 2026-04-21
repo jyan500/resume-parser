@@ -119,8 +119,11 @@ export interface SubToggleVisibility {
     [regionId: string]: boolean
 }
 
-export type SuggestedBullet = Bullet & {
-    recommendation: string
+export type SuggestedBullet = {
+    id: string
+    text: string
+    newText: string
+    reasoning: string
 }
 
 export type Skill = "Technical" | "Soft Skill" 

@@ -6,7 +6,9 @@ import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../t
 import {
     setSuggestions,
     dismissSuggestion,
+    dismissAllSuggestions,
     updateBullet,
+    updateBullets,
     setFocusedRegionId,
     setHoveredBulletId,
     setTargetJobViewMode,
@@ -20,7 +22,7 @@ import { Input } from "../page-elements/Input";
 import type { OptionType } from "../../types/api";
 import { JOB_TITLE_URL } from "../../helpers/urls";
 import { LoadingSpinner } from "../page-elements/LoadingSpinner";
-import { Sparkles, RefreshCw, ChevronDown, Check, MapPin } from "lucide-react";
+import { Sparkles, RefreshCw, ChevronDown, Check, MapPin, CheckCheck } from "lucide-react";
 import { TextArea } from "../page-elements/TextArea"
 
 interface TargetJobForm {
@@ -237,6 +239,18 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         dispatch(dismissSuggestion(sb.id));
     };
 
+    const handleApplyAll = () => {
+        // pull all suggested bullets 
+        const bulletsToText = suggestedBullets.reduce((acc, obj) => {
+            acc[obj.id] = obj.newText
+            return acc
+        }, {})
+        if (Object.keys(bulletsToText).length){
+            dispatch(updateBullets({bulletsToText}))
+            dispatch(dismissAllSuggestions())
+        }
+    }
+
     const handleDismiss = (sb: SuggestedBullet) => {
         dispatch(dismissSuggestion(sb.id));
     };
@@ -264,15 +278,26 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         <div className="flex flex-col gap-4 py-6 overflow-y-auto">
             {/* Sub-header */}
             <div className = "flex flex-col gap-3 px-5">
-                {
+                <div className = "flex flex-row justify-between gap-3">
                     <button
                         onClick={onRetarget}
-                        className="flex items-center gap-1 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+                        className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors"
                     >
                         <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
                         Retarget
                     </button>
-                }
+                    {
+                        suggestedBullets.length > 0 ? 
+                            <button
+                                onClick={handleApplyAll}
+                                className="flex items-center gap-1 text-xs text-slate-500 hover:text-blue-600 transition-colors"
+                            >
+                                <CheckCheck className="w-3 h-3" strokeWidth={2.5} />
+                                Apply all suggestions
+                            </button>
+                        : null
+                    }
+                </div>
                 {suggestedBullets.length > 0 && (
                     <>
                         <div className="rounded-xl border border-slate-200 overflow-hidden">
@@ -468,12 +493,12 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
             </div>
 
             {/* Suggested */}
-            <div>
+            {/*     <div>
                 <p className="text-xs font-medium text-slate-500 mb-1">Tips</p>
                 <p className="text-xs text-slate-700 leading-relaxed">
                     {suggestedBullet.reasoning}
                 </p>
-            </div>
+            </div>*/}
 
             {/* Actions */}
             <div className="flex gap-2">
