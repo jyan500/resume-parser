@@ -2,6 +2,9 @@ import traceback
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.errors import RateLimitExceeded
+from flask_limiter.util import get_remote_address
 import os
 import sys
 import io
@@ -21,6 +24,17 @@ app.config["OPENROUTER_BASE_URL"] = os.environ.get("OPENROUTER_BASE_URL")
 app.config["OPENROUTER_API_KEY"] = os.environ.get("OPENROUTER_API_KEY")
 CORS(app)  # Allow frontend to make requests
 
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=[],
+    storage_uri="memory://",
+)
+
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit(e):
+    return jsonify({"status": 429, "errors": ["Too many requests. Please try again later."]}), 429
+
 # Replace stdout with an unbuffered version
 sys.stdout = io.TextIOWrapper(
     sys.stdout.buffer, encoding='utf-8', line_buffering=True
@@ -39,6 +53,7 @@ def health_check():
     return jsonify({'status': 'ok'})
 
 @app.route(PARSE_RESUME_URL, methods=['POST'])
+@limiter.limit("5 per minute")
 def parse_resume():
     # Handle file upload
     if 'resume' not in request.files:
@@ -70,6 +85,7 @@ def parse_resume():
 
 
 @app.route(TAILOR_RESUME_URL, methods=['POST'])
+@limiter.limit("5 per minute")
 @validate_tailor_request
 def tailor_resume():
     data = request.json
