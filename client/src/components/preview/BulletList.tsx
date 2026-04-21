@@ -27,7 +27,7 @@ export const BulletList: React.FC<BulletListProps> = ({
 }) => {
     const showBullet = (b: Bullet) => {
         return (
-            <View style={styles.bulletRow} wrap={false}>
+            <View key={b.id} style={styles.bulletRow} wrap={false}>
                 <Text style={styles.bulletDot}>{bulletChar}</Text>
                 <Text style={styles.bulletText}>{b.text}</Text>
             </View>

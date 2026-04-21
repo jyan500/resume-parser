@@ -36,6 +36,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const [ downloadLoading, setDownloadLoading ] = useState(false)
+    const [ renderKey, setRenderKey ] = useState(0)
     const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles} = useAppSelector((state) => state.resume)
     const [ form, setForm ] = useState({
         template: template,
@@ -44,9 +45,14 @@ export const PreviewPanel: React.FC = () => {
 
     const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} sectionTitles={sectionTitles} />;
     const render = useAsync(async () => {
-        const blob = await pdf(resumePdfDocument).toBlob();
+        const blob = await Promise.race([
+            pdf(resumePdfDocument).toBlob(),
+            new Promise<never>((_, reject) =>
+                setTimeout(() => reject(new Error("PDF render timed out")), 15000)
+            ),
+        ]);
         return URL.createObjectURL(blob);
-    }, [resume, visibility, order, template, sectionTitles]);
+    }, [resume, visibility, order, template, sectionTitles, renderKey]);
  
     // Revoke old blob URLs to prevent memory leaks.
     const previousBlobRef = useRef<string | null>(null);
@@ -80,7 +86,7 @@ export const PreviewPanel: React.FC = () => {
                 order={order}
                 resume={resume}
                 visibility={visibility}
-                interactive={false}  // ← strips all link annotations
+                interactive={false}  // strips all link annotations
                 sectionTitles={sectionTitles}
             />
         );
@@ -172,13 +178,14 @@ export const PreviewPanel: React.FC = () => {
         }
     }, [hoveredBulletId]);
  
-    // Mirrors the derived booleans from the original repo exactly.
     const isFirstRendering = previousRenderUrl === null;
     const isLatestValueRendered = previousRenderUrl === render.value;
-    const isBusy = render.loading || !isLatestValueRendered;
- 
+    // Exclude error state so a failed render doesn't permanently lock isBusy=true.
+    const isBusy = (render.loading || !isLatestValueRendered) && !render.error;
+
     const shouldShowTextLoader = isFirstRendering && isBusy;
-    const shouldShowPreviousDocument = !isFirstRendering && isBusy;
+    // Also keep the previous document visible (as a stable fallback) when a re-render fails.
+    const shouldShowPreviousDocument = !isFirstRendering && (isBusy || !!render.error);
     
     /* 
       Resize without re-rendering: the PDF canvas is fixed at FIXED_PDF_WIDTH (816px)
@@ -193,8 +200,14 @@ export const PreviewPanel: React.FC = () => {
       of sync with each other since the PDF is not actually re-rendered to account for the size change,
       but since we're only displaying the annotation layer, the link annotation effects and clicking still works.
     */ 
+    const observerRef = useRef<ResizeObserver | null>(null);
     const containerRef = useCallback((node: HTMLDivElement | null) => {
-        if (!node) return;
+        if (!node) {
+            // the observerRef.current = observer line below ensures that observerRef won't be null here during the unmount phase
+            observerRef.current?.disconnect();
+            observerRef.current = null;
+            return;
+        }
         const observer = new ResizeObserver(([entry]) => {
             const availableWidth = entry.contentRect.width;
             if (availableWidth === 0) return;
@@ -219,7 +232,8 @@ export const PreviewPanel: React.FC = () => {
             }
         });
         observer.observe(node);
-        return () => observer.disconnect();
+        // Store the current observer so the null branch (unmount) can call disconnect() on the same instance.
+        observerRef.current = observer;
     }, []);
 
     const displayTemplate = (label: string) => {
@@ -298,12 +312,23 @@ export const PreviewPanel: React.FC = () => {
             {/* Viewer */}
             <div
                 ref={containerRef}
-                className="overflow-y-auto relative"
+                className={`${!isFirstRendering && !render.error ? "overflow-y-auto" : ""} relative`}
             >
-                {/* First-load message — only shown before any render has completed */}
                 {shouldShowTextLoader && (
                     <div className="absolute inset-0 flex items-center justify-center">
                         <p className="text-sm text-slate-400"><LoadingSpinner/></p>
+                    </div>
+                )}
+
+                {isFirstRendering && render.error && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 mt-6">
+                        <p className="text-sm text-slate-500">Failed to generate PDF preview.</p>
+                        <button
+                            onClick={() => setRenderKey(k => k + 1)}
+                            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors duration-150"
+                        >
+                            Retry
+                        </button>
                     </div>
                 )}
 
@@ -333,7 +358,8 @@ export const PreviewPanel: React.FC = () => {
                                         width={FIXED_PDF_WIDTH}
                                         renderTextLayer={false}
                                         renderAnnotationLayer={true}
-                                        className="shadow-2xl opacity-60 transition-opacity duration-300"
+                                        /* If there's an error while rendering, the user should be able to see their last good preview without the opacity effect */
+                                        className={`shadow-2xl transition-opacity duration-300 ${render.error ? "" : "opacity-60"}`}
                                         loading={null}
                                     />
                                 ))}
