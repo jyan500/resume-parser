@@ -7,12 +7,10 @@ from difflib import SequenceMatcher
 from jinja2 import Template
 from google import genai
 from openai import OpenAI
-from db.models import JobTitle
 from utils.schemas.tailor_resume_schema import TailorJobSchema
 from utils.schemas.evaluation_schema import EvaluationSchema, RuleVerdict
 from utils.schemas.revision_schema import RevisionSchema
 from utils.schemas.keywords_schema import KeywordListSchema
-from utils.keywords.functions import save_keywords, get_cached_keywords
 from utils.functions import load_prompt
 from utils.client import LLMClient
 from pydantic import BaseModel
@@ -50,8 +48,6 @@ class TailorResume:
         ## render using jinja2 to escape curly braces
         self.client = LLMClient("gemini")
         self.template = Template(load_prompt("tailor-resume-job-v3"))
-        self.job_title_template = Template(load_prompt("tailor-resume-job-title-v2"))
-        self.keyword_template = Template(load_prompt("derive-keywords"))
         self.evaluate_template = Template(load_prompt("evaluate-bullets"))
         self.revise_template = Template(load_prompt("revise-bullets"))
 
@@ -128,38 +124,16 @@ class TailorResume:
         result["suggested_bullets"] = suggested
         return result
 
-    def tailor_resume(self, resume_json_string, job_description):
+    def tailor_resume(self, resume_json_string, job_title, job_description):
         try:
-            prompt = self.template.render(resume=resume_json_string, job_description=job_description)
+            prompt = self.template.render(resume=resume_json_string, job_title=job_title, job_description=job_description)
             result = self._generate(prompt)
             # The evaluate/revise prompts only need enough context to understand the role
             # (e.g. job title, company, whether it's sales/leadership). Passing the full
             # description (up to 15k chars) would add unnecessary tokens to each call.
+            # TODO: ideally, the LLM would remember the context instead of having to pass it in again
             job_context = job_description[:500]
             return self._run_evaluation_loop(result, job_context)
-        except Exception as e:
-            traceback.print_exc()
-            raise Exception("Something went wrong while tailoring resume")
-
-    def tailor_resume_job_title(self, resume_json_string, job_title_id):
-        try:
-            cached = get_cached_keywords(job_title_id)
-            job_title = JobTitle.query.get(job_title_id)
-            prompt = self.job_title_template.render(resume=resume_json_string, job_title=job_title.name, keywords=cached)
-            result = self._generate(prompt)
-            return self._run_evaluation_loop(result, job_title.name)
-        except Exception as e:
-            traceback.print_exc()
-            raise Exception("Something went wrong while tailoring resume")
-
-    def _derive_and_cache_keywords(self, job_title: str) -> list[dict]:
-        try:
-            prompt = self.keyword_template.render(job_title=job_title)
-            schema_response = self.client.generate_response(prompt, "KeywordListSchema", KeywordListSchema)
-            keywords = [kw.model_dump() for kw in schema_response.keywords]
-            save_keywords(job_title, keywords)
-            return keywords
-
         except Exception as e:
             traceback.print_exc()
             raise Exception("Something went wrong while tailoring resume")

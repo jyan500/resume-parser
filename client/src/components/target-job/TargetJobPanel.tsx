@@ -16,13 +16,15 @@ import {
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 import { AsyncSelect } from "../page-elements/AsyncSelect";
+import { Input } from "../page-elements/Input";
 import type { OptionType } from "../../types/api";
 import { JOB_TITLE_URL } from "../../helpers/urls";
 import { LoadingSpinner } from "../page-elements/LoadingSpinner";
 import { Sparkles, RefreshCw, ChevronDown, Check, MapPin } from "lucide-react";
+import { TextArea } from "../page-elements/TextArea"
 
 interface TargetJobForm {
-    jobTitleId: OptionType;
+    jobTitle: OptionType;
     jobDescription: string;
 }
 
@@ -48,6 +50,7 @@ export const TargetJobPanel: React.FC = () => {
                     suggestedBullets={suggestions.suggestedBullets}
                     missingKeywords={suggestions.missingKeywords}
                     recommendations={suggestions.recommendations}
+                    numSuggestions={suggestions.numSuggestions}
                     resume={resume}
                     onRetarget={() => {
                         dispatch(setHoveredBulletId(null))
@@ -75,13 +78,15 @@ const FormView: React.FC<FormViewProps> = ({
 }) => {
     const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
     const [preloadedValues, setPreloadedValues] = useState({
-        jobTitleId: {label: "", value: ""},
+        jobTitle: "",
         jobDescription: "",
     })
 
     const dispatch = useAppDispatch();
-    const  
-    {
+    const methods = useForm<TargetJobForm>({
+        defaultValues: preloadedValues
+    });
+    const {
         register,
         control,
         trigger,
@@ -90,30 +95,24 @@ const FormView: React.FC<FormViewProps> = ({
         setValue,
         handleSubmit,
         formState: { errors },
-    } = useForm<TargetJobForm>({
-        defaultValues: preloadedValues
-    });
+    } = methods;
 
     const registerOptions = {
-        jobTitleId: {
+        jobTitle: {
             validate: (value: OptionType) => {
-                const jobDescription = getValues("jobDescription")
-                if (!value && !jobDescription?.trim()) {
-                    return "Please provide at least a job title or job description"
+                if (!value && !value?.trim()) {
+                    return "Please provide a job title"
                 }
                 return true
             }
         },
         jobDescription: {
             validate: (value: string) => {
-                const jobTitle = getValues("jobTitleId")
-                if (!value?.trim() && !jobTitle) {
-                    return "Please provide at least a job title or job description"
+                if (!value && !value?.trim()) {
+                    return "Please provide a job description"
                 }
                 return true
             },
-            // filling out job description clears out the job title
-            onChange: () => trigger("jobTitleId")
         }
     }
 
@@ -122,7 +121,7 @@ const FormView: React.FC<FormViewProps> = ({
             const result = await tailorResume({
                 resume,
                 jobDescription: data.jobDescription,
-                jobTitleId: data.jobTitleId.value,
+                jobTitle: data.jobTitle,
             }).unwrap();
             dispatch(setSuggestions(result));
             dispatch(setTargetJobViewMode("suggestions"))
@@ -131,6 +130,7 @@ const FormView: React.FC<FormViewProps> = ({
         }
     };
     return (
+        <FormProvider {...methods}>
         <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5"
@@ -138,43 +138,35 @@ const FormView: React.FC<FormViewProps> = ({
             {/* Job Title */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Title</label>
-                <p className = "text-xs text-slate-600">Enter a job title to tailor your resume based on keywords that we've determined for the selected job title</p>
-                <Controller
-                    name={"jobTitleId"}
-                    control={control}
-                    rules={registerOptions.jobTitleId}
-                    render={({ field: { onChange } }) => (
-                        <AsyncSelect 
-                            className = "text-xs"
-                            endpoint={JOB_TITLE_URL} 
-                            isError={!!errors.jobTitleId}
-                            clearable={true}
-                            urlParams={{}} 
-                            onSelect={async (selectedOption: OptionType | null) => {
-                                if (selectedOption){
-                                    setValue("jobTitleId", selectedOption, {shouldValidate: true})
-                                    trigger("jobDescription")
-                                }
-                            }}
-                        />
-                    )}
+                <Input
+                    placeholder={"Paste the job title here..."}
+                    name="jobTitle"
+                    registerOptions={registerOptions.jobTitle}
                 />
+                {
+                    errors.jobTitle?.message ? 
+                    <p className="text-xs text-red-500">
+                        {errors.jobTitle?.message}
+                    </p>
+                    : null
+                }
             </div>
 
             {/* Job Description */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Description</label>
-                <p className = "text-xs text-slate-600">Enter a job description to tailor your resume to a particular job description</p>
-                <textarea
+                <TextArea
                     placeholder="Paste the job description here to get tailored suggestions..."
                     rows={10}
-                    {...register("jobDescription", registerOptions.jobDescription)}
-                    className={`w-full px-3 py-2 text-sm text-slate-800 bg-white border rounded-lg placeholder:text-slate-400 focus:outline-none focus:ring-1 transition-colors duration-150 resize-none ${
-                        errors.jobDescription
-                            ? "border-red-400 focus:border-red-400 focus:ring-red-400"
-                            : "border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    }`}
+                    name={"jobDescription"}
+                    registerOptions={registerOptions.jobDescription}
                 />
+                {
+                    errors.jobDescription?.message ? 
+                    <p className="text-xs text-red-500">
+                        {errors.jobDescription?.message}
+                    </p> : null
+                }
             </div>
 
             <button
@@ -194,13 +186,9 @@ const FormView: React.FC<FormViewProps> = ({
                     </>
                 )}
             </button>
-            {(errors.jobTitleId || errors.jobDescription) && (
-                <p className="text-xs text-red-500">
-                    {errors.jobTitleId?.message || errors.jobDescription?.message}
-                </p>
-            )}
             <ErrorDisplay error={error} />
         </form>
+        </FormProvider>
     )
 };
 
@@ -210,6 +198,7 @@ interface SuggestionsViewProps {
     suggestedBullets: SuggestedBullet[];
     missingKeywords: Keyword[];
     recommendations: string[];
+    numSuggestions: number;
     resume: Resume;
     onRetarget: () => void;
 }
@@ -217,6 +206,7 @@ interface SuggestionsViewProps {
 const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     suggestedBullets,
     recommendations,
+    numSuggestions,
     resume,
     onRetarget,
     missingKeywords,
@@ -268,7 +258,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         dispatch(setFocusedRegionId(sb.id))
     }
 
-    const allDone = suggestedBullets.length === 0;
+    const allDone = numSuggestions > 0 && suggestedBullets.length === 0;
 
     return (
         <div className="flex flex-col gap-4 py-6 overflow-y-auto">

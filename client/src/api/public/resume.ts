@@ -17,7 +17,7 @@ export interface ParseResumeResponse {
 
 export interface TailorRequest {
     resume: Resume;
-    jobTitleId: string;
+    jobTitle: string;
     jobDescription: string;
 }
 
@@ -55,7 +55,7 @@ export const resumeApi = publicApi.injectEndpoints({
                 method: "POST",
                 body: {
                     jobDescription: body.jobDescription,
-                    jobTitleId: body.jobTitleId,
+                    jobTitle: body.jobTitle,
                     resume: {
                         "projects": body.resume?.projects ?? [],
                         "experience": body.resume?.experience ?? [],

@@ -85,6 +85,7 @@ const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
     suggestedBullets: [],
     missingKeywords: [],
     recommendations: [],
+    numSuggestions: 0,
 }
 
 export const DEFAULT_SECTION_TITLES: SectionTitles = {
