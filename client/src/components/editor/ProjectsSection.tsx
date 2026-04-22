@@ -20,7 +20,7 @@ import {
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
-import { AddButton } from "../page-elements/AddButton";
+import { MiniButton } from "../page-elements/MiniButton";
 import { Bullet } from "./Bullet";
 import type { ProjectEntry, SuggestedBullet, Bullet as BulletType } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
@@ -57,7 +57,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ dragHandleProp
             defaultTitle={DEFAULT_SECTION_TITLES.projects}
             dragHandleProps={dragHandleProps}
             rightSlot={
-                <AddButton label="Add Project" onClick={() => dispatch(addProject())} />
+                <MiniButton label="Add Project" onClick={() => dispatch(addProject())} />
             }
         >
             {projects.length === 0 && (

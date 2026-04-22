@@ -14,7 +14,7 @@ import {
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
-import { AddButton } from "../page-elements/AddButton";
+import { MiniButton } from "../page-elements/MiniButton";
 import type { EducationEntry } from "../../types/resume";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
@@ -42,7 +42,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ dragHandlePr
             defaultTitle={DEFAULT_SECTION_TITLES.education}
             dragHandleProps={dragHandleProps}
             rightSlot={
-                <AddButton label="Add Education" onClick={() => dispatch(addEducation())} />
+                <MiniButton label="Add Education" onClick={() => dispatch(addEducation())} />
             }
         >
             {education.length === 0 && (

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
 import { Button } from "../page-elements/Button";
+import { MiniButton } from "../page-elements/MiniButton";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
@@ -96,17 +97,13 @@ export const Bullet: React.FC<Bullet> = ({
 
                 {/* AI tip badge — only shown when a suggestion exists */}
                 {suggestion && (
-                    <button
+                    <MiniButton
                         onClick={() => setOpen((v) => !v)}
-                        title={open ? "Hide suggestion" : "View AI suggestion"}
-                        className={`mt-2 flex justify-center items-center gap-1 px-1 py-0.5 rounded-md text-xs font-medium transition-colors flex-shrink-0 border ${
-                            open
-                                ? "bg-blue-600 border-blue-600 text-white"
-                                : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
-                        }`}
-                    >
-                        <Sparkle className="w-4 h-4" />
-                    </button>
+                        label={open ? "Hide suggestion" : "View AI suggestion"}
+                        icon={<Sparkle className="w-4 h-4" />}
+                        active={open}
+                        className="mt-2 flex-shrink-0"
+                    />
                 )}
 
                 {/* Remove bullet */}

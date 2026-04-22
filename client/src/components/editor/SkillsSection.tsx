@@ -12,7 +12,7 @@ import {
     DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
-import { AddButton } from "../page-elements/AddButton";
+import { MiniButton } from "../page-elements/MiniButton";
 import type { SkillCategory } from "../../types/resume";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
@@ -40,7 +40,7 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({ dragHandleProps })
             defaultTitle={DEFAULT_SECTION_TITLES.skills}
             dragHandleProps={dragHandleProps}
             rightSlot={
-                <AddButton label="Add Category" onClick={() => dispatch(addSkillCategory())} />
+                <MiniButton label="Add Category" onClick={() => dispatch(addSkillCategory())} />
             }
         >
             {skills.length === 0 && (
