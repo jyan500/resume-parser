@@ -1,3 +1,4 @@
+import re
 from functools import wraps
 from flask import request, jsonify
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
@@ -11,6 +12,30 @@ JD_ANCHOR_KEYWORDS = [
 ]
 
 JD_ANCHOR_MIN_MATCHES = 2
+
+# detect common prompt injection phrases like "ignore previous instructions and do ..."
+_INJECTION_PATTERNS = [
+    r"ignore\s+(all\s+)?(previous|prior|above|earlier)\s+(instructions?|rules?|context|prompts?)",
+    r"\byou\s+are\s+now\b",
+    r"\bact\s+as\b.{0,30}\b(assistant|model|gpt|ai|llm)\b",
+    r"\bnew\s+instructions?\b",
+    r"(?<!\w)system\s*:\s",
+    r"\[system\]",
+    r"<\|im_start\|>",
+    r"\[INST\]",
+    r"###\s*instruction",
+    r"disregard\s+(all\s+)?previous",
+    r"forget\s+(all\s+)?previous\s+(instructions?|context)",
+]
+_COMPILED_INJECTION_PATTERNS = [re.compile(p, re.IGNORECASE) for p in _INJECTION_PATTERNS]
+
+
+def _check_injection(v: str, field_name: str) -> None:
+    for pattern in _COMPILED_INJECTION_PATTERNS:
+        if pattern.search(v):
+            raise ValueError(
+                f"{field_name} contains content that cannot be processed."
+            )
 
 class TailorRequest(BaseModel):
     jobTitle: str
@@ -27,8 +52,9 @@ class TailorRequest(BaseModel):
             raise ValueError("Job title must be a single line.")
         if len(v) > 100:
             raise ValueError(
-                "Job title is too long — please enter just the role name, e.g. 'Senior Frontend Engineer'."
+                "Job title is too long, please enter just the role name, e.g. 'Senior Frontend Engineer'."
             )
+        _check_injection(v, "Job title")
         return v
 
     @field_validator("jobDescription")
@@ -54,6 +80,7 @@ class TailorRequest(BaseModel):
                 "This doesn't look like a job description. Please paste the full posting "
                 "including responsibilities and requirements."
             )
+        _check_injection(v, "Job description")
         return v
 
     @field_validator("resume")

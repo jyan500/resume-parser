@@ -7,6 +7,11 @@ from pydantic import BaseModel
 import traceback
 import json
 
+SYSTEM_PROMPT_FOR_OPENROUTER = """
+    You must respond with valid JSON only - no markdown fences, 
+    "no extra text. Follow this schema exactly: \n
+"""
+
 class LLMClient:
     def __init__(self, mode):
         if mode == "gemini":
@@ -24,33 +29,36 @@ class LLMClient:
             self.openai_compat_model = OPENAI_GPT_OSS_120B_MODEL
         self.mode = mode
     
-    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None) -> BaseModel:
+    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None) -> BaseModel:
         if self.mode == "gemini":
             try:
-                return self._gemini_structured_response(prompt, schema, model)
+                return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt)
             except genai_errors.ServerError as e:
                 if e.code == 503:
                     print(f"Gemini 503 unavailable — falling back to {self.openai_compat_model}")
-                    return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model)
+                    return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model, system_prompt=system_prompt)
                 traceback.print_exc()
                 raise Exception("Something went wrong")
         if self.mode == "openai":
-            return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model)
+            return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model, system_prompt=system_prompt)
         # openrouter
-        return self._openai_compat_structured_response(prompt, schema_name, schema)
+        return self._openai_compat_structured_response(prompt, schema_name, schema, system_prompt=system_prompt)
 
-    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None) -> dict:
+    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None) -> dict:
         """
         Uses gemini to create structured response that is validated by json schema
         """
         try:
+            config = {
+                "response_mime_type": "application/json",
+                "response_json_schema": schema.model_json_schema(),
+            }
+            if system_prompt:
+                config["system_instruction"] = system_prompt
             response = self.client.models.generate_content(
                 model=model or GEMINI_FLASH_LITE_MODEL,
                 contents=[prompt],
-                config={
-                    "response_mime_type": "application/json",
-                    "response_json_schema": schema.model_json_schema(),
-                },
+                config=config,
             )
             validated_schema = schema.model_validate_json(response.text)
             return validated_schema
@@ -60,11 +68,15 @@ class LLMClient:
             traceback.print_exc()
             raise Exception("Something went wrong")
 
-    def _openai_parse_structured_response(self, prompt: str, schema: type[BaseModel], client: OpenAI, model: str) -> BaseModel:
+    def _openai_parse_structured_response(self, prompt: str, schema: type[BaseModel], client: OpenAI, model: str, system_prompt: str = None) -> BaseModel:
         try:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
             response = client.beta.chat.completions.parse(
                 model=model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 response_format=schema,
             )
             result = response.choices[0].message.parsed
@@ -75,7 +87,7 @@ class LLMClient:
             traceback.print_exc()
             raise Exception("Something went wrong")
 
-    def _openai_compat_structured_response(self, prompt: str, schema_name: str, schema: BaseModel) -> dict:
+    def _openai_compat_structured_response(self, prompt: str, schema_name: str, schema: BaseModel, system_prompt: str = None) -> dict:
         """
         Call OpenRouter with a JSON schema enforced via response_format.
         Falls back to extracting JSON from the raw text if the model
@@ -83,9 +95,13 @@ class LLMClient:
         """
         response = None
         try:
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+            messages.append({"role": "user", "content": prompt})
             response = self.client.chat.completions.create(
                 model=self.openai_compat_model,
-                messages=[{"role": "user", "content": prompt}],
+                messages=messages,
                 response_format={
                     "type": "json_schema",
                     "json_schema": {
@@ -97,20 +113,17 @@ class LLMClient:
             )
         except Exception:
             try:
+                schema_system_content = (
+                    SYSTEM_PROMPT_FOR_OPENROUTER
+                    + json.dumps(schema.model_json_schema(), indent=2)
+                )
+                if system_prompt:
+                    schema_system_content = system_prompt + "\n\n" + schema_system_content
                 response = self.client.chat.completions.create(
                     model=self.openai_compat_model,
                     messages=[
-                        {
-                            "role": "system",
-                            "content": (
-                                "You must respond with valid JSON only - no markdown fences, "
-                                "no extra text. Follow this schema exactly: \n"
-                                + json.dumps(schema.model_json_schema(), indent=2)
-                            )
-                        },
-                        {
-                            "role": "user", "content": prompt
-                        }
+                        {"role": "system", "content": schema_system_content},
+                        {"role": "user", "content": prompt},
                     ]
                 )
             except Exception as e:

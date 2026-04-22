@@ -21,6 +21,16 @@ MAX_REVISION_ROUNDS = 1
 # text are dropped — the change is too minor to be a useful suggestion.
 MIN_CHANGE_THRESHOLD = 0.90
 
+SPLIT_MARKER = "##SPLIT##"
+
+
+def _split_prompt(rendered: str) -> tuple[str | None, str]:
+    """Splits a rendered prompt into (system_prompt, user_prompt) on SPLIT_MARKER."""
+    if SPLIT_MARKER in rendered:
+        system_part, user_part = rendered.split(SPLIT_MARKER, 1)
+        return system_part.strip(), user_part.strip()
+    return None, rendered
+
 RULE_FIELDS = [
     "rule_1_what_how_impact",
     "rule_2_one_sentence_max_3_lines",
@@ -51,8 +61,10 @@ class TailorResume:
         self.evaluate_template = Template(load_prompt("evaluate-bullets"))
         self.revise_template = Template(load_prompt("revise-bullets"))
 
-    def _generate(self, prompt: str) -> dict:
-        schema_response = self.client.generate_response(prompt, "TailorJobSchema", TailorJobSchema)
+    def _generate(self, prompt: str, system_prompt: str = None) -> dict:
+        schema_response = self.client.generate_response(
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt
+        )
         return schema_response.model_dump()
 
     def _evaluate_bullets(self, bullets: list[dict], job_context: str):
@@ -60,19 +72,25 @@ class TailorResume:
             {"id": b["id"], "text": b["text"], "new_text": b["new_text"]}
             for b in bullets
         ])
-        prompt = self.evaluate_template.render(
+        rendered = self.evaluate_template.render(
             job_context=job_context,
             bullets_json=bullets_json
         )
-        result = self.client.generate_response(prompt, "EvaluationSchema", EvaluationSchema)
+        system_prompt, user_prompt = _split_prompt(rendered)
+        result = self.client.generate_response(
+            user_prompt, "EvaluationSchema", EvaluationSchema, system_prompt=system_prompt
+        )
         return result.evaluations
 
     def _revise_bullets(self, failed_bullets: list[dict], job_context: str) -> list[dict]:
-        prompt = self.revise_template.render(
+        rendered = self.revise_template.render(
             job_context=job_context,
             bullets_with_failures_json=json.dumps(failed_bullets)
         )
-        result = self.client.generate_response(prompt, "RevisionSchema", RevisionSchema)
+        system_prompt, user_prompt = _split_prompt(rendered)
+        result = self.client.generate_response(
+            user_prompt, "RevisionSchema", RevisionSchema, system_prompt=system_prompt
+        )
         return [b.model_dump() for b in result.revised_bullets]
 
     def _run_evaluation_loop(self, result: dict, job_context: str) -> dict:
@@ -126,8 +144,9 @@ class TailorResume:
 
     def tailor_resume(self, resume_json_string, job_title, job_description):
         try:
-            prompt = self.template.render(resume=resume_json_string, job_title=job_title, job_description=job_description)
-            result = self._generate(prompt)
+            rendered = self.template.render(resume=resume_json_string, job_title=job_title, job_description=job_description)
+            system_prompt, user_prompt = _split_prompt(rendered)
+            result = self._generate(user_prompt, system_prompt=system_prompt)
             # The evaluate/revise prompts only need enough context to understand the role
             # (e.g. job title, company, whether it's sales/leadership). Passing the full
             # description (up to 15k chars) would add unnecessary tokens to each call.
