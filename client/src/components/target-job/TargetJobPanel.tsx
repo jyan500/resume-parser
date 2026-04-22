@@ -21,7 +21,7 @@ import { AsyncSelect } from "../page-elements/AsyncSelect";
 import { Input } from "../page-elements/Input";
 import type { OptionType } from "../../types/api";
 import { JOB_TITLE_URL } from "../../helpers/urls";
-import { LoadingSpinner } from "../page-elements/LoadingSpinner";
+import { Button } from "../page-elements/Button";
 import { Sparkles, RefreshCw, ChevronDown, Check, MapPin, CheckCheck } from "lucide-react";
 import { TextArea } from "../page-elements/TextArea"
 
@@ -171,23 +171,17 @@ const FormView: React.FC<FormViewProps> = ({
                 }
             </div>
 
-            <button
+            <Button
+                variant="primary"
+                size="md"
                 type="submit"
-                disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors duration-150"
+                isLoading={isLoading}
+                loadingText="Generating…"
+                icon={<Sparkles className="w-4 h-4" strokeWidth={2} />}
+                className="w-full"
             >
-                {isLoading ? (
-                    <>
-                        <LoadingSpinner/>
-                        Generating…
-                    </>
-                ) : (
-                    <>
-                        <Sparkles className="w-4 h-4" strokeWidth={2} />
-                        Get Feedback
-                    </>
-                )}
-            </button>
+                Get Feedback
+            </Button>
             <ErrorDisplay error={error} />
         </form>
         </FormProvider>
@@ -502,24 +496,18 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
 
             {/* Actions */}
             <div className="flex gap-2">
-                <button
-                    onClick={() => {
-                        onHoverEnd()
-                        onApply()
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
+                <Button
+                    variant="primary"
+                    onClick={() => { onHoverEnd(); onApply() }}
                 >
                     Apply
-                </button>
-                <button
-                    onClick={() => {
-                        onHoverEnd()
-                        onDismiss()
-                    }}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => { onHoverEnd(); onDismiss() }}
                 >
                     Dismiss
-                </button>
+                </Button>
             </div>
         </div>
     </div>

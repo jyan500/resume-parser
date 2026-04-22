@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
+import { Button } from "../page-elements/Button";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
@@ -131,24 +132,8 @@ export const Bullet: React.FC<Bullet> = ({
 
                     {/* Actions */}
                     <div className="flex gap-2 px-3 pb-3">
-                        <button
-                            onClick={handleApply}
-                            className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
-                        >
-                            Apply
-                        </button>
-{/*                        <button
-                            onClick={handleDismiss}
-                            className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
-                        >
-                            Got it
-                        </button>*/}
-                        <button 
-                            onClick={() => setOpen(!open)}
-                            className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
-                        >
-                            Close
-                        </button>
+                        <Button variant="primary" onClick={handleApply}>Apply</Button>
+                        <Button variant="secondary" onClick={() => setOpen(!open)}>Close</Button>
                     </div>
                 </div>
             )}

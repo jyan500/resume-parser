@@ -6,6 +6,7 @@ import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
+import { LoadingSpinner } from "../page-elements/LoadingSpinner"
 
 export const UploadPanel: React.FC = () => {
     const dispatch = useAppDispatch();
@@ -108,7 +109,7 @@ export const UploadPanel: React.FC = () => {
                 >
                     {isLoading ? (
                         <div className="flex flex-col items-center gap-3">
-                            <div className="w-10 h-10 rounded-full border-2 border-blue-200 border-t-blue-600 animate-spin" />
+                            <LoadingSpinner type={"div"} size={"w-10 h-10"}/>
                             <div>
                                 <p className="text-sm font-medium text-slate-700">
                                     Parsing resume...
