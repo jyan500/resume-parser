@@ -243,6 +243,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
             dispatch(updateBullets({bulletsToText}))
             dispatch(dismissAllSuggestions())
         }
+        dispatch(setHoveredBulletId(null))
     }
 
     const handleDismiss = (sb: SuggestedBullet) => {
