@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
+import { Button } from "../page-elements/Button";
+import { MiniButton } from "../page-elements/MiniButton";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
@@ -95,17 +97,13 @@ export const Bullet: React.FC<Bullet> = ({
 
                 {/* AI tip badge — only shown when a suggestion exists */}
                 {suggestion && (
-                    <button
+                    <MiniButton
                         onClick={() => setOpen((v) => !v)}
-                        title={open ? "Hide suggestion" : "View AI suggestion"}
-                        className={`mt-2 flex justify-center items-center gap-1 px-1 py-0.5 rounded-md text-xs font-medium transition-colors flex-shrink-0 border ${
-                            open
-                                ? "bg-blue-600 border-blue-600 text-white"
-                                : "bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100"
-                        }`}
-                    >
-                        <Sparkle className="w-4 h-4" />
-                    </button>
+                        label={open ? "Hide suggestion" : "View AI suggestion"}
+                        icon={<Sparkle className="w-4 h-4" />}
+                        active={open}
+                        className="mt-2 flex-shrink-0"
+                    />
                 )}
 
                 {/* Remove bullet */}
@@ -131,24 +129,8 @@ export const Bullet: React.FC<Bullet> = ({
 
                     {/* Actions */}
                     <div className="flex gap-2 px-3 pb-3">
-                        <button
-                            onClick={handleApply}
-                            className="px-3 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-xs font-medium transition-colors"
-                        >
-                            Apply
-                        </button>
-{/*                        <button
-                            onClick={handleDismiss}
-                            className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
-                        >
-                            Got it
-                        </button>*/}
-                        <button 
-                            onClick={() => setOpen(!open)}
-                            className="px-3 py-1.5 rounded-md border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-700 text-xs font-medium transition-colors"
-                        >
-                            Close
-                        </button>
+                        <Button variant="primary" onClick={handleApply}>Apply</Button>
+                        <Button variant="secondary" onClick={() => setOpen(!open)}>Close</Button>
                     </div>
                 </div>
             )}

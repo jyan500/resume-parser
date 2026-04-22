@@ -20,7 +20,7 @@ import {
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
-import { AddButton } from "../page-elements/AddButton";
+import { MiniButton } from "../page-elements/MiniButton";
 import { Bullet } from "./Bullet";
 import type { ExperienceEntry, SuggestedBullet, Bullet as BulletType } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
@@ -92,7 +92,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ dragHandle
             defaultTitle={DEFAULT_SECTION_TITLES.experience}
             dragHandleProps={dragHandleProps}
             rightSlot={
-                <AddButton label="Add Experience" onClick={() => dispatch(addExperience())} />
+                <MiniButton label="Add Experience" onClick={() => dispatch(addExperience())} />
             }
         >
             {experience.length === 0 && (

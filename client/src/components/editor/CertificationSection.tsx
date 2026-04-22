@@ -14,7 +14,7 @@ import {
 } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
-import { AddButton } from "../page-elements/AddButton";
+import { MiniButton } from "../page-elements/MiniButton";
 import type { CertificationEntry } from "../../types/resume";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
 
@@ -42,7 +42,7 @@ export const CertificationSection: React.FC<CertificationSectionProps> = ({ drag
             defaultTitle={DEFAULT_SECTION_TITLES.certifications}
             dragHandleProps={dragHandleProps}
             rightSlot={
-                <AddButton label="Add Certification" onClick={() => dispatch(addCertification())} />
+                <MiniButton label="Add Certification" onClick={() => dispatch(addCertification())} />
             }
         >
             {certifications.length === 0 && (
