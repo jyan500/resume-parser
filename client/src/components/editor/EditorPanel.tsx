@@ -9,6 +9,7 @@ import { ProjectsSection } from "./ProjectsSection";
 import { CertificationSection } from "./CertificationSection";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
+import { Button } from "../page-elements/Button";
 import { updateOrder, toggleAllSectionCollapse } from "../../slices/resumeSlice";
 import type { OrderableSection } from "../../slices/resumeSlice";
 
@@ -64,7 +65,7 @@ export const EditorPanel: React.FC = () => {
     return (
         <div className="flex flex-col gap-y-3">
             {/* Header and Summary are always fixed at the top — not orderable. */}
-            <button onClick={(e) => dispatch(toggleAllSectionCollapse(isAllCollapsed))} className = "btn btn-sm self-start">{isAllCollapsed ? "Expand All" : "Collapse All"}</button>
+            <Button variant="secondary" onClick={() => dispatch(toggleAllSectionCollapse(isAllCollapsed))} className="self-start">{isAllCollapsed ? "Expand All" : "Collapse All"}</Button>
             <HeaderSection />
             <SummarySection />
 
