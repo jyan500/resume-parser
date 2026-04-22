@@ -7,6 +7,11 @@ from pydantic import BaseModel
 import traceback
 import json
 
+SYSTEM_PROMPT_FOR_OPENROUTER = """
+    You must respond with valid JSON only - no markdown fences, 
+    "no extra text. Follow this schema exactly: \n
+"""
+
 class LLMClient:
     def __init__(self, mode):
         if mode == "gemini":
@@ -109,8 +114,7 @@ class LLMClient:
         except Exception:
             try:
                 schema_system_content = (
-                    "You must respond with valid JSON only - no markdown fences, "
-                    "no extra text. Follow this schema exactly: \n"
+                    SYSTEM_PROMPT_FOR_OPENROUTER
                     + json.dumps(schema.model_json_schema(), indent=2)
                 )
                 if system_prompt:
