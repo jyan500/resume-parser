@@ -13,6 +13,7 @@ JD_ANCHOR_KEYWORDS = [
 
 JD_ANCHOR_MIN_MATCHES = 2
 
+# detect common prompt injection phrases like "ignore previous instructions and do ..."
 _INJECTION_PATTERNS = [
     r"ignore\s+(all\s+)?(previous|prior|above|earlier)\s+(instructions?|rules?|context|prompts?)",
     r"\byou\s+are\s+now\b",
