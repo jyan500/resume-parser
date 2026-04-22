@@ -56,7 +56,7 @@ def _is_trivial_change(original: str, new_text: str) -> bool:
 class TailorResume:
     def __init__(self):
         ## render using jinja2 to escape curly braces
-        self.client = LLMClient("gemini")
+        self.client = LLMClient("openai")
         self.template = Template(load_prompt("tailor-resume-job-v3"))
         self.evaluate_template = Template(load_prompt("evaluate-bullets"))
         self.revise_template = Template(load_prompt("revise-bullets"))
