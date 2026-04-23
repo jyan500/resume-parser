@@ -42,6 +42,7 @@ Fill the JSON schema with:
   * Include the original id as the id field, original text as the text field, the rewritten bullet point as the new_text field, and the reasoning field should be the reasoning behind the updated bullet point.
   * Do NOT use percentages or numbers unless the job position is in sales or is a leadership position.
   * Write bullets in plain, direct human language. Avoid AI-sounding or flowery corporate clichés such as "leveraged", "optimized", "championed", "spearheaded", "orchestrated", "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer concrete verbs like "built", "wrote", "shipped", "added", "fixed", "designed", "ran", "led", "reduced", "increased", "set up", "migrated".
+  * {{keyword_instruction}}
 
 ##SPLIT##
 

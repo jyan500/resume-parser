@@ -13,6 +13,7 @@ from utils.schemas.revision_schema import RevisionSchema
 from utils.schemas.keywords_schema import KeywordListSchema
 from utils.functions import load_prompt
 from utils.client import LLMClient
+from utils.leniency import LENIENCY_LEVELS, DEFAULT_LENIENCY, LeniencyLevel
 from pydantic import BaseModel
 
 
@@ -55,11 +56,10 @@ def _is_trivial_change(original: str, new_text: str) -> bool:
 
 class TailorResume:
     def __init__(self):
-        ## render using jinja2 to escape curly braces
-        self.client = LLMClient("openai")
-        self.template = Template(load_prompt("tailor-resume-job-v3"))
-        self.evaluate_template = Template(load_prompt("evaluate-bullets"))
-        self.revise_template = Template(load_prompt("revise-bullets"))
+        self.client = LLMClient("gemini")
+        self._main_template = Template(load_prompt("tailor-resume-job"))
+        self._evaluate_template = Template(load_prompt("evaluate-bullets"))
+        self._revise_template = Template(load_prompt("revise-bullets"))
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
@@ -67,14 +67,15 @@ class TailorResume:
         )
         return schema_response.model_dump()
 
-    def _evaluate_bullets(self, bullets: list[dict], job_context: str):
+    def _evaluate_bullets(self, bullets: list[dict], job_context: str, leniency: LeniencyLevel):
         bullets_json = json.dumps([
             {"id": b["id"], "text": b["text"], "new_text": b["new_text"]}
             for b in bullets
         ])
-        rendered = self.evaluate_template.render(
+        rendered = self._evaluate_template.render(
             job_context=job_context,
-            bullets_json=bullets_json
+            bullets_json=bullets_json,
+            rule_4=leniency.rule_4_eval,
         )
         system_prompt, user_prompt = _split_prompt(rendered)
         result = self.client.generate_response(
@@ -82,10 +83,11 @@ class TailorResume:
         )
         return result.evaluations
 
-    def _revise_bullets(self, failed_bullets: list[dict], job_context: str) -> list[dict]:
-        rendered = self.revise_template.render(
+    def _revise_bullets(self, failed_bullets: list[dict], job_context: str, leniency: LeniencyLevel) -> list[dict]:
+        rendered = self._revise_template.render(
             job_context=job_context,
-            bullets_with_failures_json=json.dumps(failed_bullets)
+            bullets_with_failures_json=json.dumps(failed_bullets),
+            rule_4=leniency.rule_4_revise,
         )
         system_prompt, user_prompt = _split_prompt(rendered)
         result = self.client.generate_response(
@@ -93,7 +95,7 @@ class TailorResume:
         )
         return [b.model_dump() for b in result.revised_bullets]
 
-    def _run_evaluation_loop(self, result: dict, job_context: str) -> dict:
+    def _run_evaluation_loop(self, result: dict, job_context: str, leniency: LeniencyLevel) -> dict:
         """Evaluates suggested bullets against the rubric and revises failures."""
         suggested = result["suggested_bullets"]
 
@@ -102,7 +104,7 @@ class TailorResume:
 
         for round_num in range(MAX_REVISION_ROUNDS + 1):
             try:
-                evaluations = self._evaluate_bullets(suggested, job_context)
+                evaluations = self._evaluate_bullets(suggested, job_context, leniency)
             except Exception:
                 traceback.print_exc()
                 # Evaluation failed — return what we have
@@ -124,7 +126,7 @@ class TailorResume:
 
             if round_num < MAX_REVISION_ROUNDS:
                 try:
-                    revised = self._revise_bullets(failed, job_context)
+                    revised = self._revise_bullets(failed, job_context, leniency)
                     revised_map = {b["id"]: b for b in revised}
                     suggested = [
                         revised_map.get(b["id"], b) for b in suggested
@@ -142,9 +144,15 @@ class TailorResume:
         result["suggested_bullets"] = suggested
         return result
 
-    def tailor_resume(self, resume_json_string, job_title, job_description):
+    def tailor_resume(self, resume_json_string, job_title, job_description, version: str = DEFAULT_LENIENCY):
         try:
-            rendered = self.template.render(resume=resume_json_string, job_title=job_title, job_description=job_description)
+            leniency = LENIENCY_LEVELS.get(version, LENIENCY_LEVELS[DEFAULT_LENIENCY])
+            rendered = self._main_template.render(
+                resume=resume_json_string,
+                job_title=job_title,
+                job_description=job_description,
+                keyword_instruction=leniency.keyword_instruction,
+            )
             system_prompt, user_prompt = _split_prompt(rendered)
             result = self._generate(user_prompt, system_prompt=system_prompt)
             # The evaluate/revise prompts only need enough context to understand the role
@@ -152,7 +160,7 @@ class TailorResume:
             # description (up to 15k chars) would add unnecessary tokens to each call.
             # TODO: ideally, the LLM would remember the context instead of having to pass it in again
             job_context = job_description[:500]
-            return self._run_evaluation_loop(result, job_context)
+            return self._run_evaluation_loop(result, job_context, leniency)
         except Exception as e:
             traceback.print_exc()
             raise Exception("Something went wrong while tailoring resume")

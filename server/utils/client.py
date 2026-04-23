@@ -56,7 +56,7 @@ class LLMClient:
             if system_prompt:
                 config["system_instruction"] = system_prompt
             response = self.client.models.generate_content(
-                model=model or GEMINI_FLASH_LITE_MODEL,
+                model=model or GEMINI_FLASH_MODEL,
                 contents=[prompt],
                 config=config,
             )

@@ -59,7 +59,10 @@ export const resumeApi = publicApi.injectEndpoints({
                     resume: {
                         "projects": body.resume?.projects ?? [],
                         "experience": body.resume?.experience ?? [],
-                    }
+                    },
+                    // TODO: add the "strictness" configuration in the future
+                    // this is defaulted to the "add plausible keywords" configuration
+                    promptVersion: "full"
                 }
             }),
             transformResponse: (raw: TailorResumeServerResponse) => ({
