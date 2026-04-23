@@ -2,7 +2,7 @@ import re
 from functools import wraps
 from flask import request, jsonify
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
-from typing import Any
+from typing import Any, Literal
 import traceback
 
 JD_ANCHOR_KEYWORDS = [
@@ -41,6 +41,7 @@ class TailorRequest(BaseModel):
     jobTitle: str
     jobDescription: str
     resume: dict[str, Any]
+    promptVersion: Literal["strict", "variants", "full"] = "strict"
 
     @field_validator("jobTitle")
     @classmethod

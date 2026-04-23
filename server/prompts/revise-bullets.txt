@@ -9,9 +9,7 @@ RULE 2 — One sentence, max 3 lines: Each bullet must be one complete sentence,
   not exceeding 3 lines on a resume.
 RULE 3 — No fabricated metrics: Do NOT use percentages or numbers to quantify
   business impact unless the job position is in sales or leadership.
-RULE 4 — No fabricated experience: Do NOT introduce skills, technologies, tools, or
-  experiences that were not present in the original bullet text. Only rephrase or
-  restructure what already exists.
+{{rule_4}}
 RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate clichés
   like "leveraged", "optimized", "championed", "spearheaded", "orchestrated",
   "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer plain,

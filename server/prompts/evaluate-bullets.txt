@@ -20,13 +20,7 @@ RULE 3 — No fabricated metrics
   The bullet must NOT use percentages or numbers to quantify business impact
   unless the job position is in sales or leadership.
 
-RULE 4 — No fabricated experience
-  The rewritten bullet must NOT introduce skills, technologies, tools, or experiences
-  that were not present in the original bullet text. Compare the rewritten bullet
-  against the original text provided — if the rewrite mentions a keyword or experience
-  that does not appear anywhere in the original, it is FAIL.
-  - Rephrasing or restructuring existing content = PASS
-  - Adding a technology/tool/skill not in the original = FAIL
+{{rule_4}}
 
 RULE 5 — No AI-sounding or exaggerated language
   The bullet must read like a human wrote it — direct, specific, and grounded.

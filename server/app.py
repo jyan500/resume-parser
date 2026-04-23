@@ -103,7 +103,9 @@ def tailor_resume():
     try:
         # only include the resume's experience and projects section
         resume_json = json.dumps({"experience": experience, "projects": projects})
-        suggestions = tailor.tailor_resume(resume_json, job_description, job_title)
+        # retrieve the prompt version (strict, variants, full)
+        version = data.get("promptVersion", "strict")
+        suggestions = tailor.tailor_resume(resume_json, job_description, job_title, version=version)
 
     except Exception as e:
         traceback.print_exc()
