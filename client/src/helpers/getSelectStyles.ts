@@ -78,15 +78,18 @@ export const getSelectStyles = ({
                 // color: textColor,
                 textAlign: textAlign as any,
             }),
-            dropdownIndicator: (provided) => ({
-                ...provided,
-                'svg': {
-                    fill: textColor === "inherit" ? (isDarkMode ? "white" : "black") : textColor,
-                },
-                // 'svg': {
-                //     fill: textColor
-                // }
-            }),
+            dropdownIndicator: (provided, state) => {
+                const defaultFill = textColor === "inherit" ? (isDarkMode ? "white" : "black") : textColor;
+                return {
+                    ...provided,
+                    'svg': {
+                        fill: state.isFocused ? '#16a34a' : defaultFill,
+                    },
+                    '&:hover svg': {
+                        fill: '#16a34a',
+                    },
+                };
+            },
             valueContainer: (provided) => ({
                 ...provided,
                 textAlign: textAlign as any,
