@@ -11,7 +11,8 @@ import {
     PURGE,
     REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage"; // localStorage
+import storage from "redux-persist/lib/storage";
+import storageSession from "redux-persist/lib/storage/session";
 import resumeReducer from "./slices/resumeSlice";
 import { publicApi } from "./api/public";
 
@@ -22,7 +23,7 @@ import { publicApi } from "./api/public";
 const resumePersistConfig = {
     key: "resume",
     version: 1,
-    storage,
+    storage: import.meta.env.DEV ? storage : storageSession,
 };
 
 const persistedResumeReducer = persistReducer(resumePersistConfig, resumeReducer);
