@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
+import { Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
 import type { CustomError } from "../../types/api";
 import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
@@ -70,20 +70,7 @@ export const UploadPanel: React.FC = () => {
         "Something went wrong. Please try again.";
 
     return (
-        <div className="w-full max-w-lg">
-
-            {/* Header */}
-            <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-blue-600 mb-4">
-                    <FileText className="w-6 h-6 text-white" />
-                </div>
-                <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
-                    Upload your resume
-                </h1>
-                <p className="mt-1.5 text-sm text-slate-500">
-                    We'll parse it into an editable format in seconds
-                </p>
-            </div>
+        <div className="w-full">
 
             {/* Drop zone */}
             <label className="block cursor-pointer">
@@ -100,16 +87,19 @@ export const UploadPanel: React.FC = () => {
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     className={[
-                        "relative rounded-2xl border-2 border-dashed px-8 py-12 text-center transition-all duration-200",
+                        "relative rounded-[18px] border-2 border-solid px-8 py-10 text-center transition-all duration-200",
                         isDragOver
-                            ? "border-blue-400 bg-blue-50 scale-[1.01]"
-                            : "border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50",
+                            ? "border-green-400 bg-green-50 scale-[1.01]"
+                            : "border-brand-border bg-white hover:border-green-300 hover:bg-brand-bg",
                         isLoading ? "pointer-events-none opacity-60" : "",
                     ].join(" ")}
+                    style={{
+                        boxShadow: "0 30px 60px -30px rgba(22,163,74,0.28)",
+                    }}
                 >
                     {isLoading ? (
                         <div className="flex flex-col items-center gap-3">
-                            <LoadingSpinner type={"div"} size={"w-10 h-10"}/>
+                            <LoadingSpinner size="w-10 h-10" />
                             <div>
                                 <p className="text-sm font-medium text-slate-700">
                                     Parsing resume...
@@ -123,8 +113,8 @@ export const UploadPanel: React.FC = () => {
                         </div>
                     ) : fileName && !isError ? (
                         <div className="flex flex-col items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-blue-600" />
+                            <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-green-600" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-slate-700">{fileName}</p>
@@ -137,21 +127,21 @@ export const UploadPanel: React.FC = () => {
                         <div className="flex flex-col items-center gap-3">
                             <div className={[
                                 "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-200",
-                                isDragOver ? "bg-blue-100" : "bg-slate-100",
+                                isDragOver ? "bg-green-100" : "bg-green-50",
                             ].join(" ")}>
                                 <ArrowDownToLine
                                     className={[
                                         "w-5 h-5 transition-colors duration-200",
-                                        isDragOver ? "text-blue-600" : "text-slate-400",
+                                        isDragOver ? "text-green-600" : "text-green-500",
                                     ].join(" ")}
                                 />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-slate-700">
-                                    <span className="text-blue-600">Click to upload</span>
+                                    <span className="text-brand-muted">Click to upload</span>
                                     {" "}or drag and drop
                                 </p>
-                                <p className="mt-0.5 text-xs text-slate-400">PDF or DOCX only</p>
+                                <p className="mt-0.5 text-xs text-slate-400">PDF or DOCX · up to 5MB</p>
                             </div>
                         </div>
                     )}
@@ -166,10 +156,6 @@ export const UploadPanel: React.FC = () => {
                 </div>
             )}
 
-            {/* Helper text */}
-            <p className="mt-4 text-center text-xs text-slate-400">
-                Your resume is processed securely and never stored permanently
-            </p>
 
         </div>
     );
