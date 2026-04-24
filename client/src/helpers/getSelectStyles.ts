@@ -46,13 +46,15 @@ export const getSelectStyles = ({
                 borderColor: isError
                     ? '#f87171'  // red-400
                     : state.isFocused
-                        ? '#3b82f6'  // blue-500 on focus
+                        ? '#16a34a'  // brand-accent
                         : baseStyles.borderColor,
                 boxShadow: isError
                     ? '0 0 0 1px #f87171'
-                    : baseStyles.boxShadow,
+                    : state.isFocused
+                        ? '0 0 0 1px #16a34a'
+                        : baseStyles.boxShadow,
                 '&:hover': {
-                    borderColor: isError ? '#f87171' : '#3b82f6',
+                    borderColor: isError ? '#f87171' : '#16a34a', // brand accent or red
                 },
             }),
             option: (provided, state) => ({

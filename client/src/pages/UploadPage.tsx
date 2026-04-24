@@ -4,6 +4,7 @@ import { UploadPanel } from "../components/upload/UploadPanel";
 import logoDraftwise from "../assets/logo-draftwise.svg";
 import floatingLeft from "../assets/floating-resume-left.svg";
 import floatingRight from "../assets/floating-resume-right.svg";
+import { Header } from "../components/page-elements/Header"
 
 const trustItems = ["Private by default", "Never stored", "Parses in seconds"];
 
@@ -14,13 +15,14 @@ export const UploadPage: React.FC = () => {
             style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}
         >
             {/* Header */}
-            <header
+           {/* <header
                 className="flex-none flex items-center gap-x-2 border-b border-brand-border"
                 style={{ padding: "18px 32px", position: "relative", zIndex: 3 }}
             >
                 <img src={logoDraftwise} alt="Draftwise" className="h-7 w-auto" />
                 <p className="text-brand-dark font-semibold" style={{ fontSize: "15.6px", lineHeight: "1.4" }}>Draftwise</p>
-            </header>
+            </header>*/}
+            <Header/>
 
             {/* Floating resume decorations — desktop only */}
             <div

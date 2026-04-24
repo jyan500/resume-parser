@@ -386,7 +386,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                         <button
                                             key={keyword.id}
                                             className={`
-                                                ${keyword.type === "Soft Skill" ? "border-purple-500 text-purple-500" : "border-blue-500 text-blue-500"}
+                                                ${keyword.type === "Soft Skill" ? "border-purple-500 text-purple-500" : "border-brand-accent text-brand-accent"}
                                                 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`
                                             }
                                         >
@@ -419,7 +419,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                             <ul className="divide-y divide-slate-100">
                                 {recommendations.map((rec, i) => (
                                     <li key={i} className="flex items-start gap-2.5 px-3.5 py-2.5">
-                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
+                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-accent flex-shrink-0" />
                                         <p className="text-xs text-slate-600 leading-relaxed">{rec}</p>
                                     </li>
                                 ))}
@@ -455,10 +455,10 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
         {/* Card header — clicking scrolls the editor to the matching bullet */}
         <button
             onClick={onScrollTo}
-            className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 hover:bg-blue-50 hover:border-blue-100 transition-colors text-left group"
+            className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 hover:bg-brand-subtle hover:border-brand-border transition-colors text-left group"
             title="Click to locate bullet in editor"
         >
-            <span className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
+            <span className="w-5 h-5 rounded-full bg-brand-accent flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
                 {index}
             </span>
             <p className="text-xs font-medium text-slate-600 truncate flex-1">
@@ -466,7 +466,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
             </p>
             {/* Locate icon — appears on hover */}
             <MapPin
-                className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-500 transition-colors flex-shrink-0"
+                className="w-3.5 h-3.5 text-slate-300 group-hover:text-brand-accent transition-colors flex-shrink-0"
                 strokeWidth={2}
             />
         </button>

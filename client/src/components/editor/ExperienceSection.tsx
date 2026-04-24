@@ -207,7 +207,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
 
                     {/* Pending suggestions pill — only when collapsed */}
                     {!subToggleVisibility[entry.id] && pendingCount > 0 && (
-                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-600 text-xs font-medium flex-shrink-0">
+                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-brand-subtle border border-brand-border text-brand-accent text-xs font-medium flex-shrink-0">
                             <Sparkle className="w-2.5 h-2.5" />
                             {pendingCount}
                         </span>
@@ -278,7 +278,7 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
                         </div>
                         <button
                             onClick={onAddBullet}
-                            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 mt-2 transition-colors"
+                            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-brand-accent mt-2 transition-colors"
                         >
                             <Plus className="w-3 h-3" strokeWidth={2.5} />
                             Add bullet

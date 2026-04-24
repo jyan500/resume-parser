@@ -11,6 +11,7 @@ import { ResizeHandle } from "../components/page-elements/ResizeHandle"
 import { ArrowLeft, FileText } from "lucide-react";
 import { useWindowSize } from "../hooks/useWindowSize";
 import type { MobilePane } from "../types/resume";
+import { Header } from "../components/page-elements/Header"
 
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
@@ -49,29 +50,7 @@ export const EditorPage: React.FC = () => {
         <div className="h-screen flex flex-col bg-slate-50 overflow-hidden">
 
             {/* Topbar */}
-            <header className="flex-none h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
-                <div className="flex items-center gap-3">
-                    {/* Back to upload */}
-                    <button
-                        onClick={() => handleBackToUpload()}
-                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors duration-150"
-                    >
-                        <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
-                        Upload new
-                    </button>
-
-                    <span className="text-slate-200">|</span>
-
-                    <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center">
-                            <FileText className="w-3 h-3 text-white" strokeWidth={2.5} />
-                        </div>
-                        <span className="text-sm font-semibold text-slate-900 tracking-tight">
-                            ResumeAI
-                        </span>
-                    </div>
-                </div>
-            </header>
+            <Header/> 
 
             {isMobile ? (
                 <div className="flex flex-col flex-1 overflow-hidden">
@@ -84,7 +63,7 @@ export const EditorPage: React.FC = () => {
                                 onClick={() => setActivePane(key)}
                                 className={`flex-1 py-2.5 text-xs font-semibold uppercase tracking-widest transition-colors duration-150 ${
                                     activePane === key
-                                        ? "text-blue-600 border-b-2 border-blue-600"
+                                        ? "text-brand-accent border-b-2 border-brand-accent"
                                         : "text-slate-500 hover:text-slate-700"
                                 }`}
                             >

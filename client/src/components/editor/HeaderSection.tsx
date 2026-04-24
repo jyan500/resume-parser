@@ -126,7 +126,7 @@ export const HeaderSection: React.FC = () => {
                     ))}
                     <button
                         onClick={() => patch({ urls: [...(header.urls ?? []), ""] })}
-                        className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 mt-1 transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-medium text-brand-accent hover:text-brand-medium mt-1 transition-colors"
                     >
                         <Plus className="w-3 h-3" strokeWidth={2.5} />
                         Add URL

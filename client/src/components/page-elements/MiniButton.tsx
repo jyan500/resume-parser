@@ -16,8 +16,8 @@ export const MiniButton: React.FC<MiniButtonProps> = ({ label, onClick, icon, ac
         aria-label={label}
         className={`flex items-center justify-center transition-colors duration-150 border rounded-md p-1.5 ${
             active
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-600 hover:text-blue-700"
+                ? "bg-brand-accent border-brand-accent text-white"
+                : "bg-brand-subtle hover:bg-brand-border border-brand-border text-brand-accent hover:text-brand-medium"
         } ${className}`}
     >
         {icon ?? <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />}
