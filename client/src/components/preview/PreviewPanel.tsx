@@ -18,6 +18,7 @@ import { useAsync } from "react-use"
 import { ORDERS, setTemplate, setFocusedRegionId, toggleSectionCollapseVisibility, setSubToggleVisibility } from "../../slices/resumeSlice"
 import type { ResumeTemplate, ToggleVisibility } from "../../types/resume";
 import type { OptionType } from "../../types/api"
+import { Button } from "../page-elements/Button";
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
 import { LoadingSpinner } from "../page-elements/LoadingSpinner";
@@ -291,22 +292,18 @@ export const PreviewPanel: React.FC = () => {
                         </div>
                     </form>
                 </div>
-                <button
+                <Button
                     onClick={async () => {
                         setDownloadLoading(true)
                         await handleDownload()
                         setDownloadLoading(false)
                     }}
                     disabled={!render.value}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-medium transition-colors duration-150"
+                    isLoading={downloadLoading}
+                    icon={<Download className="w-3.5 h-3.5" strokeWidth={2.5} />}
                 >
-                    {
-                        !downloadLoading ? 
-                            <Download className="w-3.5 h-3.5" strokeWidth={2.5} />
-                        : <LoadingSpinner/>
-                    }
                     Export PDF
-                </button>
+                </Button>
             </div>
 
             {/* Viewer */}

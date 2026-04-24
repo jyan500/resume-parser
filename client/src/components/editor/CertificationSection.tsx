@@ -89,7 +89,7 @@ const CertificationEntryRow: React.FC<CertificationEntryRowProps> = ({ entry, on
                 <button
                     onClick={onToggle}
                     className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
-                        entry.enabled ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300"
+                        entry.enabled ? "bg-brand-accent border-brand-accent" : "bg-white border-slate-300"
                     }`}
                 >
                     {entry.enabled && (

@@ -8,9 +8,9 @@ export const ResizeHandle: React.FC = () => (
         <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-1.5 bg-slate-200 pointer-events-none" />
         {/* Grip button */}
         <div className={`${HOVER_Z_INDEX} group-hover:bg-gray-50 bg-white transition-colors duration-75 pointer-events-none p-2 rounded-lg shadow-md flex flex-col gap-[3px]`}>
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
-            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-blue-300 transition-colors duration-75" />
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-brand-accent/40 transition-colors duration-75" />
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-brand-accent/40 transition-colors duration-75" />
+            <div className="w-1 h-1 rounded-full bg-slate-400 group-hover:bg-brand-accent/40 transition-colors duration-75" />
         </div>
     </Separator>
 );

@@ -23,7 +23,7 @@ export const Input = ({
                 ${
                     errors[name]
                     ? "border-red-400 focus:border-red-400 focus:ring-red-400"
-                    : "border-slate-200 focus:border-blue-400 focus:ring-blue-500/40"
+                    : "border-slate-200 focus:border-brand-accent focus:ring-brand-accent/40"
                 }
             `}
             type={type}

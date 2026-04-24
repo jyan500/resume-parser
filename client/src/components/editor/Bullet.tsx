@@ -58,7 +58,7 @@ export const Bullet: React.FC<Bullet> = ({
         <div
             ref={rootRef}
             className={`rounded-lg transition-all duration-150 ${
-                open ? "bg-blue-50/50 ring-1 ring-blue-200 p-1.5" : ""
+                open ? "bg-brand-subtle/50 ring-1 ring-brand-border p-1.5" : ""
             }`}
         >
             {/* ── Bullet row ── */}
@@ -117,9 +117,9 @@ export const Bullet: React.FC<Bullet> = ({
 
             {/* ── Inline suggestion card (Approach B) ── */}
             {open && suggestion && (
-                <div className="ml-6 mt-2 rounded-lg border border-blue-200 bg-white overflow-hidden">
+                <div className="ml-6 mt-2 rounded-lg border border-brand-border bg-white overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center gap-1.5 px-3 py-2 bg-blue-50 border-b border-blue-100">
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-brand-subtle border-b border-brand-border">
                     </div>
 
                     {/* Suggested text */}

@@ -102,7 +102,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                 <button
                     onClick={onToggle}
                     className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
-                        skill.enabled ? "bg-blue-600 border-blue-600" : "bg-white border-slate-300"
+                        skill.enabled ? "bg-brand-accent border-brand-accent" : "bg-white border-slate-300"
                     }`}
                 >
                     {skill.enabled && (
@@ -114,7 +114,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                     value={skill.category}
                     onChange={(e) => onUpdate({ category: e.target.value })}
                     placeholder="Category Name"
-                    className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-400 transition-colors"
+                    className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-colors"
                 />
                 <button
                     onClick={onRemove}
@@ -132,12 +132,12 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                 {skill.items.map((item) => (
                     <span
                         key={item}
-                        className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full"
+                        className="inline-flex items-center gap-1 bg-brand-subtle text-brand-medium text-xs font-medium px-2 py-0.5 rounded-full"
                     >
                         {item}
                         <button
                             onClick={(e) => { e.stopPropagation(); removeItem(item); }}
-                            className="text-blue-500 hover:text-blue-800 transition-colors"
+                            className="text-brand-accent hover:text-brand-dark transition-colors"
                         >
                             <X className="w-2.5 h-2.5" strokeWidth={3} />
                         </button>
