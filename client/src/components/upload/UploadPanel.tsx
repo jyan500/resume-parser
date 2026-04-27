@@ -1,7 +1,6 @@
 import React, { useRef, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
-import type { CustomError } from "../../types/api";
 import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";
@@ -64,10 +63,6 @@ export const UploadPanel: React.FC = () => {
     };
 
     const handleDragLeave = () => setIsDragOver(false);
-
-    const errorMessage =
-        (error as CustomError)?.errors ? [] :
-        "Something went wrong. Please try again.";
 
     return (
         <div className="w-full">

@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from "react"
+import { useState, useCallback, useEffect } from "react"
 import {default as ReactSelect} from "react-select"
 import type { OptionType } from "../../types/api"
-import { HOVER_Z_INDEX, SELECT_Z_INDEX } from "../../helpers/constants"
+
 import { useAppSelector } from "../../store"
 import { getSelectStyles } from "../../helpers/getSelectStyles"
 
@@ -13,7 +13,6 @@ interface Props {
     clearable?: boolean
 	textAlign?: "left" | "center" | "right"
 	textColor?: string
-	hideIndicatorSeparator?: boolean
 	searchable?: boolean
 	menuInPortal?: boolean
 	onBlur?: () => void
@@ -26,7 +25,6 @@ export const Select = ({
     defaultValue,
     clearable,
 	searchable=false,
-	hideIndicatorSeparator=false,
 	textColor="inherit",
 	textAlign="left",
     className,

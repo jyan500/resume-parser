@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAppSelector, selectParseStatus } from "../../store";
+import { useAppSelector } from "../../store";
 
 export const RedirectIfLoaded: React.FC = () => {
     const {parseStatus} = useAppSelector((state) => state.resume)

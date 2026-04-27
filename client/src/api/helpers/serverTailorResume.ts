@@ -1,4 +1,4 @@
-import type { ResumeSuggestion, SuggestedBullet, Keyword, Resume } from "../../types/resume"
+import type { ResumeSuggestion, SuggestedBullet, Keyword } from "../../types/resume"
 import { v4 as uuidv4 } from "uuid"
 
 export interface ServerTailorResumeSchema {

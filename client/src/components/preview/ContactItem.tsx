@@ -13,7 +13,6 @@ interface ContactItemProps {
     isLink?: boolean;
     isFirst?: boolean;
     styles: SharedContactStyles;
-    interactive?: boolean
 }
 
 export const ContactItem: React.FC<ContactItemProps> = ({
@@ -21,7 +20,6 @@ export const ContactItem: React.FC<ContactItemProps> = ({
     isLink,
     isFirst,
     styles,
-    interactive,
 }) => {
     if (!value) return null;
     return (

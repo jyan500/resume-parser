@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { useForm, FormProvider, Controller, useFormContext } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useTailorResumeMutation } from "../../api/public/resume";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
@@ -17,16 +17,13 @@ import {
     type ContainsBullets,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
-import { AsyncSelect } from "../page-elements/AsyncSelect";
 import { Input } from "../page-elements/Input";
-import type { OptionType } from "../../types/api";
-import { JOB_TITLE_URL } from "../../helpers/urls";
 import { Button } from "../page-elements/Button";
 import { Sparkles, RefreshCw, ChevronDown, Check, MapPin, CheckCheck } from "lucide-react";
 import { TextArea } from "../page-elements/TextArea"
 
 interface TargetJobForm {
-    jobTitle: OptionType;
+    jobTitle: string;
     jobDescription: string;
 }
 
@@ -60,6 +57,7 @@ export const TargetJobPanel: React.FC = () => {
                             missingKeywords: [], 
                             suggestedBullets: [],
                             recommendations: [],
+                            numSuggestions: 0,
                         }))
                         dispatch(setTargetJobViewMode("form"))
                     }}
@@ -79,7 +77,7 @@ const FormView: React.FC<FormViewProps> = ({
     resume
 }) => {
     const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
-    const [preloadedValues, setPreloadedValues] = useState({
+    const [preloadedValues] = useState({
         jobTitle: "",
         jobDescription: "",
     })
@@ -89,19 +87,13 @@ const FormView: React.FC<FormViewProps> = ({
         defaultValues: preloadedValues
     });
     const {
-        register,
-        control,
-        trigger,
-        getValues,
-        watch,
-        setValue,
         handleSubmit,
         formState: { errors },
     } = methods;
 
     const registerOptions = {
         jobTitle: {
-            validate: (value: OptionType) => {
+            validate: (value: string) => {
                 if (!value && !value?.trim()) {
                     return "Please provide a job title"
                 }
@@ -133,57 +125,57 @@ const FormView: React.FC<FormViewProps> = ({
     };
     return (
         <FormProvider {...methods}>
-        <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5"
-        >
-            {/* Job Title */}
-            <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Job Title</label>
-                <Input
-                    placeholder={"Paste the job title here..."}
-                    name="jobTitle"
-                    registerOptions={registerOptions.jobTitle}
-                />
-                {
-                    errors.jobTitle?.message ? 
-                    <p className="text-xs text-red-500">
-                        {errors.jobTitle?.message}
-                    </p>
-                    : null
-                }
-            </div>
-
-            {/* Job Description */}
-            <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-slate-600">Job Description</label>
-                <TextArea
-                    placeholder="Paste the job description here to get tailored suggestions..."
-                    rows={10}
-                    name={"jobDescription"}
-                    registerOptions={registerOptions.jobDescription}
-                />
-                {
-                    errors.jobDescription?.message ? 
-                    <p className="text-xs text-red-500">
-                        {errors.jobDescription?.message}
-                    </p> : null
-                }
-            </div>
-
-            <Button
-                variant="primary"
-                size="md"
-                type="submit"
-                isLoading={isLoading}
-                loadingText="Generating…"
-                icon={<Sparkles className="w-4 h-4" strokeWidth={2} />}
-                className="w-full"
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5"
             >
-                Get Feedback
-            </Button>
-            <ErrorDisplay error={error} />
-        </form>
+                {/* Job Title */}
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium text-slate-600">Job Title</label>
+                    <Input
+                        placeholder={"Paste the job title here..."}
+                        name="jobTitle"
+                        registerOptions={registerOptions.jobTitle}
+                    />
+                    {
+                        errors.jobTitle?.message ? 
+                        <p className="text-xs text-red-500">
+                            {errors.jobTitle?.message}
+                        </p>
+                        : null
+                    }
+                </div>
+
+                {/* Job Description */}
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-xs font-medium text-slate-600">Job Description</label>
+                    <TextArea
+                        placeholder="Paste the job description here to get tailored suggestions..."
+                        rows={10}
+                        name={"jobDescription"}
+                        registerOptions={registerOptions.jobDescription}
+                    />
+                    {
+                        errors.jobDescription?.message ? 
+                        <p className="text-xs text-red-500">
+                            {errors.jobDescription?.message}
+                        </p> : null
+                    }
+                </div>
+
+                <Button
+                    variant="primary"
+                    size="md"
+                    type="submit"
+                    isLoading={isLoading}
+                    loadingText="Generating…"
+                    icon={<Sparkles className="w-4 h-4" strokeWidth={2} />}
+                    className="w-full"
+                >
+                    Get Feedback
+                </Button>
+                <ErrorDisplay error={error} />
+            </form>
         </FormProvider>
     )
 };
@@ -208,7 +200,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     missingKeywords,
 }) => {
     const dispatch = useAppDispatch();
-    const { regionToSection, subRegionToRegion, toggleVisibility, subToggleVisibility } = useAppSelector((state) => state.resume) 
+    const { regionToSection, subRegionToRegion, subToggleVisibility } = useAppSelector((state) => state.resume) 
     const [recommendationsOpen, setRecommendationsOpen] = useState(true);
     const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
     const [missingKeywordsOpen, setMissingKeywordsOpen] = useState(true)
@@ -238,7 +230,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
         const bulletsToText = suggestedBullets.reduce((acc, obj) => {
             acc[obj.id] = obj.newText
             return acc
-        }, {})
+        }, {} as Record<string, string>)
         if (Object.keys(bulletsToText).length){
             dispatch(updateBullets({bulletsToText}))
             dispatch(dismissAllSuggestions())

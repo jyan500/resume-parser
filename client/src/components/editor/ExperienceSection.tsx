@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState } from "react";
+import React, { useRef } from "react";
 import { GripVertical, Sparkle, X, ChevronDown, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
@@ -13,7 +13,6 @@ import {
     toggleBullet,
     reorderBullets,
     toggleSectionVisibility,
-    toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     updateSectionTitle,
     DEFAULT_SECTION_TITLES,
@@ -157,7 +156,6 @@ const ExperienceEntryCard: React.FC<ExperienceEntryProps> = ({
     suggestionsMap,
     onUpdate,
     onRemove,
-    onToggle,
     onAddBullet,
     onRemoveBullet,
     onToggleBullet,

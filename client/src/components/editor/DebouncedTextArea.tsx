@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react"
+import React from "react"
 import { useCommit } from "../../hooks/useCommit"
 
 interface TextAreaProps {

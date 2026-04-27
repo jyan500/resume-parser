@@ -1,7 +1,7 @@
-import React, { useCallback } from "react"
+import { useCallback } from "react"
 import logoDraftwise from "../../assets/logo-draftwise.svg";
 import { useLocation, useNavigate } from "react-router-dom"
-import { persistor, useAppSelector, useAppDispatch } from "../../store";
+import { persistor, useAppDispatch } from "../../store";
 import { resetResume } from "../../slices/resumeSlice";
 import { UPLOAD_PAGE, EDITOR_PAGE } from "../../helpers/routes"
 import { ArrowLeft } from "lucide-react"

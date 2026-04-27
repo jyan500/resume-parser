@@ -11,7 +11,6 @@ interface SectionWrapperProps {
     visible?: boolean;
     onToggleVisibility?: () => void;
     children: React.ReactNode;
-    defaultOpen?: boolean;
     rightSlot?: React.ReactNode;
     dragHandleProps?: React.HTMLAttributes<HTMLButtonElement>;
     onTitleChange?: (title: string) => void;
@@ -24,7 +23,6 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     visible = true,
     onToggleVisibility,
     children,
-    defaultOpen = true,
     rightSlot,
     dragHandleProps,
     onTitleChange,

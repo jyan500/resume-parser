@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect } from "react"
+import { type RefObject, useEffect } from "react"
 
 /*
 Places a click event listener on the component that is designated by the ref

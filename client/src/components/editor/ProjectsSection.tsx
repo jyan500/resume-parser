@@ -12,7 +12,6 @@ import {
     toggleBullet,
     reorderBullets,
     toggleSectionVisibility,
-    toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     reorderProjects,
     updateSectionTitle,
@@ -21,12 +20,10 @@ import {
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field";
 import { MiniButton } from "../page-elements/MiniButton";
-import { Bullet } from "./Bullet";
 import type { ProjectEntry, SuggestedBullet, Bullet as BulletType } from "../../types/resume";
 import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
-import type { SectionDragHandleProps } from "./EditorPanel";
 import { BulletShell, type BulletShellProps } from "./ExperienceSection"
 
 // ─── Section ──────────────────────────────────────────────────────────────────

@@ -30,9 +30,9 @@ export const getSelectStyles = ({
     return {
         classNames: {
             // control: (state) => `${className} ${SELECT_Z_INDEX}`,
-            control: (state) => `${className} ${SELECT_Z_INDEX} dark:!tw-bg-gray-800 dark:!tw-border-gray-600`,
-            menu: (base) => `dark:!tw-bg-gray-800`,
-            placeholder: (base) => `dark:!tw-text-gray-200`,
+            control: (_state) => `${className} ${SELECT_Z_INDEX} dark:!tw-bg-gray-800 dark:!tw-border-gray-600`,
+            menu: (_base) => `dark:!tw-bg-gray-800`,
+            placeholder: (_base) => `dark:!tw-text-gray-200`,
         },
         styles: {
             /* https://stackoverflow.com/questions/57089251/react-select-can-not-overlay-react-modal */

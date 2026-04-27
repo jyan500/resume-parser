@@ -7,7 +7,6 @@ import {
     removeSkillCategory,
     toggleSkillCategory,
     toggleSectionVisibility,
-    toggleSectionCollapseVisibility,
     updateSectionTitle,
     DEFAULT_SECTION_TITLES,
 } from "../../slices/resumeSlice";
@@ -71,7 +70,6 @@ interface SkillCategoryRowProps {
 }
 
 const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, onRemove, onToggle }) => {
-    const dispatch = useAppDispatch();
     const [tagInput, setTagInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const rootRef=  useRef<HTMLDivElement>(null)

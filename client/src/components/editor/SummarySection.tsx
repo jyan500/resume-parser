@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
-import { setSummary, toggleSectionVisibility, toggleSectionCollapseVisibility, updateSectionTitle, DEFAULT_SECTION_TITLES } from "../../slices/resumeSlice";
+import { setSummary, toggleSectionVisibility, updateSectionTitle, DEFAULT_SECTION_TITLES } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { DebouncedTextArea } from "./DebouncedTextArea"
 import { useScrollToFocusedRegion } from "../../hooks/useScrollToFocusedRegion";
