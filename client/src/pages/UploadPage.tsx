@@ -1,7 +1,7 @@
 import React from "react";
 import { CircleCheck } from "lucide-react";
 import { UploadPanel } from "../components/upload/UploadPanel";
-import logoDraftwise from "../assets/logo-draftwise.svg";
+
 import floatingLeft from "../assets/floating-resume-left.svg";
 import floatingRight from "../assets/floating-resume-right.svg";
 import { Header } from "../components/page-elements/Header"

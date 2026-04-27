@@ -22,7 +22,7 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, Skill, SkillCategory, SectionTitles } from "../../types/resume";
+import type { CertificationEntry, EducationEntry, ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, SkillCategory, SectionTitles } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ContactItem } from "./ContactItem";
 import { SectionHeader } from "./SectionHeader";
@@ -566,7 +566,6 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
                     .map((item, i) => (
                         <ContactItem
                             key={i}
-                            interactive={interactive}
                             value={item.value}
                             isLink={item.isLink}
                             isFirst={i === 0}

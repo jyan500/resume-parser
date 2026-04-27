@@ -1,7 +1,7 @@
 import React, {useRef} from "react";
 import { Eye, EyeOff, X, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
-import { updateHeader, toggleHeaderField, toggleSectionCollapseVisibility } from "../../slices/resumeSlice";
+import { updateHeader, toggleHeaderField } from "../../slices/resumeSlice";
 import { SectionWrapper } from "./SectionWrapper";
 import { Field } from "./Field"
 import { DebouncedInput } from "./DebouncedInput";

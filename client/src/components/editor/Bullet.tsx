@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Eye, EyeOff, GripVertical, Sparkle, X } from "lucide-react";
 import { Button } from "../page-elements/Button";
 import { MiniButton } from "../page-elements/MiniButton";
-import { useAppDispatch, useAppSelector } from "../../store";
-import { dismissSuggestion, updateBullet, setFocusedRegionId } from "../../slices/resumeSlice";
+import { useAppDispatch } from "../../store";
+import { dismissSuggestion, updateBullet } from "../../slices/resumeSlice";
 import type { ContainsBullets } from "../../slices/resumeSlice";
 import { DebouncedTextArea } from "./DebouncedTextArea";
 import type { Bullet as BulletType, SuggestedBullet } from "../../types/resume";
@@ -130,7 +130,7 @@ export const Bullet: React.FC<Bullet> = ({
                     {/* Actions */}
                     <div className="flex gap-2 px-3 pb-3">
                         <Button variant="primary" onClick={handleApply}>Apply</Button>
-                        <Button variant="secondary" onClick={() => setOpen(!open)}>Close</Button>
+                        <Button variant="secondary" onClick={() => handleDismiss()}>Dismiss</Button>
                     </div>
                 </div>
             )}

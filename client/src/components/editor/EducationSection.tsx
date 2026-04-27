@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import { GripVertical, Check, X, ChevronDown } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../store";
 import {
@@ -7,7 +7,6 @@ import {
     removeEducation,
     toggleEducation,
     toggleSectionVisibility,
-    toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     updateSectionTitle,
     DEFAULT_SECTION_TITLES,

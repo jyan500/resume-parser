@@ -13,7 +13,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import "../../styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
-import { useAppSelector, selectResume, selectVisibility, selectOrder, useAppDispatch } from "../../store";
+import { useAppSelector, useAppDispatch } from "../../store";
 import { useAsync } from "react-use"
 import { ORDERS, setTemplate, setFocusedRegionId, toggleSectionCollapseVisibility, setSubToggleVisibility } from "../../slices/resumeSlice"
 import type { ResumeTemplate, ToggleVisibility } from "../../types/resume";
@@ -259,7 +259,6 @@ export const PreviewPanel: React.FC = () => {
                                     value: key,
                                     label: displayTemplate(key),
                                 }))}
-                                hideIndicatorSeparator={true}
                                 clearable={false}
                                 onSelect={(selected: OptionType | null) => {
                                     if (selected) {

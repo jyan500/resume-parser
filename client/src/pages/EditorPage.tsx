@@ -1,14 +1,13 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Group, Panel, Separator } from "react-resizable-panels";
+import { Group, Panel } from "react-resizable-panels";
 import { PreviewPanel } from "../components/preview/PreviewPanel";
-import { persistor, useAppSelector, useAppDispatch, selectParseStatus } from "../store";
+import { useAppSelector, selectParseStatus } from "../store";
 import { EditorPanel } from "../components/editor/EditorPanel";
 import { TargetJobPanel } from "../components/target-job/TargetJobPanel";
-import { resetResume } from "../slices/resumeSlice";
-import { HOVER_Z_INDEX, LG_BREAKPOINT, XL_BREAKPOINT } from "../helpers/constants"
+import { XL_BREAKPOINT } from "../helpers/constants"
 import { ResizeHandle } from "../components/page-elements/ResizeHandle"
-import { ArrowLeft, FileText } from "lucide-react";
+
 import { useWindowSize } from "../hooks/useWindowSize";
 import type { MobilePane } from "../types/resume";
 import { Header } from "../components/page-elements/Header"
@@ -16,7 +15,6 @@ import { Header } from "../components/page-elements/Header"
 export const EditorPage: React.FC = () => {
     const navigate = useNavigate();
     const parseStatus = useAppSelector(selectParseStatus);
-    const dispatch = useAppDispatch();
     const { width } = useWindowSize();
     const isMobile = width < XL_BREAKPOINT;
     const [activePane, setActivePane] = useState<MobilePane>("editor");
@@ -28,15 +26,6 @@ export const EditorPage: React.FC = () => {
             navigate("/", { replace: true });
         }
     }, [parseStatus, navigate]);
-
-    // Reset in-memory Redux state, flush & purge the localStorage persistence,
-    // then navigate back. Awaiting purge ensures the key is removed before the
-    // upload page mounts and checks the store.
-    const handleBackToUpload = useCallback(async () => {
-        dispatch(resetResume());
-        await persistor.purge();
-        navigate("/");
-    }, [dispatch, navigate]);
 
     if (parseStatus !== "success") return null;
 

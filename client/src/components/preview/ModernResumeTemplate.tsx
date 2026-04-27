@@ -7,7 +7,7 @@ import {
     StyleSheet,
     Link,
 } from "@react-pdf/renderer";
-import type { ExperienceEntry, ProjectEntry, Resume, ResumeVisibility, SectionTitles } from "../../types/resume";
+import type { ExperienceEntry, Resume, ResumeVisibility, SectionTitles } from "../../types/resume";
 import type { OrderableSection } from "../../slices/resumeSlice";
 import { ContactItem } from "./ContactItem"
 import { SectionHeader } from "./SectionHeader"
@@ -499,7 +499,6 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
                         .map((item, i) => (
                             <ContactItem
                                 key={i}
-                                interactive={interactive}
                                 value={item.value}
                                 isLink={item.isLink}
                                 isFirst={i === 0}

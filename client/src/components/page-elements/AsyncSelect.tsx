@@ -43,7 +43,7 @@ export const AsyncSelect = React.forwardRef<SelectInstance<OptionType, false, Gr
 		isError=false,
 		menuInPortal=false
 	}, ref) => {
-	const [searchTerm, setSearchTerm] = useState("")
+	const [, setSearchTerm] = useState("")
 	const [val, setVal] = useState<OptionType | null>(defaultValue ?? null)
 	const [ genericFetch ] = useLazyGenericFetchQuery()
 	const { isDarkMode } = useAppSelector((state) => state.resume)
@@ -58,8 +58,8 @@ export const AsyncSelect = React.forwardRef<SelectInstance<OptionType, false, Gr
     }, [defaultValue])
 
 	const loadOptions = async (
-		query: string, 
-		loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>, 
+		query: string,
+		_loadedOptions: OptionsOrGroups<OptionType, GroupBase<OptionType>>,
 		additional: {page: number} | undefined) => {
 		try {
 			const {items, hasNext} = await genericFetch({

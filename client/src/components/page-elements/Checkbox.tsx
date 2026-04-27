@@ -5,7 +5,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     enabled: boolean
 }
 
-export const Checkbox = React.forwardRef<HTMLButtonElement, Props>(({onToggle, enabled, className, ...props}, ref) => {
+export const Checkbox = React.forwardRef<HTMLButtonElement, Props>(({onToggle, enabled, className, ...props}, _ref) => {
     return (
         <button
             {...props}

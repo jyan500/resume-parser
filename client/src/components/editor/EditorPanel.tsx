@@ -1,5 +1,5 @@
 import React, {useMemo} from "react";
-import { selectOrder, useAppDispatch, useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { HeaderSection } from "./HeaderSection";
 import { SummarySection } from "./SummarySection";
 import { ExperienceSection } from "./ExperienceSection";

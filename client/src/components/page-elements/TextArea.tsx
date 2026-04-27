@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react"
+import React from "react"
 import { useFormContext, type RegisterOptions } from "react-hook-form"
 
 interface TextAreaProps {
