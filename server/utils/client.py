@@ -29,22 +29,22 @@ class LLMClient:
             self.openai_compat_model = OPENAI_GPT_OSS_120B_MODEL
         self.mode = mode
     
-    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None) -> BaseModel:
+    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0) -> BaseModel:
         if self.mode == "gemini":
             try:
-                return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt)
+                return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt, temperature=temperature)
             except genai_errors.ServerError as e:
                 if e.code == 503:
                     print(f"Gemini 503 unavailable — falling back to {self.openai_compat_model}")
-                    return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model, system_prompt=system_prompt)
+                    return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
                 traceback.print_exc()
                 raise Exception("Something went wrong")
         if self.mode == "openai":
-            return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model, system_prompt=system_prompt)
+            return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
         # openrouter
-        return self._openai_compat_structured_response(prompt, schema_name, schema, system_prompt=system_prompt)
+        return self._openai_compat_structured_response(prompt, schema_name, schema, system_prompt=system_prompt, temperature=temperature)
 
-    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None) -> dict:
+    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0) -> dict:
         """
         Uses gemini to create structured response that is validated by json schema
         """
@@ -52,11 +52,12 @@ class LLMClient:
             config = {
                 "response_mime_type": "application/json",
                 "response_json_schema": schema.model_json_schema(),
+                "temperature": temperature,
             }
             if system_prompt:
                 config["system_instruction"] = system_prompt
             response = self.client.models.generate_content(
-                model=model or GEMINI_FLASH_MODEL,
+                model=model or GEMINI_FLASH_LITE_MODEL,
                 contents=[prompt],
                 config=config,
             )
@@ -68,7 +69,7 @@ class LLMClient:
             traceback.print_exc()
             raise Exception("Something went wrong")
 
-    def _openai_parse_structured_response(self, prompt: str, schema: type[BaseModel], client: OpenAI, model: str, system_prompt: str = None) -> BaseModel:
+    def _openai_parse_structured_response(self, prompt: str, schema: type[BaseModel], client: OpenAI, model: str, system_prompt: str = None, temperature: float = 1.0) -> BaseModel:
         try:
             messages = []
             if system_prompt:
@@ -78,6 +79,7 @@ class LLMClient:
                 model=model,
                 messages=messages,
                 response_format=schema,
+                temperature=temperature,
             )
             result = response.choices[0].message.parsed
             if result is None:
@@ -87,7 +89,7 @@ class LLMClient:
             traceback.print_exc()
             raise Exception("Something went wrong")
 
-    def _openai_compat_structured_response(self, prompt: str, schema_name: str, schema: BaseModel, system_prompt: str = None) -> dict:
+    def _openai_compat_structured_response(self, prompt: str, schema_name: str, schema: BaseModel, system_prompt: str = None, temperature: float = 1.0) -> dict:
         """
         Call OpenRouter with a JSON schema enforced via response_format.
         Falls back to extracting JSON from the raw text if the model
@@ -102,6 +104,7 @@ class LLMClient:
             response = self.client.chat.completions.create(
                 model=self.openai_compat_model,
                 messages=messages,
+                temperature=temperature,
                 response_format={
                     "type": "json_schema",
                     "json_schema": {
@@ -121,6 +124,7 @@ class LLMClient:
                     schema_system_content = system_prompt + "\n\n" + schema_system_content
                 response = self.client.chat.completions.create(
                     model=self.openai_compat_model,
+                    temperature=temperature,
                     messages=[
                         {"role": "system", "content": schema_system_content},
                         {"role": "user", "content": prompt},

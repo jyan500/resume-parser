@@ -48,15 +48,13 @@ export const TargetJobPanel: React.FC = () => {
                 <SuggestionsView
                     suggestedBullets={suggestions.suggestedBullets}
                     missingKeywords={suggestions.missingKeywords}
-                    recommendations={suggestions.recommendations}
                     numSuggestions={suggestions.numSuggestions}
                     resume={resume}
                     onRetarget={() => {
                         dispatch(setHoveredBulletId(null))
                         dispatch(setSuggestions({
-                            missingKeywords: [], 
+                            missingKeywords: [],
                             suggestedBullets: [],
-                            recommendations: [],
                             numSuggestions: 0,
                         }))
                         dispatch(setTargetJobViewMode("form"))
@@ -185,7 +183,6 @@ const FormView: React.FC<FormViewProps> = ({
 interface SuggestionsViewProps {
     suggestedBullets: SuggestedBullet[];
     missingKeywords: Keyword[];
-    recommendations: string[];
     numSuggestions: number;
     resume: Resume;
     onRetarget: () => void;
@@ -193,15 +190,13 @@ interface SuggestionsViewProps {
 
 const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     suggestedBullets,
-    recommendations,
     numSuggestions,
     resume,
     onRetarget,
     missingKeywords,
 }) => {
     const dispatch = useAppDispatch();
-    const { regionToSection, subRegionToRegion, subToggleVisibility } = useAppSelector((state) => state.resume) 
-    const [recommendationsOpen, setRecommendationsOpen] = useState(true);
+    const { regionToSection, subRegionToRegion, subToggleVisibility } = useAppSelector((state) => state.resume)
     const [suggestedBulletsOpen, setSuggestedBulletsOpen] = useState(true)
     const [missingKeywordsOpen, setMissingKeywordsOpen] = useState(true)
 
@@ -377,8 +372,9 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                     {missingKeywords.map((keyword) => (
                                         <button
                                             key={keyword.id}
+                                            title={keyword.type}
                                             className={`
-                                                ${keyword.type === "Soft Skill" ? "border-purple-500 text-purple-500" : "border-brand-accent text-brand-accent"}
+                                                ${keyword.type === "Soft Skill" ? "border-amber-500 text-amber-600" : "border-brand-accent text-brand-accent"}
                                                 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`
                                             }
                                         >
@@ -391,34 +387,6 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                     </div>
                 )}
 
-                {/* ── General recommendations (collapsible) ── */}
-                {recommendations.length > 0 && (
-                    <div className="rounded-xl border border-slate-200 overflow-hidden">
-                        <button
-                            onClick={() => setRecommendationsOpen((v) => !v)}
-                            className="w-full flex items-center justify-between px-3.5 py-2.5 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
-                        >
-                            <span className="text-xs font-medium text-slate-600">
-                                General recommendations ({recommendations.length})
-                            </span>
-                            <ChevronDown
-                                className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${recommendationsOpen ? "rotate-0" : "-rotate-90"}`}
-                                strokeWidth={2.5}
-                            />
-                        </button>
-
-                        {recommendationsOpen && (
-                            <ul className="divide-y divide-slate-100">
-                                {recommendations.map((rec, i) => (
-                                    <li key={i} className="flex items-start gap-2.5 px-3.5 py-2.5">
-                                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-accent flex-shrink-0" />
-                                        <p className="text-xs text-slate-600 leading-relaxed">{rec}</p>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                )}
             </div>
         </div>
     );

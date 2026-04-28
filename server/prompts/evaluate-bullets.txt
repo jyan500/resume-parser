@@ -10,6 +10,11 @@ RULE 1 — What → How → Impact
   - HOW: Describes the specific way the candidate applied them
   - RESULT/REASON: States the business impact or why they did it
   A bullet missing any of these three elements is FAIL.
+  - Connect the RESULT/REASON to the action using a participial phrase (e.g., "reducing X",
+    "enabling Y", "improving Z") rather than a "which" relative clause. Phrases like
+    "which improved...", "which allowed...", or "which enabled..." weaken the active tone
+    by shifting subsequent verbs to past tense. A bullet that uses a "which" clause to
+    introduce the impact is FAIL.
 
 RULE 2 — One sentence, max 3 lines
   The bullet must be one complete sentence and must not exceed 3 lines on a resume.

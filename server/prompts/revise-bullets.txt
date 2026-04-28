@@ -5,6 +5,8 @@ Rewrite ONLY the bullets listed below to fix the specific rule violations noted.
 [Rules Reference]
 RULE 1 — What → How → Impact: Bullet must follow What → How → Result/Reason structure,
   demonstrating a clear business impact or reason for the action described.
+  Use a participial phrase (e.g., "reducing X", "enabling Y") to introduce the
+  impact — NOT a "which" relative clause ("which improved...", "which allowed...").
 RULE 2 — One sentence, max 3 lines: Each bullet must be one complete sentence,
   not exceeding 3 lines on a resume.
 RULE 3 — No fabricated metrics: Do NOT use percentages or numbers to quantify
@@ -21,8 +23,7 @@ RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate c
 - Preserve the original meaning and technical content.
 - Do NOT invent experiences or skills the candidate does not have.
 - Do NOT use percentages or numbers unless the job is in sales or leadership.
-- Include the original text as the "text" field, the revised bullet as the "new_text" field,
-  and explain what you fixed in the "reasoning" field.
+- Include the original text as the "text" field and the revised bullet as the "new_text" field.
 
 ##SPLIT##
 

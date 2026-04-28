@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from "uuid"
 
 export interface ServerTailorResumeSchema {
     missingKeywords: Array<Keyword>
-    recommendations: Array<string>
     suggestedBullets: Array<SuggestedBullet>
     numSuggestions: number
 }
@@ -16,7 +15,6 @@ export const mapServerTailorResumeToClient = (data: ServerTailorResumeSchema) =>
                 id: uuidv4()
             }
         }),
-        recommendations: data.recommendations,
         suggestedBullets: data.suggestedBullets,
         numSuggestions: data.suggestedBullets.length,
     } as ResumeSuggestion

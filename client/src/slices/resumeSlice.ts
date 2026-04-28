@@ -84,7 +84,6 @@ const TOGGLE_VISIBILITY: ToggleVisibility = {
 const DEFAULT_SUGGESTIONS: ResumeSuggestion = {
     suggestedBullets: [],
     missingKeywords: [],
-    recommendations: [],
     numSuggestions: 0,
 }
 

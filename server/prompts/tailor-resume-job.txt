@@ -37,11 +37,13 @@ Before returning keywords, review each entry:
 [Output Instructions]
 Fill the JSON schema with:
 - missing_keywords: Keywords from the job's qualification/requirements section that are NOT present in any of the resume's experience bullet points (skills sections do not count).
-- recommendations: A list of 3 to 6 actionable steps the resume owner can take to better position their resume for "{{job_title}}" roles.
 - suggested_bullets:
-  * Include the original id as the id field, original text as the text field, the rewritten bullet point as the new_text field, and the reasoning field should be the reasoning behind the updated bullet point.
+  * Include the original id as the id field, original text as the text field, and the rewritten bullet point as the new_text field.
   * Do NOT use percentages or numbers unless the job position is in sales or is a leadership position.
   * Write bullets in plain, direct human language. Avoid AI-sounding or flowery corporate clichés such as "leveraged", "optimized", "championed", "spearheaded", "orchestrated", "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer concrete verbs like "built", "wrote", "shipped", "added", "fixed", "designed", "ran", "led", "reduced", "increased", "set up", "migrated".
+  * Connect the result/impact to the action using a participial phrase (e.g., "reducing X",
+    "enabling Y", "improving Z") — NOT a "which" relative clause. "Which" clauses weaken
+    active tone by shifting subsequent verbs to past tense.
   * {{keyword_instruction}}
 
 ##SPLIT##
