@@ -131,6 +131,7 @@ export interface Keyword {
     id: string
     type: Skill
     text: string
+    inSkillsOnly: boolean
 }
 
 export interface ResumeSuggestion {

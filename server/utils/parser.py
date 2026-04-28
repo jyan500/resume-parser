@@ -47,6 +47,7 @@ class ResumeParser:
                     config={
                         "response_mime_type": "application/json",
                         "response_json_schema": ResumeSchema.model_json_schema(),
+                        "temperature": 0.0,
                     },
                 )
                 self.client.files.delete(name=myfile.name)
@@ -67,6 +68,7 @@ class ResumeParser:
                     config={
                         "response_mime_type": "application/json",
                         "response_json_schema": ResumeSchema.model_json_schema(),
+                        "temperature": 0.0,
                     },
                 )
             else:

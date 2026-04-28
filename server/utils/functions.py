@@ -1,5 +1,16 @@
 import os
 
+SPLIT_MARKER = "##SPLIT##"
+
+
+def split_prompt(rendered: str) -> tuple[str | None, str]:
+    """Splits a rendered prompt into (system_prompt, user_prompt) on SPLIT_MARKER."""
+    if SPLIT_MARKER in rendered:
+        system_part, user_part = rendered.split(SPLIT_MARKER, 1)
+        return system_part.strip(), user_part.strip()
+    return None, rendered
+
+
 def load_prompt(name: str) -> str:
     """
     Load prompt from prompts folder
