@@ -23,8 +23,7 @@ RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate c
 - Preserve the original meaning and technical content.
 - Do NOT invent experiences or skills the candidate does not have.
 - Do NOT use percentages or numbers unless the job is in sales or leadership.
-- Include the original text as the "text" field, the revised bullet as the "new_text" field,
-  and explain what you fixed in the "reasoning" field.
+- Include the original text as the "text" field and the revised bullet as the "new_text" field.
 
 ##SPLIT##
 

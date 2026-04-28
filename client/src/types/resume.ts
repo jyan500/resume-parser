@@ -123,7 +123,6 @@ export type SuggestedBullet = {
     id: string
     text: string
     newText: string
-    reasoning: string
 }
 
 export type Skill = "Technical" | "Soft Skill" 
@@ -135,7 +134,6 @@ export interface Keyword {
 }
 
 export interface ResumeSuggestion {
-    recommendations: Array<string>
     missingKeywords: Array<Keyword>
     suggestedBullets: Array<SuggestedBullet>
     numSuggestions: number

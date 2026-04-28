@@ -15,15 +15,11 @@ class Keyword(BaseModel):
 class RecommendationBullet(BaseModel):
     id: str           # bullet uuid from the resume JSON
     text: str         # the original bullet text
-    new_text: str      # rewritten bullet point
-    reasoning: str    # what structural element is missing or needs fixing
+    new_text: str     # rewritten bullet point
 
 class TailorJobSchema(BaseModel):
     # Subset of keywords not found in any experience bullet point
     missing_keywords: List[Keyword]
- 
-    # High-level actionable advice for positioning the resume toward this job title
-    recommendations: List[str]
- 
+
     # Bullets that need What→How→Result restructuring (no rewrites, just flags)
     suggested_bullets: List[RecommendationBullet]
