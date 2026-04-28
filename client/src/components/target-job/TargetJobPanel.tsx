@@ -377,8 +377,9 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                                     {missingKeywords.map((keyword) => (
                                         <button
                                             key={keyword.id}
+                                            title={keyword.type}
                                             className={`
-                                                ${keyword.type === "Soft Skill" ? "border-purple-500 text-purple-500" : "border-brand-accent text-brand-accent"}
+                                                ${keyword.type === "Soft Skill" ? "border-amber-500 text-amber-600" : "border-brand-accent text-brand-accent"}
                                                 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`
                                             }
                                         >

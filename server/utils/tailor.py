@@ -63,7 +63,7 @@ class TailorResume:
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
-            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.3
         )
         return schema_response.model_dump()
 
@@ -79,7 +79,7 @@ class TailorResume:
         )
         system_prompt, user_prompt = _split_prompt(rendered)
         result = self.client.generate_response(
-            user_prompt, "EvaluationSchema", EvaluationSchema, system_prompt=system_prompt
+            user_prompt, "EvaluationSchema", EvaluationSchema, system_prompt=system_prompt, temperature=0.0
         )
         return result.evaluations
 
@@ -91,7 +91,7 @@ class TailorResume:
         )
         system_prompt, user_prompt = _split_prompt(rendered)
         result = self.client.generate_response(
-            user_prompt, "RevisionSchema", RevisionSchema, system_prompt=system_prompt
+            user_prompt, "RevisionSchema", RevisionSchema, system_prompt=system_prompt, temperature=0.0
         )
         return [b.model_dump() for b in result.revised_bullets]
 
