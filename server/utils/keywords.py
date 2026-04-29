@@ -64,6 +64,7 @@ class KeywordExtractor:
             text = kw.text.strip()
             if not text:
                 continue
+            # full lowercase match as opposed to partial (so java doesn't match with javascript), literals are escaped (i.e for cases like .NET, C#)
             pattern = re.compile(r"\b" + re.escape(text) + r"\b", re.IGNORECASE)
             if pattern.search(bullets_text):
                 continue

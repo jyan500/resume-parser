@@ -140,8 +140,8 @@ const defaultState: ResumeState = {
     isDarkMode: false
 }
 
-const initialState: ResumeState = {
-   ...defaultState 
+export const initialState: ResumeState = {
+   ...defaultState
 };
 
 // ─── Slice ────────────────────────────────────────────────────────────────────

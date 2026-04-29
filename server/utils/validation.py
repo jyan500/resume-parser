@@ -3,6 +3,7 @@ from functools import wraps
 from flask import request, jsonify
 from pydantic import BaseModel, ValidationError, field_validator, model_validator
 from typing import Any, Literal
+from utils.leniency import LENIENCY_LEVEL_NAMES, DEFAULT_LENIENCY
 import traceback
 
 JD_ANCHOR_KEYWORDS = [
@@ -119,8 +120,17 @@ class KeywordInput(BaseModel):
 
 
 class TailorRequest(_ResumeJobBase):
-    promptVersion: Literal["strict", "variants", "full"] = "strict"
+    promptVersion: str = DEFAULT_LENIENCY
     missingKeywords: list[KeywordInput] = []
+
+    @field_validator("promptVersion")
+    @classmethod
+    def validate_prompt_version(cls, v: str) -> str:
+        if v not in LENIENCY_LEVEL_NAMES:
+            raise ValueError(
+                f"promptVersion must be one of {list(LENIENCY_LEVEL_NAMES.keys())}"
+            )
+        return v
 
 
 class MissingKeywordsRequest(_ResumeJobBase):

@@ -1,0 +1,48 @@
+{
+  "experience": [
+    {
+      "company": "Acme Corp",
+      "job_title": "Software Engineer",
+      "location": "New York, NY",
+      "work_type": "Remote",
+      "start_date": "2021-01",
+      "end_date": "Present",
+      "bullets": [
+        {"id": "b1", "text": "Built RESTful APIs using Node.js and Express, serving 10k daily users."},
+        {"id": "b2", "text": "Wrote unit tests with Jest and achieved 90 percent code coverage."}
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "title": "Open Source CLI Tool",
+      "bullets": [
+        {"id": "p1", "text": "Developed a Python CLI tool used by over 500 developers on GitHub."}
+      ]
+    }
+  ],
+  "skills": [
+    {"category": "Backend", "skills": ["Node.js", "Express", "PostgreSQL"]},
+    {"category": "DevOps", "skills": ["Docker", "Kubernetes"]}
+  ],
+  "header": {
+    "first_name": "Jane",
+    "last_name": "Doe",
+    "email": "jane.doe@example.com",
+    "phone_number": "555-0100",
+    "location": "New York, NY",
+    "urls": []
+  },
+  "summary": "Full-stack engineer with 4 years of experience building scalable web applications.",
+  "education": [
+    {
+      "school_name": "State University",
+      "major": "Computer Science",
+      "degree": "Bachelor of Science",
+      "graduation_date": "2020"
+    }
+  ],
+  "certifications": [],
+  "languages": [],
+  "interests": []
+}
