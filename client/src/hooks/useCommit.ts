@@ -11,10 +11,12 @@ import { useState, useRef, useEffect } from "react"
 //  • `useEffect([reduxValue])` syncs local state back down if Redux changes
 //    externally (e.g. loading a new resume).
  
+export const DEFAULT_COMMIT_DELAY = 600
+
 export const useCommit = (
     reduxValue: string,
     onChange: (v: string) => void,
-    delay = 600
+    delay = DEFAULT_COMMIT_DELAY
 ) => {
     const [local, setLocal] = useState(reduxValue);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
