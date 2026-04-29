@@ -105,9 +105,14 @@ Runs ESLint on TypeScript and TypeScript React files
 - Store integration happens automatically in `store.ts`
 
 ### Testing
-- No testing framework configured in current setup
-- Consider adding Vitest or Jest for unit testing
-- Component testing with React Testing Library recommended
+- Vitest + React Testing Library is configured in `client/`
+- **After any change to frontend source files, run the test suite and confirm it passes before considering the task complete:**
+  ```bash
+  cd client && npm test -- --run
+  ```
+- Test files live alongside source files: `*.test.ts` / `*.test.tsx`
+- Coverage areas: Redux slice reducers (`resumeSlice.test.ts`), custom hooks (`useCommit.test.ts`), utility functions (`functions.test.ts`)
+- PDF/preview components are intentionally excluded — `@react-pdf/renderer` does not render to the DOM
 
 ## Backend Server
 
