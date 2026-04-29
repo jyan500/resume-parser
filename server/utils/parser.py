@@ -5,13 +5,12 @@ import traceback
 import json
 import os
 from jinja2 import Template
-from google import genai
+from utils.client import LLMClient
 from utils.schemas.schema import ResumeSchema
 from utils.functions import load_prompt
 from utils.constants import (
     MAX_PAGES,
     MAX_WORDS,
-    GEMINI_FLASH_LITE_MODEL,
     SECTION_PATTERNS,
 )
 import zipfile
@@ -19,7 +18,7 @@ import xml.etree.ElementTree as ET
 
 class ResumeParser:
     def __init__(self):
-        self.client = genai.Client()
+        self.llm_client = LLMClient(mode="gemini")
         ## render using jinja2 to escape curly braces
         # self.template = Template(load_prompt("parse-resume"))
         self.uploadTemplate = Template(load_prompt("parse-resume-file"))
@@ -36,21 +35,13 @@ class ResumeParser:
                 self._check_sections(text)
 
                 prompt = self.uploadTemplate.render()
-                uploaded_file = self.client.files.upload(file=filepath)
-                myfile = self.client.files.get(name=uploaded_file.name)
+                myfile = self.llm_client.upload_file(filepath)
                 if not myfile:
                     raise Exception("Something went wrong while uploading")
-
-                response = self.client.models.generate_content(
-                    model=GEMINI_FLASH_LITE_MODEL,
-                    contents=[prompt, myfile],
-                    config={
-                        "response_mime_type": "application/json",
-                        "response_json_schema": ResumeSchema.model_json_schema(),
-                        "temperature": 0.0,
-                    },
+                parsed_resume = self.llm_client.generate_response(
+                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0, file=myfile
                 )
-                self.client.files.delete(name=myfile.name)
+                self.llm_client.delete_file(myfile)
 
             elif filepath.endswith('.docx'):
                 text = self._parse_docx(filepath)
@@ -62,19 +53,12 @@ class ResumeParser:
 
                 # Gemini doesn't support .docx uploads — send extracted text inline instead
                 prompt = self.textTemplate.render(text=text)
-                response = self.client.models.generate_content(
-                    model=GEMINI_FLASH_LITE_MODEL,
-                    contents=[prompt],
-                    config={
-                        "response_mime_type": "application/json",
-                        "response_json_schema": ResumeSchema.model_json_schema(),
-                        "temperature": 0.0,
-                    },
+                parsed_resume = self.llm_client.generate_response(
+                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0
                 )
             else:
                 raise ValueError('Unsupported file format')
 
-            parsed_resume = ResumeSchema.model_validate_json(response.text)
             return parsed_resume.model_dump()
 
         except Exception as e:

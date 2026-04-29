@@ -29,12 +29,12 @@ class LLMClient:
             self.openai_compat_model = OPENAI_GPT_OSS_120B_MODEL
         self.mode = mode
     
-    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0) -> BaseModel:
+    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0, file=None) -> BaseModel:
         if self.mode == "gemini":
             try:
-                return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt, temperature=temperature)
+                return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt, temperature=temperature, file=file)
             except genai_errors.ServerError as e:
-                if e.code == 503:
+                if e.code == 503 and file is None:
                     print(f"Gemini 503 unavailable — falling back to {self.openai_compat_model}")
                     return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
                 traceback.print_exc()
@@ -44,7 +44,16 @@ class LLMClient:
         # openrouter
         return self._openai_compat_structured_response(prompt, schema_name, schema, system_prompt=system_prompt, temperature=temperature)
 
-    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0) -> dict:
+    def upload_file(self, filepath: str):
+        """Upload a file to the Gemini Files API. Gemini mode only."""
+        uploaded = self.client.files.upload(file=filepath)
+        return self.client.files.get(name=uploaded.name)
+
+    def delete_file(self, file) -> None:
+        """Delete a file from the Gemini Files API. Gemini mode only."""
+        self.client.files.delete(name=file.name)
+
+    def _gemini_structured_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0, file=None) -> dict:
         """
         Uses gemini to create structured response that is validated by json schema
         """
@@ -56,9 +65,10 @@ class LLMClient:
             }
             if system_prompt:
                 config["system_instruction"] = system_prompt
+            contents = [prompt, file] if file else [prompt]
             response = self.client.models.generate_content(
                 model=model or GEMINI_FLASH_LITE_MODEL,
-                contents=[prompt],
+                contents=contents,
                 config=config,
             )
             validated_schema = schema.model_validate_json(response.text)
