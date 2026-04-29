@@ -10,8 +10,7 @@ from openai import OpenAI
 from utils.schemas.tailor_resume_schema import TailorJobSchema
 from utils.schemas.evaluation_schema import EvaluationSchema, RuleVerdict
 from utils.schemas.revision_schema import RevisionSchema
-from utils.schemas.keywords_schema import KeywordListSchema
-from utils.functions import load_prompt
+from utils.functions import load_prompt, split_prompt
 from utils.client import LLMClient
 from utils.leniency import LENIENCY_LEVELS, DEFAULT_LENIENCY, LeniencyLevel
 from pydantic import BaseModel
@@ -22,15 +21,6 @@ MAX_REVISION_ROUNDS = 1
 # text are dropped — the change is too minor to be a useful suggestion.
 MIN_CHANGE_THRESHOLD = 0.90
 
-SPLIT_MARKER = "##SPLIT##"
-
-
-def _split_prompt(rendered: str) -> tuple[str | None, str]:
-    """Splits a rendered prompt into (system_prompt, user_prompt) on SPLIT_MARKER."""
-    if SPLIT_MARKER in rendered:
-        system_part, user_part = rendered.split(SPLIT_MARKER, 1)
-        return system_part.strip(), user_part.strip()
-    return None, rendered
 
 RULE_FIELDS = [
     "rule_1_what_how_impact",
@@ -63,7 +53,7 @@ class TailorResume:
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
-            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.3
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.8
         )
         return schema_response.model_dump()
 
@@ -77,7 +67,7 @@ class TailorResume:
             bullets_json=bullets_json,
             rule_4=leniency.rule_4_eval,
         )
-        system_prompt, user_prompt = _split_prompt(rendered)
+        system_prompt, user_prompt = split_prompt(rendered)
         result = self.client.generate_response(
             user_prompt, "EvaluationSchema", EvaluationSchema, system_prompt=system_prompt, temperature=0.0
         )
@@ -89,7 +79,7 @@ class TailorResume:
             bullets_with_failures_json=json.dumps(failed_bullets),
             rule_4=leniency.rule_4_revise,
         )
-        system_prompt, user_prompt = _split_prompt(rendered)
+        system_prompt, user_prompt = split_prompt(rendered)
         result = self.client.generate_response(
             user_prompt, "RevisionSchema", RevisionSchema, system_prompt=system_prompt, temperature=0.0
         )
@@ -144,16 +134,18 @@ class TailorResume:
         result["suggested_bullets"] = suggested
         return result
 
-    def tailor_resume(self, resume_json_string, job_title, job_description, version: str = DEFAULT_LENIENCY):
+    def tailor_resume(self, resume_json_string, job_title, job_description, missing_keywords=None, version: str = DEFAULT_LENIENCY):
         try:
             leniency = LENIENCY_LEVELS.get(version, LENIENCY_LEVELS[DEFAULT_LENIENCY])
+            keywords_payload = json.dumps(missing_keywords or [])
             rendered = self._main_template.render(
                 resume=resume_json_string,
                 job_title=job_title,
                 job_description=job_description,
+                missing_keywords=keywords_payload,
                 keyword_instruction=leniency.keyword_instruction,
             )
-            system_prompt, user_prompt = _split_prompt(rendered)
+            system_prompt, user_prompt = split_prompt(rendered)
             result = self._generate(user_prompt, system_prompt=system_prompt)
             # The evaluate/revise prompts only need enough context to understand the role
             # (e.g. job title, company, whether it's sales/leadership). Passing the full

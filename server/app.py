@@ -10,10 +10,11 @@ import sys
 import io
 from utils.tailor import TailorResume
 from utils.parser import ResumeParser
+from utils.keywords import KeywordExtractor
 import humps
 import json
-from utils.validation import validate_tailor_request
-from utils.routes import ( PARSE_RESUME_URL, TAILOR_RESUME_URL, JOB_TITLE_URL )
+from utils.validation import validate_tailor_request, validate_missing_keywords_request
+from utils.routes import ( PARSE_RESUME_URL, TAILOR_RESUME_URL, MISSING_KEYWORDS_URL, JOB_TITLE_URL )
 
 load_dotenv()
 
@@ -47,6 +48,7 @@ app.config['MOCKS_FOLDER'] = 'mocks'
 MOCK_RESUME = os.path.join(app.config["MOCKS_FOLDER"], "sample_resume_germany.json")
 parser = ResumeParser()
 tailor = TailorResume()
+keyword_extractor = KeywordExtractor()
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -93,6 +95,7 @@ def tailor_resume():
     resume = data.get("resume")
     job_description = data.get("jobDescription")
     job_title = data.get("jobTitle")
+    missing_keywords = data.get("missingKeywords", [])
 
     # we only include the experience and projects
     # as this is what the LLM will give feedback on
@@ -105,13 +108,37 @@ def tailor_resume():
         resume_json = json.dumps({"experience": experience, "projects": projects})
         # retrieve the prompt version (strict, variants, full)
         version = data.get("promptVersion", "strict")
-        suggestions = tailor.tailor_resume(resume_json, job_description, job_title, version=version)
+        suggestions = tailor.tailor_resume(
+            resume_json,
+            job_description,
+            job_title,
+            missing_keywords=missing_keywords,
+            version=version,
+        )
 
     except Exception as e:
         traceback.print_exc()
         return jsonify({"status": 500, "errors": ["Something went wrong!"]}), 500
 
     return jsonify(humps.camelize(suggestions))
+
+
+@app.route(MISSING_KEYWORDS_URL, methods=['POST'])
+@limiter.limit("5 per minute")
+@validate_missing_keywords_request
+def missing_keywords():
+    data = request.json
+    resume = data.get("resume") or {}
+    job_description = data.get("jobDescription")
+    job_title = data.get("jobTitle")
+
+    try:
+        keywords = keyword_extractor.get_missing_keywords(job_title, job_description, resume)
+    except Exception:
+        traceback.print_exc()
+        return jsonify({"status": 500, "errors": ["Something went wrong!"]}), 500
+
+    return jsonify(humps.camelize({"keywords": keywords}))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

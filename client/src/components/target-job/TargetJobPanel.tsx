@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
-import { useTailorResumeMutation } from "../../api/public/resume";
+import { useGetMissingKeywordsMutation, useTailorResumeMutation } from "../../api/public/resume";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
 import {
     setSuggestions,
@@ -74,7 +74,10 @@ interface FormViewProps {
 const FormView: React.FC<FormViewProps> = ({
     resume
 }) => {
-    const [tailorResume, { isLoading, error }] = useTailorResumeMutation();
+    const [getMissingKeywords, { isLoading: isLoadingKeywords, error: keywordsError }] = useGetMissingKeywordsMutation();
+    const [tailorResume, { isLoading: isLoadingTailor, error: tailorError }] = useTailorResumeMutation();
+    const isLoading = isLoadingKeywords || isLoadingTailor;
+    const error = keywordsError ?? tailorError;
     const [preloadedValues] = useState({
         jobTitle: "",
         jobDescription: "",
@@ -110,12 +113,18 @@ const FormView: React.FC<FormViewProps> = ({
 
     const onSubmit = async (data: TargetJobForm) => {
         try {
-            const result = await tailorResume({
+            const missingKeywords = await getMissingKeywords({
                 resume,
                 jobDescription: data.jobDescription,
                 jobTitle: data.jobTitle,
             }).unwrap();
-            dispatch(setSuggestions(result));
+            const tailorResult = await tailorResume({
+                resume,
+                jobDescription: data.jobDescription,
+                jobTitle: data.jobTitle,
+                missingKeywords: missingKeywords.map(({ text, type }) => ({ text, type })),
+            }).unwrap();
+            dispatch(setSuggestions({ ...tailorResult, missingKeywords }));
             dispatch(setTargetJobViewMode("suggestions"))
         } catch (_) {
             // Error is surfaced by <ErrorDisplay />
@@ -366,21 +375,32 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         {missingKeywordsOpen && (
                             <div className="px-3.5 py-3 flex flex-col gap-3">
                                 <p className="text-xs text-slate-400 leading-relaxed">
-                                    Add these keywords to your resume to improve your match score.
+                                    <span>Recruiters look for these keywords in your <b>experience</b> bullets, listing them in a skills section is less impactful. Pills marked <span className="italic">in skills only</span> need to be worked into a bullet.</span>
                                 </p>
                                 <div className="flex flex-wrap gap-2">
-                                    {missingKeywords.map((keyword) => (
-                                        <button
-                                            key={keyword.id}
-                                            title={keyword.type}
-                                            className={`
-                                                ${keyword.type === "Soft Skill" ? "border-amber-500 text-amber-600" : "border-brand-accent text-brand-accent"}
-                                                inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`
-                                            }
-                                        >
-                                            {keyword.text}
-                                        </button>
-                                    ))}
+                                    {missingKeywords.map((keyword) => {
+                                        const colorClass = keyword.type === "Soft Skill"
+                                            ? "border-amber-500 text-amber-600"
+                                            : "border-brand-accent text-brand-accent";
+                                        const borderStyle = keyword.inSkillsOnly ? "border-dashed" : "border-solid";
+                                        const titleText = keyword.inSkillsOnly
+                                            ? `${keyword.type} — in skills only`
+                                            : keyword.type;
+                                        return (
+                                            <button
+                                                key={keyword.id}
+                                                title={titleText}
+                                                className={`${colorClass} ${borderStyle} inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-white text-xs font-medium`}
+                                            >
+                                                {keyword.text}
+                                                {keyword.inSkillsOnly && (
+                                                    <span className="text-[10px] italic text-slate-400 font-normal">
+                                                        in skills only
+                                                    </span>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

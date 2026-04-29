@@ -1,7 +1,8 @@
-import { TAILOR_RESUME_URL, PARSE_RESUME_URL } from "../../helpers/urls";
-import type { Resume, ResumeSuggestion } from "../../types/resume";
+import { TAILOR_RESUME_URL, MISSING_KEYWORDS_URL, PARSE_RESUME_URL } from "../../helpers/urls";
+import type { Keyword, Resume, ResumeSuggestion } from "../../types/resume";
 import { type ServerResumeSchema, mapServerResumeToClient } from "../helpers/serverResume";
 import { type ServerTailorResumeSchema, mapServerTailorResumeToClient } from "../helpers/serverTailorResume";
+import { type ServerMissingKeywordsSchema, mapServerMissingKeywordsToClient } from "../helpers/serverMissingKeywords";
 import { publicApi } from "../public"
 
 // ─── Request / Response Types ─────────────────────────────────────────────────
@@ -15,10 +16,17 @@ export interface ParseResumeResponse {
     resume: Resume;
 }
 
+export interface MissingKeywordsRequest {
+    resume: Resume;
+    jobTitle: string;
+    jobDescription: string;
+}
+
 export interface TailorRequest {
     resume: Resume;
     jobTitle: string;
     jobDescription: string;
+    missingKeywords: Array<Pick<Keyword, "text" | "type">>;
 }
 
 export interface HealthResponse {
@@ -48,8 +56,27 @@ export const resumeApi = publicApi.injectEndpoints({
             }),
         }),
 
-        // POST /tailor — JSON body with resume JSON + job_description
-        tailorResume: builder.mutation<ResumeSuggestion, TailorRequest>({
+        // POST /missing-keywords — extracts JD keywords and computes which are missing
+        getMissingKeywords: builder.mutation<Array<Keyword>, MissingKeywordsRequest>({
+            query: (body) => ({
+                url: MISSING_KEYWORDS_URL,
+                method: "POST",
+                body: {
+                    jobDescription: body.jobDescription,
+                    jobTitle: body.jobTitle,
+                    resume: {
+                        experience: body.resume?.experience ?? [],
+                        projects: body.resume?.projects ?? [],
+                        skills: body.resume?.skills ?? [],
+                    },
+                },
+            }),
+            transformResponse: (raw: ServerMissingKeywordsSchema) =>
+                mapServerMissingKeywordsToClient(raw),
+        }),
+
+        // POST /tailor — JSON body with resume JSON + job_description + missing keywords
+        tailorResume: builder.mutation<Pick<ResumeSuggestion, "suggestedBullets" | "numSuggestions">, TailorRequest>({
             query: (body) => ({
                 url: TAILOR_RESUME_URL,
                 method: "POST",
@@ -60,14 +87,14 @@ export const resumeApi = publicApi.injectEndpoints({
                         "projects": body.resume?.projects ?? [],
                         "experience": body.resume?.experience ?? [],
                     },
+                    missingKeywords: body.missingKeywords,
                     // TODO: add the "strictness" configuration in the future
                     // this is defaulted to the "add plausible keywords" configuration
-                    promptVersion: "full"
+                    promptVersion: "variants"
                 }
             }),
-            transformResponse: (raw: TailorResumeServerResponse) => ({
-                ...mapServerTailorResumeToClient(raw)
-            })
+            transformResponse: (raw: TailorResumeServerResponse) =>
+                mapServerTailorResumeToClient(raw)
         }),
 
         // GET /health — useful to ping the backend on mount
@@ -82,6 +109,7 @@ export const resumeApi = publicApi.injectEndpoints({
 
 export const {
     useParseResumeMutation,
+    useGetMissingKeywordsMutation,
     useTailorResumeMutation,
     useHealthCheckQuery,
 } = resumeApi;

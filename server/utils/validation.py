@@ -37,11 +37,11 @@ def _check_injection(v: str, field_name: str) -> None:
                 f"{field_name} contains content that cannot be processed."
             )
 
-class TailorRequest(BaseModel):
+class _ResumeJobBase(BaseModel):
+    """Shared validators for endpoints that take a resume + job title + JD."""
     jobTitle: str
     jobDescription: str
     resume: dict[str, Any]
-    promptVersion: Literal["strict", "variants", "full"] = "strict"
 
     @field_validator("jobTitle")
     @classmethod
@@ -113,20 +113,39 @@ class TailorRequest(BaseModel):
                         )
         return v
 
-def validate_tailor_request(f):
-    """Decorator that validates the request body against TailorRequest before the endpoint executes."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        data = request.json or {}
-        try:
-            TailorRequest.model_validate(data)
-        except ValueError as e:
-            # Collect all Pydantic error messages into a single list
-            print("raised value error: ", e.errors())
-            errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
-            return jsonify({"errors": errors}), 422
-        except Exception as e:
-            traceback.print_exc()
-            return jsonify({"errors": ["Something went wrong!"]}), 500
-        return f(*args, **kwargs)
-    return decorated
+class KeywordInput(BaseModel):
+    text: str
+    type: Literal["Technical", "Soft Skill"]
+
+
+class TailorRequest(_ResumeJobBase):
+    promptVersion: Literal["strict", "variants", "full"] = "strict"
+    missingKeywords: list[KeywordInput] = []
+
+
+class MissingKeywordsRequest(_ResumeJobBase):
+    pass
+
+
+def _validate_with(model: type[BaseModel]):
+    def decorator(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            data = request.json or {}
+            try:
+                model.model_validate(data)
+            except ValueError as e:
+                # Collect all Pydantic error messages into a single list
+                print("raised value error: ", e.errors())
+                errors = [err["msg"].removeprefix("Value error, ") for err in e.errors()]
+                return jsonify({"errors": errors}), 422
+            except Exception:
+                traceback.print_exc()
+                return jsonify({"errors": ["Something went wrong!"]}), 500
+            return f(*args, **kwargs)
+        return decorated
+    return decorator
+
+
+validate_tailor_request = _validate_with(TailorRequest)
+validate_missing_keywords_request = _validate_with(MissingKeywordsRequest)

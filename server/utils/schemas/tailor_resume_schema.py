@@ -18,8 +18,4 @@ class RecommendationBullet(BaseModel):
     new_text: str     # rewritten bullet point
 
 class TailorJobSchema(BaseModel):
-    # Subset of keywords not found in any experience bullet point
-    missing_keywords: List[Keyword]
-
-    # Bullets that need What→How→Result restructuring (no rewrites, just flags)
     suggested_bullets: List[RecommendationBullet]
