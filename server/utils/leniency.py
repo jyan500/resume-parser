@@ -8,8 +8,14 @@ class LeniencyLevel:
     rule_4_revise: str
 
 
-LENIENCY_LEVELS: dict[str, LeniencyLevel] = {
-    "strict": LeniencyLevel(
+LENIENCY_LEVEL_NAMES: dict[str, int] = {
+    "strict": 0,
+    "variants": 1,
+    "full": 2,
+}
+
+LENIENCY_LEVELS: dict[int, LeniencyLevel] = {
+    0: LeniencyLevel(
         keyword_instruction=(
             "Do NOT add any keyword, technology, or experience not already present "
             "in the original bullet."
@@ -29,7 +35,7 @@ LENIENCY_LEVELS: dict[str, LeniencyLevel] = {
             "  restructure what already exists."
         ),
     ),
-    "variants": LeniencyLevel(
+    1: LeniencyLevel(
         keyword_instruction=(
             "You MAY substitute or append a more specific version or formal alias of a technology "
             "already present in the original bullet when the job description calls for it "
@@ -53,7 +59,7 @@ LENIENCY_LEVELS: dict[str, LeniencyLevel] = {
             "  or formal aliases of existing technologies (e.g. HTML -> HTML5) are allowed."
         ),
     ),
-    "full": LeniencyLevel(
+    2: LeniencyLevel(
         keyword_instruction=(
             "You MAY add keywords and qualifications from the job description if they are a "
             "plausible, natural extension of the work already described in the bullet. A keyword "

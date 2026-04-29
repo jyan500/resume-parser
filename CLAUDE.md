@@ -109,6 +109,17 @@ Runs ESLint on TypeScript and TypeScript React files
 - Consider adding Vitest or Jest for unit testing
 - Component testing with React Testing Library recommended
 
+## Backend Testing
+
+The backend has a pytest suite under `server/tests/`. Run it after any change to files under `server/`:
+
+```bash
+cd server
+venv/Scripts/pytest tests/ -v
+```
+
+**Always run the backend test suite as a verification step after modifying any file under `server/`.** All 91 tests must pass before considering a backend change complete.
+
 ## Backend Server
 
 The project includes a Flask backend (`server/`) that handles resume parsing and tailoring.

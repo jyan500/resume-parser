@@ -12,7 +12,7 @@ from utils.schemas.evaluation_schema import EvaluationSchema, RuleVerdict
 from utils.schemas.revision_schema import RevisionSchema
 from utils.functions import load_prompt, split_prompt
 from utils.client import LLMClient
-from utils.leniency import LENIENCY_LEVELS, DEFAULT_LENIENCY, LeniencyLevel
+from utils.leniency import LENIENCY_LEVELS, LENIENCY_LEVEL_NAMES, DEFAULT_LENIENCY, LeniencyLevel
 from pydantic import BaseModel
 
 
@@ -136,7 +136,8 @@ class TailorResume:
 
     def tailor_resume(self, resume_json_string, job_title, job_description, missing_keywords=None, version: str = DEFAULT_LENIENCY):
         try:
-            leniency = LENIENCY_LEVELS.get(version, LENIENCY_LEVELS[DEFAULT_LENIENCY])
+            idx = LENIENCY_LEVEL_NAMES.get(version, LENIENCY_LEVEL_NAMES[DEFAULT_LENIENCY])
+            leniency = LENIENCY_LEVELS[idx]
             keywords_payload = json.dumps(missing_keywords or [])
             rendered = self._main_template.render(
                 resume=resume_json_string,

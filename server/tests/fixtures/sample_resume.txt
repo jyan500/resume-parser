@@ -1,0 +1,15 @@
+Jane Doe
+jane.doe@example.com | New York, NY | 555-0100
+
+Experience
+Software Engineer at Acme Corp (January 2021 - Present)
+- Built RESTful APIs using Node.js and Express.
+- Reduced API response time by 40 percent through query optimization.
+- Wrote unit and integration tests with Jest.
+
+Education
+Bachelor of Science in Computer Science
+State University, May 2020
+
+Skills
+Node.js, Express, PostgreSQL, Docker, Kubernetes, Jest

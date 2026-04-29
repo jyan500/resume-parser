@@ -14,6 +14,7 @@ from utils.keywords import KeywordExtractor
 import humps
 import json
 from utils.validation import validate_tailor_request, validate_missing_keywords_request
+from utils.leniency import DEFAULT_LENIENCY
 from utils.routes import ( PARSE_RESUME_URL, TAILOR_RESUME_URL, MISSING_KEYWORDS_URL, JOB_TITLE_URL )
 
 load_dotenv()
@@ -36,10 +37,11 @@ limiter = Limiter(
 def handle_rate_limit(e):
     return jsonify({"status": 429, "errors": ["Too many requests. Please try again later."]}), 429
 
-# Replace stdout with an unbuffered version
-sys.stdout = io.TextIOWrapper(
-    sys.stdout.buffer, encoding='utf-8', line_buffering=True
-)
+# Replace stdout with an unbuffered version (skip under pytest to avoid capture conflicts)
+if "pytest" not in sys.modules:
+    sys.stdout = io.TextIOWrapper(
+        sys.stdout.buffer, encoding='utf-8', line_buffering=True
+    )
 
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -107,7 +109,7 @@ def tailor_resume():
         # only include the resume's experience and projects section
         resume_json = json.dumps({"experience": experience, "projects": projects})
         # retrieve the prompt version (strict, variants, full)
-        version = data.get("promptVersion", "strict")
+        version = data.get("promptVersion", DEFAULT_LENIENCY)
         suggestions = tailor.tailor_resume(
             resume_json,
             job_description,
