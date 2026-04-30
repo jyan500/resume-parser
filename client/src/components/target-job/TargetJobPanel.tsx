@@ -2,6 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useGetMissingKeywordsMutation, useTailorResumeMutation } from "../../api/public/resume";
+import { useTurnstile } from "../../contexts/TurnstileContext";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
 import {
     setSuggestions,
@@ -74,6 +75,7 @@ interface FormViewProps {
 const FormView: React.FC<FormViewProps> = ({
     resume
 }) => {
+    const { resetToken } = useTurnstile();
     const [getMissingKeywords, { isLoading: isLoadingKeywords, error: keywordsError }] = useGetMissingKeywordsMutation();
     const [tailorResume, { isLoading: isLoadingTailor, error: tailorError }] = useTailorResumeMutation();
     const isLoading = isLoadingKeywords || isLoadingTailor;
@@ -125,7 +127,8 @@ const FormView: React.FC<FormViewProps> = ({
                 missingKeywords: missingKeywords.map(({ text, type }) => ({ text, type })),
             }).unwrap();
             dispatch(setSuggestions({ ...tailorResult, missingKeywords }));
-            dispatch(setTargetJobViewMode("suggestions"))
+            dispatch(setTargetJobViewMode("suggestions"));
+            resetToken();
         } catch (_) {
             // Error is surfaced by <ErrorDisplay />
         }

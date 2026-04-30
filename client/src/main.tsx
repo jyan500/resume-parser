@@ -6,6 +6,7 @@ import App from './App';
 import "./index.css"
 import { Provider } from "react-redux"
 import { persistor, store } from "./store"
+import { TurnstileProvider } from "./contexts/TurnstileContext"
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,7 +17,9 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <App />
+        <TurnstileProvider>
+          <App />
+        </TurnstileProvider>
       </PersistGate>
     </Provider>
   </React.StrictMode>,

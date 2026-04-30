@@ -14,6 +14,7 @@ from utils.keywords import KeywordExtractor
 import humps
 import json
 from utils.validation import validate_tailor_request, validate_missing_keywords_request
+from utils.turnstile import require_turnstile
 from utils.leniency import DEFAULT_LENIENCY
 from utils.routes import ( PARSE_RESUME_URL, TAILOR_RESUME_URL, MISSING_KEYWORDS_URL, JOB_TITLE_URL )
 
@@ -58,6 +59,7 @@ def health_check():
 
 @app.route(PARSE_RESUME_URL, methods=['POST'])
 @limiter.limit("5 per minute")
+@require_turnstile
 def parse_resume():
     # Handle file upload
     if 'resume' not in request.files:
@@ -90,6 +92,7 @@ def parse_resume():
 
 @app.route(TAILOR_RESUME_URL, methods=['POST'])
 @limiter.limit("5 per minute")
+@require_turnstile
 @validate_tailor_request
 def tailor_resume():
     data = request.json
@@ -127,6 +130,7 @@ def tailor_resume():
 
 @app.route(MISSING_KEYWORDS_URL, methods=['POST'])
 @limiter.limit("5 per minute")
+@require_turnstile
 @validate_missing_keywords_request
 def missing_keywords():
     data = request.json

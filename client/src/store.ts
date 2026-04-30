@@ -14,6 +14,7 @@ import {
 import storage from "redux-persist/lib/storage";
 import storageSession from "redux-persist/lib/storage/session";
 import resumeReducer from "./slices/resumeSlice";
+import turnstileReducer from "./slices/turnstileSlice";
 import { publicApi } from "./api/public";
 
 // ─── Persist Config ───────────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ const persistedResumeReducer = persistReducer(resumePersistConfig, resumeReducer
 
 const rootReducer = combineReducers({
     resume: persistedResumeReducer,
+    turnstile: turnstileReducer,
     [publicApi.reducerPath]: publicApi.reducer,
 });
 
