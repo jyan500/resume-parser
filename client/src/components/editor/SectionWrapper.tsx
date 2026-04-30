@@ -57,7 +57,7 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     return (
         <div ref={ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
             {/* Section header */}
-            <div onClick={(e) => {
+            <div onClick={() => {
                 dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: !toggleVisibility[sectionKey]}))
             }} className="hover:bg-slate-100 hover:cursor-pointer flex items-center justify-between gap-x-2 px-4 py-3 border-b border-slate-100 bg-white">
                 <div className="flex items-center gap-2">
