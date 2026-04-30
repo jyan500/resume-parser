@@ -378,7 +378,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         {missingKeywordsOpen && (
                             <div className="px-3.5 py-3 flex flex-col gap-3">
                                 <p className="text-xs text-slate-400 leading-relaxed">
-                                    <span>Recruiters look for these keywords in your <b>experience</b> bullets, listing them in a skills section is less impactful. Pills marked <span className="italic">in skills only</span> need to be worked into a bullet.</span>
+                                    <span>Recruiters look for these keywords in your <b>experience</b> bullets, listing them in a skills section is less impactful. Pills marked <span className="italic">in skills only</span> should be included into a bullet.</span>
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                     {missingKeywords.map((keyword) => {
@@ -438,7 +438,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({
         {/* Card header — clicking scrolls the editor to the matching bullet */}
         <button
             onClick={onScrollTo}
-            className="w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 hover:bg-brand-subtle hover:border-brand-border transition-colors text-left group"
+            className="hover:cursor-pointer w-full flex items-center gap-2 px-3.5 py-2.5 bg-slate-50 border-b border-slate-100 hover:bg-brand-subtle hover:border-brand-border transition-colors text-left group"
             title="Click to locate bullet in editor"
         >
             <span className="w-5 h-5 rounded-full bg-brand-accent flex items-center justify-center text-white text-xs font-medium flex-shrink-0">
