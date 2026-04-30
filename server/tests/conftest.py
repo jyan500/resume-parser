@@ -21,6 +21,7 @@ FIXTURES_DIR = TESTS_DIR / "fixtures"
 def app():
     import app as flask_app_module
     flask_app_module.app.config["TESTING"] = True
+    flask_app_module.limiter.enabled = False
     return flask_app_module.app
 
 

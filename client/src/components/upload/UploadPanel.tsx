@@ -4,12 +4,14 @@ import { Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
 import { useParseResumeMutation } from "../../api/public/resume";
 import { useAppDispatch } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";
+import { useTurnstile } from "../../contexts/TurnstileContext";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 import { LoadingSpinner } from "../page-elements/LoadingSpinner"
 
 export const UploadPanel: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { resetToken } = useTurnstile();
     const [parseResume, { isLoading, isError, error }] = useParseResumeMutation();
     const [isDragOver, setIsDragOver] = useState(false);
     const [fileName, setFileName] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export const UploadPanel: React.FC = () => {
                 const result = await parseResume(file).unwrap();
                 dispatch(setResume(result.resume));
                 dispatch(setParseStatus({ status: "success" }));
-                // Navigate to the editor once parsing succeeds
+                resetToken();
                 navigate("/editor");
             } catch (err) {
                 const message =
@@ -42,7 +44,7 @@ export const UploadPanel: React.FC = () => {
                 }
             }
         },
-        [dispatch, navigate, parseResume]
+        [dispatch, navigate, parseResume, resetToken]
     );
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

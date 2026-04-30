@@ -4,9 +4,17 @@ import {
     type FetchArgs,
 } from "@reduxjs/toolkit/query/react";
 import type { CustomError } from "../types/api";
+import type { RootState } from "../store";
 import { BACKEND_BASE_URL } from "../helpers/urls";
 
-const rawBaseQuery = fetchBaseQuery({ baseUrl: BACKEND_BASE_URL });
+const rawBaseQuery = fetchBaseQuery({
+    baseUrl: BACKEND_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+        const token = (getState() as RootState).turnstile.token
+        if (token) headers.set("X-Turnstile-Token", token)
+        return headers
+    },
+});
 
 export const baseQuery: BaseQueryFn<string | FetchArgs, unknown, CustomError> = async (
     args,
