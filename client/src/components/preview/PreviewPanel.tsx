@@ -38,7 +38,8 @@ export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const [ downloadLoading, setDownloadLoading ] = useState(false)
     const [ renderKey, setRenderKey ] = useState(0)
-    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles} = useAppSelector((state) => state.resume)
+    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles, suggestions} = useAppSelector((state) => state.resume)
+    const suggestedBullets = suggestions.suggestedBullets
     const [ form, setForm ] = useState({
         template: template,
         resetOrder: false,
@@ -114,6 +115,7 @@ export const PreviewPanel: React.FC = () => {
             loading and as a result, it doesn't get parsed properly.
         */
         requestAnimationFrame(() => {
+            const suggestedIds = new Set(suggestedBullets.map((sb) => sb.id));
             document.querySelectorAll(".linkAnnotation").forEach((section) => {
                 const anchor = section.querySelector<HTMLAnchorElement>("a");
                 if (!anchor) return;
@@ -125,11 +127,14 @@ export const PreviewPanel: React.FC = () => {
                     (section as HTMLElement).dataset.regionId = regionId;
                     anchor.removeAttribute("href");
                     anchor.removeAttribute("title");
+                    if (suggestedIds.has(regionId)) {
+                        (section as HTMLElement).classList.add("has-suggestion");
+                    }
                 }
 
             });
         })
-    }, [])
+    }, [suggestedBullets])
 
     /* 
         handle the clicks to retrieve the region id 
@@ -178,7 +183,18 @@ export const PreviewPanel: React.FC = () => {
             )?.classList.add("is-hovered");
         }
     }, [hoveredBulletId]);
- 
+
+    // when suggestedBullets changes, sync has-suggestion classes on the annotation layer
+    useEffect(() => {
+        document.querySelectorAll(".linkAnnotation.has-suggestion").forEach((el) => {
+            el.classList.remove("has-suggestion");
+        });
+        suggestedBullets.forEach(({ id }) => {
+            document.querySelector(`.linkAnnotation[data-region-id="${id}"]`)
+                ?.classList.add("has-suggestion");
+        });
+    }, [suggestedBullets]);
+
     const isFirstRendering = previousRenderUrl === null;
     const isLatestValueRendered = previousRenderUrl === render.value;
     // Exclude error state so a failed render doesn't permanently lock isBusy=true.
