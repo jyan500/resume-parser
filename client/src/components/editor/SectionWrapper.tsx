@@ -57,7 +57,9 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
     return (
         <div ref={ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-3">
             {/* Section header */}
-            <div className="flex items-center justify-between gap-x-2 px-4 py-3 border-b border-slate-100 bg-white">
+            <div onClick={(e) => {
+                dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: !toggleVisibility[sectionKey]}))
+            }} className="hover:bg-slate-100 hover:cursor-pointer flex items-center justify-between gap-x-2 px-4 py-3 border-b border-slate-100 bg-white">
                 <div className="flex items-center gap-2">
                     {/* Section-level drag handle — only rendered for orderable sections */}
                     {dragHandleProps && (
@@ -70,7 +72,6 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                         </button>
                     )}
                     <button
-                        onClick={() => dispatch(toggleSectionCollapseVisibility({key: sectionKey, isOpen: !toggleVisibility[sectionKey]}))}
                         className="text-slate-700 hover:text-slate-900 transition-colors"
                     >
                         <ChevronDown
@@ -86,11 +87,15 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                                 onChange={onTitleChange}
                                 onBlur={handleBlur}
                                 onKeyDown={handleKeyDown}
+                                onClick={(e) => e.stopPropagation()}
                                 className="text-sm font-semibold text-slate-800 bg-transparent border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent w-48"
                             />
                             {defaultTitle && (
                                 <button
-                                    onClick={handleReset}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handleReset()
+                                    }}
                                     className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
                                     aria-label="Reset to default title"
                                     onMouseDown={(e) => e.preventDefault()}
@@ -104,7 +109,10 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                             <span className="text-sm font-semibold text-slate-800">{title}</span>
                             {onTitleChange && (
                                 <button
-                                    onClick={handlePencilClick}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        handlePencilClick()
+                                    }}
                                     className="text-slate-400 hover:text-slate-500 transition-colors flex-shrink-0"
                                     aria-label="Edit section title"
                                 >
@@ -114,11 +122,14 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                         </>
                     )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {rightSlot}
                     {onToggleVisibility && (
                         <button
-                            onClick={onToggleVisibility}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                onToggleVisibility()
+                            }}
                             title={visible ? "Hide section" : "Show section"}
                             aria-label={visible ? "Hide section" : "Show section"}
                             className={`flex items-center justify-center p-1.5 rounded-md transition-colors duration-150 ${
