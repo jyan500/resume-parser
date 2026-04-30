@@ -53,7 +53,7 @@ class TestParseResumePDF:
     def test_parse_pdf_success(self, parser, tmp_path):
         fake_pdf = tmp_path / "resume.pdf"
         fake_pdf.write_bytes(b"fake")
-        parser.client = make_mock_client()
+        parser.llm_client.client = make_mock_client()
 
         with patch.object(parser, "_parse_pdf", return_value=RESUME_TEXT_WITH_SECTIONS):
             result = parser.parse_resume(str(fake_pdf))
@@ -65,13 +65,13 @@ class TestParseResumePDF:
     def test_parse_pdf_uploads_and_deletes_file(self, parser, tmp_path):
         fake_pdf = tmp_path / "resume.pdf"
         fake_pdf.write_bytes(b"fake")
-        parser.client = make_mock_client()
+        parser.llm_client.client = make_mock_client()
 
         with patch.object(parser, "_parse_pdf", return_value=RESUME_TEXT_WITH_SECTIONS):
             parser.parse_resume(str(fake_pdf))
 
-        parser.client.files.upload.assert_called_once()
-        parser.client.files.delete.assert_called_once()
+        parser.llm_client.client.files.upload.assert_called_once()
+        parser.llm_client.client.files.delete.assert_called_once()
 
     def test_parse_pdf_invalid_json_response_raises(self, parser, tmp_path):
         fake_pdf = tmp_path / "resume.pdf"
@@ -87,7 +87,7 @@ class TestParseResumeDOCX:
     def test_parse_docx_success(self, parser, tmp_path):
         fake_docx = tmp_path / "resume.docx"
         fake_docx.write_bytes(b"fake")
-        parser.client = make_mock_client()
+        parser.llm_client.client = make_mock_client()
 
         with patch.object(parser, "_parse_docx", return_value=RESUME_TEXT_WITH_SECTIONS):
             result = parser.parse_resume(str(fake_docx))
@@ -98,12 +98,12 @@ class TestParseResumeDOCX:
     def test_parse_docx_does_not_upload_file(self, parser, tmp_path):
         fake_docx = tmp_path / "resume.docx"
         fake_docx.write_bytes(b"fake")
-        parser.client = make_mock_client()
+        parser.llm_client.client = make_mock_client()
 
         with patch.object(parser, "_parse_docx", return_value=RESUME_TEXT_WITH_SECTIONS):
             parser.parse_resume(str(fake_docx))
 
-        parser.client.files.upload.assert_not_called()
+        parser.llm_client.client.files.upload.assert_not_called()
 
 
 class TestParseResumeValidation:
