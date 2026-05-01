@@ -6,13 +6,62 @@ from typing import Any, Literal
 from utils.leniency import LENIENCY_LEVEL_NAMES, DEFAULT_LENIENCY
 import traceback
 
-JD_ANCHOR_KEYWORDS = [
-    "responsibilities", "requirements", "qualifications",
-    "experience", "skills", "you will", "we are looking",
-    "what you'll do", "about the role", "benefits", "compensation"
+JD_KEYWORD_GROUPS = [
+    # Role description
+    [
+        "responsibilities", "you will", "what you'll do", "day-to-day",
+        "in this role", "about the role", "role overview", "your role",
+        "what you do", "job duties", "primary duties",
+    ],
+    # Requirements / qualifications
+    [
+        "requirements", "qualifications", "required", "must have", "must-have",
+        "minimum qualifications", "basic qualifications", "preferred qualifications",
+        "what you bring", "what we're looking for", "who we're looking for",
+        "we are looking for", "what you need", "your background",
+        "desired skills", "prerequisites",
+    ],
+    # Skills / experience
+    [
+        "skills", "experience", "expertise",
+        "years of experience", "proficiency in", "knowledge of", "background in",
+    ],
+    # Company / benefits
+    [
+        "we offer", "about us", "about the company", "our team",
+        "join us", "why us", "benefits", "compensation", "perks", "what we offer",
+    ],
+    # Application process
+    [
+        "apply now", "to apply", "equal opportunity", "eeo",
+        "interview process", "hiring process",
+    ],
 ]
 
-JD_ANCHOR_MIN_MATCHES = 2
+_JD_STRUCTURAL_PATTERNS = [re.compile(p, re.IGNORECASE) for p in [
+    r"\d+\s*(?:\+|or\s+more)?\s*years?\b",
+    r"\b(?:full[- ]?time|part[- ]?time|contract|remote|hybrid|on[- ]?site)\b",
+    r"(?:\$[\d,]+|\d+k)\s*(?:–|-|to)\s*(?:\$[\d,]+|\d+k)",
+    r"\b(?:bachelor(?:'s)?|master(?:'s)?|ph\.?d\.?|doctorate)\b",
+]]
+
+JD_MIN_SCORE = 2
+
+
+def _score_job_description(text: str) -> int:
+    lower = text.lower()
+    score = 0
+    # each successful pattern match results increments the score
+    for group in JD_KEYWORD_GROUPS:
+        if any(kw in lower for kw in group):
+            score += 1
+    for pattern in _JD_STRUCTURAL_PATTERNS:
+        if pattern.search(text):
+            score += 1
+    # locate a bulleted list inside the job description text, as this likely signals it's a JD
+    if len(re.findall(r"^\s*[-•*◦▪▸►✓✔]\s", text, re.MULTILINE)) >= 3:
+        score += 1
+    return score
 
 # detect common prompt injection phrases like "ignore previous instructions and do ..."
 _INJECTION_PATTERNS = [
@@ -76,8 +125,7 @@ class _ResumeJobBase(BaseModel):
                 "Job description is too long. Try pasting only the responsibilities "
                 "and requirements sections (max 15,000 characters)."
             )
-        matches = sum(1 for kw in JD_ANCHOR_KEYWORDS if kw in v.lower())
-        if matches < JD_ANCHOR_MIN_MATCHES:
+        if _score_job_description(v) < JD_MIN_SCORE:
             raise ValueError(
                 "This doesn't look like a job description. Please paste the full posting "
                 "including responsibilities and requirements."

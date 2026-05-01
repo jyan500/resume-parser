@@ -25,6 +25,7 @@ import type {
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
 type TargetJobViewMode = "form" | "suggestions"
+export type TailorLeniency = "strict" | "variants" | "full"
 export const ORDERS = {
     "modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
     "classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
@@ -137,7 +138,7 @@ const defaultState: ResumeState = {
     focusedRegionId: null,
     hoveredBulletId: null,
     targetJobViewMode: "form",
-    isDarkMode: false
+    isDarkMode: false,
 }
 
 export const initialState: ResumeState = {

@@ -336,3 +336,4 @@ describe('updateHeader', () => {
         expect(state.isDirty).toBe(true)
     })
 })
+
