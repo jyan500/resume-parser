@@ -4,6 +4,8 @@ import { useAppDispatch, useAppSelector } from "../../store";
 import { useGetMissingKeywordsMutation, useTailorResumeMutation } from "../../api/public/resume";
 import { useTurnstile } from "../../contexts/TurnstileContext";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
+import type { CustomError }  from "../../types/api"
+import type { SerializedError } from "@reduxjs/toolkit"
 import {
     setSuggestions,
     dismissSuggestion,
@@ -36,8 +38,8 @@ export const TargetJobPanel: React.FC = () => {
     const { resume, targetJobViewMode: view, suggestions } = useAppSelector((s) => s.resume);
     const dispatch = useAppDispatch();
     const { resetToken } = useTurnstile();
-    const [getMissingKeywords, { isLoading: isLoadingKeywords, error: keywordsError }] = useGetMissingKeywordsMutation();
-    const [tailorResume, { isLoading: isLoadingTailor, error: tailorError }] = useTailorResumeMutation();
+    const [getMissingKeywords, { error: keywordsError }] = useGetMissingKeywordsMutation();
+    const [tailorResume, { error: tailorError }] = useTailorResumeMutation();
     const [ isLoading, setIsLoading ] = useState(false)
     const error = keywordsError ?? tailorError;
 
@@ -133,7 +135,7 @@ export const TargetJobPanel: React.FC = () => {
 interface FormViewProps {
     onFormSubmit: (e?: React.BaseSyntheticEvent) => void;
     isLoading: boolean;
-    error: unknown;
+    error: SerializedError | CustomError | null | undefined;
 }
 
 const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) => {
@@ -245,7 +247,7 @@ interface SuggestionsViewProps {
     onTryAnotherJob: () => void;
     onRerun: (leniency: TailorLeniency) => void;
     isLoading: boolean;
-    error: unknown;
+    error: SerializedError | CustomError | null | undefined;
 }
 
 const SuggestionsView: React.FC<SuggestionsViewProps> = ({
