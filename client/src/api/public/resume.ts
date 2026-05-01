@@ -1,5 +1,6 @@
 import { TAILOR_RESUME_URL, MISSING_KEYWORDS_URL, PARSE_RESUME_URL } from "../../helpers/urls";
 import type { Keyword, Resume, ResumeSuggestion } from "../../types/resume";
+import type { TailorLeniency } from "../../slices/resumeSlice";
 import { type ServerResumeSchema, mapServerResumeToClient } from "../helpers/serverResume";
 import { type ServerTailorResumeSchema, mapServerTailorResumeToClient } from "../helpers/serverTailorResume";
 import { type ServerMissingKeywordsSchema, mapServerMissingKeywordsToClient } from "../helpers/serverMissingKeywords";
@@ -27,6 +28,7 @@ export interface TailorRequest {
     jobTitle: string;
     jobDescription: string;
     missingKeywords: Array<Pick<Keyword, "text" | "type">>;
+    promptVersion?: TailorLeniency;
 }
 
 export interface HealthResponse {
@@ -88,9 +90,7 @@ export const resumeApi = publicApi.injectEndpoints({
                         "experience": body.resume?.experience ?? [],
                     },
                     missingKeywords: body.missingKeywords,
-                    // TODO: add the "strictness" configuration in the future
-                    // this is defaulted to the "add plausible keywords" configuration
-                    promptVersion: "variants"
+                    promptVersion: body.promptVersion ?? "variants"
                 }
             }),
             transformResponse: (raw: TailorResumeServerResponse) =>

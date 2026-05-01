@@ -53,7 +53,7 @@ class TailorResume:
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
-            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.8
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=.8
         )
         return schema_response.model_dump()
 

@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useGetMissingKeywordsMutation, useTailorResumeMutation } from "../../api/public/resume";
 import { useTurnstile } from "../../contexts/TurnstileContext";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
+import type { CustomError }  from "../../types/api"
+import type { SerializedError } from "@reduxjs/toolkit"
 import {
     setSuggestions,
     dismissSuggestion,
@@ -16,6 +18,7 @@ import {
     toggleSectionCollapseVisibility,
     setSubToggleVisibility,
     type ContainsBullets,
+    type TailorLeniency,
 } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 import { Input } from "../page-elements/Input";
@@ -26,13 +29,71 @@ import { TextArea } from "../page-elements/TextArea"
 interface TargetJobForm {
     jobTitle: string;
     jobDescription: string;
+    leniency: TailorLeniency;
 }
 
 // ─── Panel root ───────────────────────────────────────────────────────────────
 
 export const TargetJobPanel: React.FC = () => {
     const { resume, targetJobViewMode: view, suggestions } = useAppSelector((s) => s.resume);
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
+    const { resetToken } = useTurnstile();
+    const [getMissingKeywords, { error: keywordsError }] = useGetMissingKeywordsMutation();
+    const [tailorResume, { error: tailorError }] = useTailorResumeMutation();
+    const [ isLoading, setIsLoading ] = useState(false)
+    const error = keywordsError ?? tailorError;
+
+    const methods = useForm<TargetJobForm>({
+        defaultValues: { jobTitle: "", jobDescription: "", leniency: "variants" },
+    });
+    const leniency = methods.watch("leniency");
+
+    const handleTailor = async (title: string, description: string, curLeniency: TailorLeniency) => {
+        try {
+            setIsLoading(true)
+            const missingKeywords = await getMissingKeywords({
+                resume,
+                jobDescription: description,
+                jobTitle: title,
+            }).unwrap();
+            const tailorResult = await tailorResume({
+                resume,
+                jobDescription: description,
+                jobTitle: title,
+                missingKeywords: missingKeywords.map(({ text, type }) => ({ text, type })),
+                promptVersion: curLeniency,
+            }).unwrap();
+            dispatch(setSuggestions({ ...tailorResult, missingKeywords }));
+            dispatch(setTargetJobViewMode("suggestions"));
+            resetToken();
+            setIsLoading(false)
+        } catch (_) {
+            // Error is surfaced by <ErrorDisplay />
+        }
+    };
+
+    const handleRetarget = () => {
+        dispatch(setHoveredBulletId(null));
+        dispatch(setSuggestions({ missingKeywords: [], suggestedBullets: [], numSuggestions: 0 }));
+        dispatch(setTargetJobViewMode("form"));
+    };
+
+    const handleTryAnotherJob = () => {
+        methods.setValue("jobTitle", "");
+        methods.setValue("jobDescription", "");
+        handleRetarget();
+    };
+
+    const handleRerun = (newLeniency: TailorLeniency) => {
+        methods.setValue("leniency", newLeniency);
+        const { jobTitle, jobDescription } = methods.getValues();
+        handleTailor(jobTitle, jobDescription, newLeniency);
+    };
+
+    const onSubmit = methods.handleSubmit((data) =>
+        handleTailor(data.jobTitle, data.jobDescription, data.leniency)
+    );
+
 
     return (
         <div className="flex flex-col h-full bg-white overflow-hidden">
@@ -43,25 +104,28 @@ export const TargetJobPanel: React.FC = () => {
                 </h2>
             </div>
 
-            {view === "form" ? (
-                <FormView resume={resume}/>
-            ) : (
-                <SuggestionsView
-                    suggestedBullets={suggestions.suggestedBullets}
-                    missingKeywords={suggestions.missingKeywords}
-                    numSuggestions={suggestions.numSuggestions}
-                    resume={resume}
-                    onRetarget={() => {
-                        dispatch(setHoveredBulletId(null))
-                        dispatch(setSuggestions({
-                            missingKeywords: [],
-                            suggestedBullets: [],
-                            numSuggestions: 0,
-                        }))
-                        dispatch(setTargetJobViewMode("form"))
-                    }}
-                />
-            )}
+            <FormProvider {...methods}>
+                {view === "form" ? (
+                    <FormView
+                        onFormSubmit={onSubmit}
+                        isLoading={isLoading}
+                        error={error}
+                    />
+                ) : (
+                    <SuggestionsView
+                        suggestedBullets={suggestions.suggestedBullets}
+                        missingKeywords={suggestions.missingKeywords}
+                        numSuggestions={suggestions.numSuggestions}
+                        resume={resume}
+                        leniency={leniency}
+                        onRetarget={handleRetarget}
+                        onTryAnotherJob={handleTryAnotherJob}
+                        onRerun={handleRerun}
+                        isLoading={isLoading}
+                        error={error}
+                    />
+                )}
+            </FormProvider>
         </div>
     );
 };
@@ -69,30 +133,14 @@ export const TargetJobPanel: React.FC = () => {
 // ─── Form view ────────────────────────────────────────────────────────────────
 
 interface FormViewProps {
-    resume: Resume
+    onFormSubmit: (e?: React.BaseSyntheticEvent) => void;
+    isLoading: boolean;
+    error: SerializedError | CustomError | null | undefined;
 }
 
-const FormView: React.FC<FormViewProps> = ({
-    resume
-}) => {
-    const { resetToken } = useTurnstile();
-    const [getMissingKeywords, { isLoading: isLoadingKeywords, error: keywordsError }] = useGetMissingKeywordsMutation();
-    const [tailorResume, { isLoading: isLoadingTailor, error: tailorError }] = useTailorResumeMutation();
-    const isLoading = isLoadingKeywords || isLoadingTailor;
-    const error = keywordsError ?? tailorError;
-    const [preloadedValues] = useState({
-        jobTitle: "",
-        jobDescription: "",
-    })
-
-    const dispatch = useAppDispatch();
-    const methods = useForm<TargetJobForm>({
-        defaultValues: preloadedValues
-    });
-    const {
-        handleSubmit,
-        formState: { errors },
-    } = methods;
+const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) => {
+    const { formState: { errors }, watch, setValue } = useFormContext<TargetJobForm>();
+    const leniency = watch("leniency");
 
     const registerOptions = {
         jobTitle: {
@@ -113,80 +161,77 @@ const FormView: React.FC<FormViewProps> = ({
         }
     }
 
-    const onSubmit = async (data: TargetJobForm) => {
-        try {
-            const missingKeywords = await getMissingKeywords({
-                resume,
-                jobDescription: data.jobDescription,
-                jobTitle: data.jobTitle,
-            }).unwrap();
-            const tailorResult = await tailorResume({
-                resume,
-                jobDescription: data.jobDescription,
-                jobTitle: data.jobTitle,
-                missingKeywords: missingKeywords.map(({ text, type }) => ({ text, type })),
-            }).unwrap();
-            dispatch(setSuggestions({ ...tailorResult, missingKeywords }));
-            dispatch(setTargetJobViewMode("suggestions"));
-            resetToken();
-        } catch (_) {
-            // Error is surfaced by <ErrorDisplay />
-        }
-    };
     return (
-        <FormProvider {...methods}>
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5"
+        <form
+            onSubmit={onFormSubmit}
+            className="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5"
+        >
+            {/* Job Title */}
+            <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-slate-600">Job Title</label>
+                <Input
+                    placeholder={"Paste the job title here..."}
+                    name="jobTitle"
+                    registerOptions={registerOptions.jobTitle}
+                />
+                {errors.jobTitle?.message ? (
+                    <p className="text-xs text-red-500">{errors.jobTitle.message}</p>
+                ) : null}
+            </div>
+
+            {/* Job Description */}
+            <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-slate-600">Job Description</label>
+                <TextArea
+                    placeholder="Paste the job description here to get tailored suggestions..."
+                    rows={10}
+                    name={"jobDescription"}
+                    registerOptions={registerOptions.jobDescription}
+                />
+                {errors.jobDescription?.message ? (
+                    <p className="text-xs text-red-500">{errors.jobDescription.message}</p>
+                ) : null}
+            </div>
+
+            {/* Keyword matching leniency */}
+            <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-slate-600">Keyword matching</label>
+                <div className="grid grid-cols-3 gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
+                    {([
+                        { value: "strict",   label: "Conservative", sub: "Rephrasing only"  },
+                        { value: "variants", label: "Balanced",      sub: "Adds keywords when fitting" },
+                        { value: "full",     label: "Lenient",       sub: "Adds keywords freely" },
+                    ] as { value: TailorLeniency; label: string; sub: string }[]).map(({ value, label, sub }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => setValue("leniency", value)}
+                            className={`flex flex-col items-center py-2 px-1 rounded-md text-center transition-colors ${
+                                leniency === value
+                                    ? "bg-white shadow-sm border border-slate-200 text-slate-800"
+                                    : "text-slate-400 hover:text-slate-600"
+                            }`}
+                        >
+                            <span className="text-xs font-medium leading-tight">{label}</span>
+                            <span className="text-[10px] leading-tight mt-0.5">{sub}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <Button
+                variant="primary"
+                size="md"
+                type="submit"
+                isLoading={isLoading}
+                loadingText="Generating…"
+                icon={<Sparkles className="w-4 h-4" strokeWidth={2} />}
+                className="w-full"
             >
-                {/* Job Title */}
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-slate-600">Job Title</label>
-                    <Input
-                        placeholder={"Paste the job title here..."}
-                        name="jobTitle"
-                        registerOptions={registerOptions.jobTitle}
-                    />
-                    {
-                        errors.jobTitle?.message ? 
-                        <p className="text-xs text-red-500">
-                            {errors.jobTitle?.message}
-                        </p>
-                        : null
-                    }
-                </div>
-
-                {/* Job Description */}
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-medium text-slate-600">Job Description</label>
-                    <TextArea
-                        placeholder="Paste the job description here to get tailored suggestions..."
-                        rows={10}
-                        name={"jobDescription"}
-                        registerOptions={registerOptions.jobDescription}
-                    />
-                    {
-                        errors.jobDescription?.message ? 
-                        <p className="text-xs text-red-500">
-                            {errors.jobDescription?.message}
-                        </p> : null
-                    }
-                </div>
-
-                <Button
-                    variant="primary"
-                    size="md"
-                    type="submit"
-                    isLoading={isLoading}
-                    loadingText="Generating…"
-                    icon={<Sparkles className="w-4 h-4" strokeWidth={2} />}
-                    className="w-full"
-                >
-                    Get Feedback
-                </Button>
-                <ErrorDisplay error={error} />
-            </form>
-        </FormProvider>
+                Get Feedback
+            </Button>
+            <ErrorDisplay error={error} />
+        </form>
     )
 };
 
@@ -197,14 +242,24 @@ interface SuggestionsViewProps {
     missingKeywords: Keyword[];
     numSuggestions: number;
     resume: Resume;
+    leniency: TailorLeniency;
     onRetarget: () => void;
+    onTryAnotherJob: () => void;
+    onRerun: (leniency: TailorLeniency) => void;
+    isLoading: boolean;
+    error: SerializedError | CustomError | null | undefined;
 }
 
 const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     suggestedBullets,
     numSuggestions,
     resume,
+    leniency,
     onRetarget,
+    onTryAnotherJob,
+    onRerun,
+    isLoading,
+    error,
     missingKeywords,
 }) => {
     const dispatch = useAppDispatch();
@@ -267,6 +322,28 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
     }
 
     const allDone = numSuggestions > 0 && suggestedBullets.length === 0;
+    const noSuggestions = numSuggestions === 0;
+
+    const NO_SUGGESTIONS_COPY: Record<TailorLeniency, { body: string }> = {
+        strict: {
+            body: "Conservative mode only improves phrasing — it won't add keywords that aren't already in your resume. Try Balanced or Lenient to see keyword additions.",
+        },
+        variants: {
+            body: "Your bullets may already use the right terminology for this role. Try Lenient to explore broader keyword additions.",
+        },
+        full: {
+            body: "The AI had full flexibility but couldn't find meaningful improvements — your bullets may already be well-suited for this role.",
+        },
+    };
+
+    if (isLoading) {
+        return (
+            <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                <div className="w-5 h-5 border-2 border-brand-accent border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-slate-400">Analyzing your resume…</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-4 py-6 overflow-y-auto">
@@ -345,7 +422,7 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                             <p className="text-xs text-slate-400 mt-0.5">Your resume has been tailored.</p>
                         </div>
                         <button
-                            onClick={onRetarget}
+                            onClick={onTryAnotherJob}
                             className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors"
                         >
                             <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
@@ -353,6 +430,54 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
                         </button>
                     </div>
                 )}
+
+                {/* ── No suggestions state ── */}
+                {noSuggestions && (
+                    <div className="flex flex-col items-center gap-3 py-8 text-center">
+                        <div>
+                            <p className="text-sm font-medium text-slate-700">No rewrites suggested at this setting.</p>
+                            <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                                {NO_SUGGESTIONS_COPY[leniency].body}
+                            </p>
+                        </div>
+                        <div className="flex flex-wrap justify-center gap-2">
+                            {leniency === "strict" && (
+                                <>
+                                    <button
+                                        onClick={() => onRerun("variants")}
+                                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                                    >
+                                        Try Balanced
+                                    </button>
+                                    <button
+                                        onClick={() => onRerun("full")}
+                                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                                    >
+                                        Try Lenient
+                                    </button>
+                                </>
+                            )}
+                            {leniency === "variants" && (
+                                <button
+                                    onClick={() => onRerun("full")}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                                >
+                                    Try Lenient
+                                </button>
+                            )}
+                            {leniency === "full" && (
+                                <button
+                                    onClick={onTryAnotherJob}
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-xs font-medium text-slate-600 hover:text-slate-800 transition-colors"
+                                >
+                                    <RefreshCw className="w-3 h-3" strokeWidth={2.5} />
+                                    Try another job
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                )}
+                <ErrorDisplay error={error} />
 
                 {/* ── Missing Keywords ── */}
                 {missingKeywords.length > 0 && (
