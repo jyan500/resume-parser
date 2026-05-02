@@ -15,6 +15,9 @@ Fill the JSON schema with:
     "enabling Y", "improving Z") — NOT a "which" relative clause. "Which" clauses weaken
     active tone by shifting subsequent verbs to past tense.
   * {{keyword_instruction}}
+  * Do NOT remove any keyword, technology, programming language, tool, or domain-specific
+    term that already appears in the original bullet. Every original keyword must be
+    preserved in the rewrite.
 
 ##SPLIT##
 

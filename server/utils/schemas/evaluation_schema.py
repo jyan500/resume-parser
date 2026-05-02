@@ -15,6 +15,7 @@ class BulletEvaluation(BaseModel):
     rule_3_no_fabricated_metrics: RuleVerdict
     rule_4_no_fabricated_experience: RuleVerdict
     rule_5_no_ai_sounding_language: RuleVerdict
+    rule_6_no_removed_keywords: RuleVerdict
     failed_rules_summary: str  # empty string if all pass
 
 

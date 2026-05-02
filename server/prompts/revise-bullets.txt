@@ -17,12 +17,17 @@ RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate c
   "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer plain,
   concrete verbs: "built", "wrote", "shipped", "added", "fixed", "designed", "ran",
   "led", "reduced", "increased", "set up", "migrated".
+RULE 6 — No keywords removed from original: All technical keywords, technologies,
+  tools, programming languages, and domain-specific terms from the original bullet
+  must be preserved in the revised bullet.
 
 [Constraints]
 - Fix ONLY the rules that are marked as failed. Do not change anything else.
 - Preserve the original meaning and technical content.
 - Do NOT invent experiences or skills the candidate does not have.
 - Do NOT use percentages or numbers unless the job is in sales or leadership.
+- Do NOT remove any keyword, technology, tool, or domain-specific term that appears
+  in the original bullet text.
 - Include the original text as the "text" field and the revised bullet as the "new_text" field.
 
 ##SPLIT##

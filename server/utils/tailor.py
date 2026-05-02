@@ -28,6 +28,7 @@ RULE_FIELDS = [
     "rule_3_no_fabricated_metrics",
     "rule_4_no_fabricated_experience",
     "rule_5_no_ai_sounding_language",
+    "rule_6_no_removed_keywords",
 ]
 
 
