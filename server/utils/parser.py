@@ -39,7 +39,7 @@ class ResumeParser:
                 if not myfile:
                     raise Exception("Something went wrong while uploading")
                 parsed_resume = self.llm_client.generate_response(
-                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0, file=myfile
+                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0, file=myfile, filepath=filepath
                 )
                 self.llm_client.delete_file(myfile)
 

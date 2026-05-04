@@ -47,14 +47,14 @@ def _is_trivial_change(original: str, new_text: str) -> bool:
 
 class TailorResume:
     def __init__(self):
-        self.client = LLMClient("gemini")
+        self.client = LLMClient("openai")
         self._main_template = Template(load_prompt("tailor-resume-job"))
         self._evaluate_template = Template(load_prompt("evaluate-bullets"))
         self._revise_template = Template(load_prompt("revise-bullets"))
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
-            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=.8
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.0
         )
         return schema_response.model_dump()
 

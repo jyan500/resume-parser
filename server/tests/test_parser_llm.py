@@ -1,6 +1,7 @@
 import json
 import pytest
 from unittest.mock import MagicMock, patch
+from google.genai import errors as genai_errors
 
 RESUME_TEXT_WITH_SECTIONS = (
     "Jane Doe\njane@test.com\n\nExperience\nSoftware Engineer at Acme 2021-Present\n"
@@ -81,6 +82,36 @@ class TestParseResumePDF:
         with patch.object(parser, "_parse_pdf", return_value=RESUME_TEXT_WITH_SECTIONS):
             with pytest.raises(Exception):
                 parser.parse_resume(str(fake_pdf))
+
+    def test_parse_pdf_gemini_503_falls_back_to_openai(self, parser, tmp_path):
+        fake_pdf = tmp_path / "resume.pdf"
+        fake_pdf.write_bytes(b"fake")
+        parser.llm_client.client = make_mock_client()
+
+        server_error = genai_errors.ServerError(code=503, response_json={"error": {"status": "UNAVAILABLE"}})
+        parser.llm_client.client.models.generate_content.side_effect = server_error
+
+        mock_openai = MagicMock()
+        mock_uploaded_file = MagicMock()
+        mock_uploaded_file.id = "file-abc123"
+        mock_openai.files.create.return_value = mock_uploaded_file
+
+        from utils.schemas.schema import ResumeSchema
+        parsed_schema = ResumeSchema.model_validate_json(MINIMAL_RESUME_SCHEMA_JSON)
+        mock_parse_response = MagicMock()
+        mock_parse_response.choices[0].message.parsed = parsed_schema
+        mock_openai.beta.chat.completions.parse.return_value = mock_parse_response
+
+        parser.llm_client._openai_fallback = mock_openai
+
+        with patch.object(parser, "_parse_pdf", return_value=RESUME_TEXT_WITH_SECTIONS):
+            result = parser.parse_resume(str(fake_pdf))
+
+        mock_openai.files.create.assert_called_once()
+        mock_openai.beta.chat.completions.parse.assert_called_once()
+        mock_openai.files.delete.assert_called_once_with(mock_uploaded_file.id)
+        assert isinstance(result, dict)
+        assert "header" in result
 
 
 class TestParseResumeDOCX:
