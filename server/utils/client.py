@@ -117,7 +117,7 @@ class LLMClient:
                 uploaded_file = client.files.create(file=f, purpose="user_data")
             content = [
                 {"type": "text", "text": prompt},
-                {"type": "input_file", "input_file": {"file_id": uploaded_file.id}},
+                {"type": "file", "file": {"file_id": uploaded_file.id}},
             ]
             messages = []
             if system_prompt:
