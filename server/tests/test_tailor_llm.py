@@ -24,17 +24,30 @@ RESUME_JSON = json.dumps({
 
 
 class TestTailorResumeSuccess:
-    def test_returns_dict_with_suggested_bullets(self, tailor):
+    def test_returns_dict_with_suggested_bullets_using_evaluation_loop(self, tailor):
         tailor._generate = MagicMock(return_value={"suggested_bullets": [
             {"id": "b1", "text": "Built REST APIs.", "new_text": "Designed scalable REST APIs."}
         ]})
         tailor._run_evaluation_loop = MagicMock(side_effect=lambda r, c, l: r)
+        tailor.use_evaluation_loop = True
 
         result = tailor.tailor_resume(RESUME_JSON, "Software Engineer", VALID_JD)
 
         assert "suggested_bullets" in result
         tailor._generate.assert_called_once()
         tailor._run_evaluation_loop.assert_called_once()
+
+    def test_returns_dict_with_suggested_bullets_not_using_evaluation_loop(self, tailor):
+        tailor._generate = MagicMock(return_value={"suggested_bullets": [
+            {"id": "b1", "text": "Built REST APIs.", "new_text": "Designed scalable REST APIs."}
+        ]})
+        tailor._run_evaluation_loop = MagicMock(side_effect=lambda r, c, l: r)
+        tailor.use_evaluation_loop = False 
+
+        result = tailor.tailor_resume(RESUME_JSON, "Software Engineer", VALID_JD)
+
+        assert "suggested_bullets" in result
+        tailor._generate.assert_called_once()
 
 
 class TestTailorResumeErrors:
