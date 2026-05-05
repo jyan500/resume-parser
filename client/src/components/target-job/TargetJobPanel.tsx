@@ -69,6 +69,7 @@ export const TargetJobPanel: React.FC = () => {
             setIsLoading(false)
         } catch (_) {
             // Error is surfaced by <ErrorDisplay />
+            setIsLoading(false)
         }
     };
 
@@ -329,10 +330,10 @@ const SuggestionsView: React.FC<SuggestionsViewProps> = ({
             body: "Conservative mode only improves phrasing — it won't add keywords that aren't already in your resume. Try Balanced or Lenient to see keyword additions.",
         },
         variants: {
-            body: "Your bullets may already use the right terminology for this role. Try Lenient to explore broader keyword additions.",
+            body: "Your bullets may already use the right keywords for this role. Try Lenient to explore broader keyword additions.",
         },
         full: {
-            body: "The AI had full flexibility but couldn't find meaningful improvements — your bullets may already be well-suited for this role.",
+            body: "No meaningful improvements found.",
         },
     };
 

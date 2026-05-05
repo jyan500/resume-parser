@@ -15,6 +15,7 @@ def make_eval(bullet_id, passing=True):
         rule_3_no_fabricated_metrics=RuleVerdict.PASS,
         rule_4_no_fabricated_experience=RuleVerdict.PASS,
         rule_5_no_ai_sounding_language=RuleVerdict.PASS,
+        rule_6_no_removed_keywords=RuleVerdict.PASS,
         failed_rules_summary="" if passing else "rule_1 failed",
     )
 

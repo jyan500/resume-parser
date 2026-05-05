@@ -9,6 +9,11 @@ Fill the JSON schema with:
 - suggested_bullets:
   * Include the original id as the id field, original text as the text field, and the rewritten bullet point as the new_text field.
   * Only return bullets that you are actually rewriting — do not echo bullets you would leave unchanged.
+  * Each bullet must follow a What → How → Impact structure: name the skill or technology used
+    (WHAT), describe the specific way it was applied (HOW), and state the business result or
+    reason for the action (IMPACT). A bullet missing any of these three elements is invalid.
+  * Each bullet must be a single complete sentence. No fragments, run-ons, or multi-sentence
+    bullets. It must not exceed 3 lines on a resume.
   * Do NOT use percentages or numbers unless the job position is in sales or is a leadership position.
   * Write bullets in plain, direct human language. Avoid AI-sounding or flowery corporate clichés such as "leveraged", "optimized", "championed", "spearheaded", "orchestrated", "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer concrete verbs like "built", "wrote", "shipped", "added", "fixed", "designed", "ran", "led", "reduced", "increased", "set up", "migrated".
   * Connect the result/impact to the action using a participial phrase (e.g., "reducing X",

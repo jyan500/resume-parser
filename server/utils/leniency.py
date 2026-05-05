@@ -6,6 +6,9 @@ class LeniencyLevel:
     keyword_instruction: str
     rule_4_eval: str
     rule_4_revise: str
+    rule_6_eval: str
+    rule_6_revise: str
+    rule_no_removal: str
 
 
 LENIENCY_LEVEL_NAMES: dict[str, int] = {
@@ -34,6 +37,22 @@ LENIENCY_LEVELS: dict[int, LeniencyLevel] = {
             "  experiences that were not present in the original bullet text. Only rephrase or\n"
             "  restructure what already exists."
         ),
+        rule_6_eval=(
+            "RULE 6 — No keywords removed from original\n"
+            "  Every technical keyword, technology, programming language, tool, or domain-specific\n"
+            "  term present in the original bullet (the `text` field) must also appear in the\n"
+            "  rewritten bullet (the `new_text` field). No substitutions are permitted.\n"
+            "  If any such term from the original is absent from the rewrite = FAIL."
+        ),
+        rule_6_revise=(
+            "RULE 6 — No keywords removed from original: All technical keywords, technologies,\n"
+            "  tools, programming languages, and domain-specific terms from the original bullet\n"
+            "  must be preserved in the revised bullet. Do NOT remove or substitute any term."
+        ),
+        rule_no_removal=(
+            "Do NOT remove any keyword, technology, programming language, tool, or domain-specific\n"
+            "  term that already appears in the original bullet."
+        ),
     ),
     1: LeniencyLevel(
         keyword_instruction=(
@@ -58,15 +77,40 @@ LENIENCY_LEVELS: dict[int, LeniencyLevel] = {
             "  experiences unrelated to what is already in the original bullet. Version upgrades\n"
             "  or formal aliases of existing technologies (e.g. HTML -> HTML5) are allowed."
         ),
+        rule_6_eval=(
+            "RULE 6 — No keywords removed from original\n"
+            "  Every technical keyword, technology, programming language, tool, or domain-specific\n"
+            "  term present in the original bullet (the `text` field) must also appear in the\n"
+            "  rewritten bullet (the `new_text` field), UNLESS the original term is directly\n"
+            "  replaced by a more specific version or formal alias\n"
+            "  (e.g. HTML -> HTML5, CSS -> CSS3, React.js -> React, JavaScript -> ES6).\n"
+            "  If any such term is absent and not replaced by an upgrade or alias = FAIL."
+        ),
+        rule_6_revise=(
+            "RULE 6 — No keywords removed from original: All technical keywords, technologies,\n"
+            "  tools, programming languages, and domain-specific terms from the original bullet\n"
+            "  must be preserved in the revised bullet, UNLESS directly replaced by a version\n"
+            "  upgrade or formal alias (e.g. HTML -> HTML5, JavaScript -> ES6)."
+        ),
+        rule_no_removal=(
+            "Do NOT remove any keyword, technology, programming language, tool, or domain-specific\n"
+            "  term that already appears in the original bullet, UNLESS you are substituting it\n"
+            "  with a more specific version or formal alias as described above."
+        ),
     ),
     2: LeniencyLevel(
         keyword_instruction=(
-            "You MAY add keywords and qualifications from the job description if they are a "
+            "You SHOULD add keywords and qualifications from the job description if they are a "
             "plausible, natural extension of the work already described in the bullet. A keyword "
             "is plausible if a professional doing exactly the work in the original bullet would "
             "reasonably also work with that keyword in practice (e.g. a bullet about SQL queries "
             "may include 'data modeling' or 'schema migrations'; a bullet about Docker may include "
-            "'containerization'). Do NOT add competing or alternative technologies that serve the "
+            "'containerization')."
+            "You SHOULD substitute or append a more specific version or formal alias of a technology "
+            "already present in the original bullet when the job description calls for it "
+            "(e.g. 'HTML' -> 'HTML5', 'JavaScript' -> 'ES6', 'React' -> 'React.js', "
+            "'Postgres' -> 'PostgreSQL')."
+            "Do NOT add competing or alternative technologies that serve the "
             "same role as something already in the bullet (e.g. do not add 'Java' to a bullet that "
             "uses Node.js, or 'Vue.js' to a bullet that uses React)."
         ),
@@ -90,6 +134,26 @@ LENIENCY_LEVELS: dict[int, LeniencyLevel] = {
             "  any competing or alternative technologies (e.g. Java alongside Node.js, Vue.js\n"
             "  alongside React). Concepts and practices that naturally follow from existing tech\n"
             "  (e.g. data modeling from SQL) are allowed."
+        ),
+        rule_6_eval=(
+            "RULE 6 — No keywords removed from original\n"
+            "  Every technical keyword, technology, programming language, tool, or domain-specific\n"
+            "  term present in the original bullet (the `text` field) must also appear in the\n"
+            "  rewritten bullet (the `new_text` field), UNLESS the original term is directly\n"
+            "  replaced by a more specific version or formal alias\n"
+            "  (e.g. HTML -> HTML5, CSS -> CSS3, React.js -> React, JavaScript -> ES6).\n"
+            "  If any such term is absent and not replaced by an upgrade or alias = FAIL."
+        ),
+        rule_6_revise=(
+            "RULE 6 — No keywords removed from original: All technical keywords, technologies,\n"
+            "  tools, programming languages, and domain-specific terms from the original bullet\n"
+            "  must be preserved in the revised bullet, UNLESS directly replaced by a version\n"
+            "  upgrade or formal alias (e.g. HTML -> HTML5, JavaScript -> ES6)."
+        ),
+        rule_no_removal=(
+            "Do NOT remove any keyword, technology, programming language, tool, or domain-specific\n"
+            "  term that already appears in the original bullet, UNLESS you are substituting it\n"
+            "  with a more specific version or formal alias as described above."
         ),
     ),
 }

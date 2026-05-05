@@ -42,8 +42,10 @@ RULE 5 — No AI-sounding or exaggerated language
   A single occurrence of one of the above words may be acceptable in context, but
   multiple instances or clearly exaggerated phrasing = FAIL.
 
+{{rule_6}}
+
 [Instructions]
-For each bullet in the list below, assign PASS or FAIL to each of the 5 rules.
+For each bullet in the list below, assign PASS or FAIL to each of the 6 rules.
 If any rule is FAIL, write a brief failed_rules_summary explaining what is wrong.
 If all rules are PASS, set failed_rules_summary to an empty string.
 

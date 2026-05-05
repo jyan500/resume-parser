@@ -17,6 +17,7 @@ RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate c
   "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer plain,
   concrete verbs: "built", "wrote", "shipped", "added", "fixed", "designed", "ran",
   "led", "reduced", "increased", "set up", "migrated".
+{{rule_6}}
 
 [Constraints]
 - Fix ONLY the rules that are marked as failed. Do not change anything else.

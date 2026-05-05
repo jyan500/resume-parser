@@ -12,6 +12,7 @@ from utils.constants import (
     MAX_PAGES,
     MAX_WORDS,
     SECTION_PATTERNS,
+    GEMINI_FLASH_LITE_MODEL,
 )
 import zipfile
 import xml.etree.ElementTree as ET
@@ -39,7 +40,7 @@ class ResumeParser:
                 if not myfile:
                     raise Exception("Something went wrong while uploading")
                 parsed_resume = self.llm_client.generate_response(
-                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0, file=myfile
+                    prompt, "ResumeSchema", ResumeSchema, model=GEMINI_FLASH_LITE_MODEL, temperature=0.0, file=myfile, filepath=filepath
                 )
                 self.llm_client.delete_file(myfile)
 
@@ -54,7 +55,7 @@ class ResumeParser:
                 # Gemini doesn't support .docx uploads — send extracted text inline instead
                 prompt = self.textTemplate.render(text=text)
                 parsed_resume = self.llm_client.generate_response(
-                    prompt, "ResumeSchema", ResumeSchema, temperature=0.0
+                    prompt, "ResumeSchema", ResumeSchema, model=GEMINI_FLASH_LITE_MODEL, temperature=0.0
                 )
             else:
                 raise ValueError('Unsupported file format')
