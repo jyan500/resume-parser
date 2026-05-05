@@ -25,7 +25,8 @@ app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY")
 app.config["OPENROUTER_BASE_URL"] = os.environ.get("OPENROUTER_BASE_URL")
 app.config["OPENROUTER_API_KEY"] = os.environ.get("OPENROUTER_API_KEY")
-CORS(app)  # Allow frontend to make requests
+allowed_origins = os.environ.get("ALLOWED_ORIGINS", "http://localhost:5173").split(",")
+CORS(app, origins=allowed_origins)
 
 limiter = Limiter(
     app=app,
