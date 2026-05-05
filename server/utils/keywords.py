@@ -5,6 +5,7 @@ from utils.schemas.keywords_schema import KeywordListSchema
 from utils.schemas.tailor_resume_schema import Keyword
 from utils.functions import load_prompt, split_prompt
 from utils.client import LLMClient
+from utils.constants import GEMINI_FLASH_LITE_MODEL
 
 
 def _collect_bullet_text(resume: dict) -> str:
@@ -50,6 +51,7 @@ class KeywordExtractor:
             user_prompt,
             "KeywordListSchema",
             KeywordListSchema,
+            model=GEMINI_FLASH_LITE_MODEL,
             system_prompt=system_prompt,
             temperature=0.0,
         )

@@ -42,11 +42,7 @@ RULE 5 — No AI-sounding or exaggerated language
   A single occurrence of one of the above words may be acceptable in context, but
   multiple instances or clearly exaggerated phrasing = FAIL.
 
-RULE 6 — No keywords removed from original
-  Every technical keyword, technology, programming language, tool, or domain-specific
-  term present in the original bullet (the `text` field) must also appear in the
-  rewritten bullet (the `new_text` field).
-  If any such term from the original is absent from the rewrite = FAIL.
+{{rule_6}}
 
 [Instructions]
 For each bullet in the list below, assign PASS or FAIL to each of the 6 rules.

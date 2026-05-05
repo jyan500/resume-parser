@@ -14,6 +14,13 @@ from utils.functions import load_prompt, split_prompt
 from utils.client import LLMClient
 from utils.leniency import LENIENCY_LEVELS, LENIENCY_LEVEL_NAMES, DEFAULT_LENIENCY, LeniencyLevel
 from pydantic import BaseModel
+from utils.constants import (
+    GEMINI_FLASH_MODEL, 
+    GEMINI_3_FLASH_LITE_MODEL, 
+    GEMINI_FLASH_LITE_MODEL, 
+    OPENAI_GPT4_1_MINI_MODEL,
+    OPENAI_GPT_5_MINI_MODEL,
+)
 
 
 MAX_REVISION_ROUNDS = 1
@@ -47,14 +54,19 @@ def _is_trivial_change(original: str, new_text: str) -> bool:
 
 class TailorResume:
     def __init__(self):
-        self.client = LLMClient("openai")
+        self._model = "openai"
+        self.client = LLMClient(self._model)
+        self._llm_model = GEMINI_3_FLASH_LITE_MODEL if self._model == "gemini" else OPENAI_GPT_5_MINI_MODEL
         self._main_template = Template(load_prompt("tailor-resume-job"))
+        self._combined_template = Template(load_prompt("tailor-resume-job-combined"))
         self._evaluate_template = Template(load_prompt("evaluate-bullets"))
         self._revise_template = Template(load_prompt("revise-bullets"))
+        # Set to False to use a single-prompt mode (no evaluate/revise loop) for lower cost and latency
+        self.use_evaluation_loop: bool = False
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(
-            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, temperature=0.0
+            prompt, "TailorJobSchema", TailorJobSchema, system_prompt=system_prompt, model=self._llm_model, temperature=1
         )
         return schema_response.model_dump()
 
@@ -67,10 +79,11 @@ class TailorResume:
             job_context=job_context,
             bullets_json=bullets_json,
             rule_4=leniency.rule_4_eval,
+            rule_6=leniency.rule_6_eval,
         )
         system_prompt, user_prompt = split_prompt(rendered)
         result = self.client.generate_response(
-            user_prompt, "EvaluationSchema", EvaluationSchema, system_prompt=system_prompt, temperature=0.0
+            user_prompt, "EvaluationSchema", EvaluationSchema, model=self._llm_model, system_prompt=system_prompt, temperature=0.0
         )
         return result.evaluations
 
@@ -79,10 +92,11 @@ class TailorResume:
             job_context=job_context,
             bullets_with_failures_json=json.dumps(failed_bullets),
             rule_4=leniency.rule_4_revise,
+            rule_6=leniency.rule_6_revise,
         )
         system_prompt, user_prompt = split_prompt(rendered)
         result = self.client.generate_response(
-            user_prompt, "RevisionSchema", RevisionSchema, system_prompt=system_prompt, temperature=0.0
+            user_prompt, "RevisionSchema", RevisionSchema, model=self._llm_model, system_prompt=system_prompt, temperature=0.0
         )
         return [b.model_dump() for b in result.revised_bullets]
 
@@ -140,21 +154,30 @@ class TailorResume:
             idx = LENIENCY_LEVEL_NAMES.get(version, LENIENCY_LEVEL_NAMES[DEFAULT_LENIENCY])
             leniency = LENIENCY_LEVELS[idx]
             keywords_payload = json.dumps(missing_keywords or [])
-            rendered = self._main_template.render(
+            template = self._main_template if self.use_evaluation_loop else self._combined_template
+            rendered = template.render(
                 resume=resume_json_string,
                 job_title=job_title,
                 job_description=job_description,
                 missing_keywords=keywords_payload,
                 keyword_instruction=leniency.keyword_instruction,
+                rule_no_removal=leniency.rule_no_removal,
             )
             system_prompt, user_prompt = split_prompt(rendered)
             result = self._generate(user_prompt, system_prompt=system_prompt)
-            # The evaluate/revise prompts only need enough context to understand the role
-            # (e.g. job title, company, whether it's sales/leadership). Passing the full
-            # description (up to 15k chars) would add unnecessary tokens to each call.
-            # TODO: ideally, the LLM would remember the context instead of having to pass it in again
-            job_context = job_description[:500]
-            return self._run_evaluation_loop(result, job_context, leniency)
+            if self.use_evaluation_loop:
+                # The evaluate/revise prompts only need enough context to understand the role
+                # (e.g. job title, company, whether it's sales/leadership). Passing the full
+                # description (up to 15k chars) would add unnecessary tokens to each call.
+                # TODO: ideally, the LLM would remember the context instead of having to pass it in again
+                job_context = job_description[:500]
+                return self._run_evaluation_loop(result, job_context, leniency)
+            else:
+                result["suggested_bullets"] = [
+                    b for b in result["suggested_bullets"]
+                    if not _is_trivial_change(b["text"], b["new_text"])
+                ]
+                return result
         except Exception as e:
             traceback.print_exc()
             raise Exception("Something went wrong while tailoring resume")

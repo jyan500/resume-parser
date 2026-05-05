@@ -2,7 +2,14 @@ from google import genai
 from google.genai import errors as genai_errors
 from openai import OpenAI
 import os
-from utils.constants import ( GEMINI_FLASH_MODEL, GEMINI_FLASH_LITE_MODEL, OPENAI_GPT_OSS_120B_MODEL, OPENAI_GPT4O_MINI_MODEL)
+from utils.constants import ( 
+    GEMINI_FLASH_MODEL, 
+    GEMINI_FLASH_LITE_MODEL, 
+    OPENAI_GPT_OSS_120B_MODEL, 
+    OPENAI_GPT4O_MINI_MODEL,
+    OPENAI_GPT4_1_MINI_MODEL,
+    OPENAI_GPT_5_MINI_MODEL,
+)
 from pydantic import BaseModel
 import traceback
 import json
@@ -16,11 +23,11 @@ class LLMClient:
     def __init__(self, mode):
         if mode == "gemini":
             self.client = genai.Client()
-            self.openai_compat_model = OPENAI_GPT4O_MINI_MODEL
+            self.openai_compat_model = OPENAI_GPT4_1_MINI_MODEL
             self._openai_fallback = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
         elif mode == "openai":
             self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
-            self.openai_compat_model = OPENAI_GPT4O_MINI_MODEL
+            self.openai_compat_model = OPENAI_GPT4_1_MINI_MODEL
         else:
             self.client = OpenAI(
                 api_key=os.environ.get("OPENROUTER_API_KEY"),
