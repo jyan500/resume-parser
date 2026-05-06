@@ -16,6 +16,7 @@ import storageSession from "redux-persist/lib/storage/session";
 import resumeReducer from "./slices/resumeSlice";
 import turnstileReducer from "./slices/turnstileSlice";
 import { publicApi } from "./api/public";
+import { listenerMiddleware } from "./helpers/listenerMiddleware";
 
 // ─── Persist Config ───────────────────────────────────────────────────────────
 // Only the `resume` slice is persisted. The RTK Query cache is intentionally
@@ -49,7 +50,10 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-        }).concat(publicApi.middleware),
+        })
+            // prepend so listeners observe actions before publicApi.middleware processes them
+            .prepend(listenerMiddleware.middleware)
+            .concat(publicApi.middleware),
 });
 
 export const persistor = persistStore(store);

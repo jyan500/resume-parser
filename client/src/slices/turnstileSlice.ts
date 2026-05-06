@@ -1,10 +1,11 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
+import { createSlice, createAction, type PayloadAction } from "@reduxjs/toolkit"
 
 interface TurnstileState {
     token: string | null
+    devBypass: boolean
 }
 
-const initialState: TurnstileState = { token: null }
+const initialState: TurnstileState = { token: null, devBypass: false }
 
 const turnstileSlice = createSlice({
     name: "turnstile",
@@ -16,8 +17,16 @@ const turnstileSlice = createSlice({
         clearTurnstileToken: (state) => {
             state.token = null
         },
+        setDevBypass: (state, action: PayloadAction<boolean>) => {
+            state.devBypass = action.payload
+        },
     },
 })
 
-export const { setTurnstileToken, clearTurnstileToken } = turnstileSlice.actions
+export const { setTurnstileToken, clearTurnstileToken, setDevBypass } = turnstileSlice.actions
+
+// Marker action — dispatched by baseQuery after each request to tell the Turnstile
+// component's listener to call widget.reset(). No payload needed.
+export const requestRefresh = createAction("turnstile/requestRefresh")
+
 export default turnstileSlice.reducer
