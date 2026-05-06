@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import { useForm, FormProvider, useFormContext } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useGetMissingKeywordsMutation, useTailorResumeMutation } from "../../api/public/resume";
-import { useTurnstile } from "../../contexts/TurnstileContext";
 import type { Keyword, Resume, SuggestedBullet, ToggleVisibility } from "../../types/resume";
 import type { CustomError }  from "../../types/api"
 import type { SerializedError } from "@reduxjs/toolkit"
@@ -37,7 +36,6 @@ interface TargetJobForm {
 export const TargetJobPanel: React.FC = () => {
     const { resume, targetJobViewMode: view, suggestions } = useAppSelector((s) => s.resume);
     const dispatch = useAppDispatch();
-    const { resetToken } = useTurnstile();
     const [getMissingKeywords, { error: keywordsError }] = useGetMissingKeywordsMutation();
     const [tailorResume, { error: tailorError }] = useTailorResumeMutation();
     const [ isLoading, setIsLoading ] = useState(false)
@@ -65,7 +63,6 @@ export const TargetJobPanel: React.FC = () => {
             }).unwrap();
             dispatch(setSuggestions({ ...tailorResult, missingKeywords }));
             dispatch(setTargetJobViewMode("suggestions"));
-            resetToken();
             setIsLoading(false)
         } catch (_) {
             // Error is surfaced by <ErrorDisplay />
