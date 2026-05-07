@@ -29,6 +29,13 @@ const faqs = [
         </div>,
     },
     {
+        question: "Do I need an account to begin?",
+        answer: 
+        <div>
+            <p>No account is necessary! Just upload your resume to get started. </p>
+        </div>,
+    },
+    {
         question: "Where is my information being sent?",
         answer: 
             <ul className = "list-disc pl-5">
@@ -42,7 +49,16 @@ const faqs = [
         answer:
             <div>
                 <p>
-                    All information is kept local to your browser. Once the browser tab is closed, all information will disappear.
+                    All data is kept local to your browser. Once the browser tab is closed, all data will disappear.
+                </p>
+            </div>
+    },
+    {
+        question: "I'm having trouble with the site. Who should I contact?",
+        answer:
+            <div>
+                <p>
+                    Please contact us at draftwise@gmail.com
                 </p>
             </div>
     }

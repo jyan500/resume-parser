@@ -19,13 +19,6 @@ export const UploadPage: React.FC = () => {
             {/* Hero wrapper — keeps overflow-hidden scoped to this section */}
             <div className="min-h-screen flex flex-col relative overflow-hidden bg-brand-bg">
                 {/* Header */}
-               {/* <header
-                    className="flex-none flex items-center gap-x-2 border-b border-brand-border"
-                    style={{ padding: "18px 32px", position: "relative", zIndex: 3 }}
-                >
-                    <img src={logoDraftwise} alt="Draftwise" className="h-7 w-auto" />
-                    <p className="text-brand-dark font-semibold" style={{ fontSize: "15.6px", lineHeight: "1.4" }}>Draftwise</p>
-                </header>*/}
                 <Header/>
 
                 {/* Floating resume decorations — desktop only */}
@@ -81,7 +74,7 @@ export const UploadPage: React.FC = () => {
                         className="text-center text-brand-muted"
                         style={{ margin: 0, fontSize: 16, fontWeight: 400, maxWidth: 520, lineHeight: 1.55 }}
                     >
-                        We handle PDFs and DOCX files, pull every section into structured fields, and hand you a
+                        We handle PDF and DOCX files, pull every section into structured fields, and hand you a
                         clean editor to tailor it to any job.
                     </p>
 
