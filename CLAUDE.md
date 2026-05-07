@@ -72,7 +72,6 @@ Runs ESLint on TypeScript and TypeScript React files
 
 ### Styling
 - TailwindCSS v4 via `@tailwindcss/vite` plugin
-- DaisyUI component library for pre-built components
 - Custom PDF styling in `src/styles/pdf-override.css`
 
 ### Key Dependencies

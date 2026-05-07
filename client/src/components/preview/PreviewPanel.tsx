@@ -22,8 +22,9 @@ import { Button } from "../page-elements/Button";
 import { Checkbox } from "../page-elements/Checkbox";
 import { Select } from "../page-elements/Select"
 import { LoadingSpinner } from "../page-elements/LoadingSpinner";
-import { Download } from "lucide-react";
+import { CircleHelp, Download } from "lucide-react";
 import { FIXED_PDF_WIDTH } from "../../helpers/constants"
+import { HoverTooltip } from "../page-elements/HoverTooltip"
 
 /* 
     Sets up a PDF within a web worker (a separate browser thread) 
@@ -289,7 +290,16 @@ export const PreviewPanel: React.FC = () => {
                         </div>
                         <div className="flex flex-row gap-x-2 items-center">
                             <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>
-                            <Checkbox 
+                            <div className="relative group">
+                                <CircleHelp className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                                <HoverTooltip 
+                                    direction={"bottom"}
+                                    text={
+                                        "checking this off will reset the section ordering when switching templates"
+                                    }
+                                />
+                            </div>
+                            <Checkbox
                                 name={"template-order"}
                                 enabled={form.resetOrder}
                                 onToggle={(e) => {
