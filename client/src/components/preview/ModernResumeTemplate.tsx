@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     entryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        gap: "8px",
         marginBottom: 1,
     },
     entryTitle: {
@@ -158,6 +159,7 @@ const styles = StyleSheet.create({
     educationRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        gap: "8px",
         marginBottom: 3,
     },
     educationLeft: {
@@ -181,6 +183,7 @@ const styles = StyleSheet.create({
     certificationRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        gap: "8px",
         alignItems: "flex-start",
         marginBottom: 3,
     },
