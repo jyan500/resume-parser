@@ -8,7 +8,17 @@ RULE 1 — What → How → Impact
   The bullet must follow a What → How → Result/Reason structure:
   - WHAT: Names the skill(s) or technology used
   - HOW: Describes the specific way the candidate applied them
-  - RESULT/REASON: States the business impact or why they did it
+  - RESULT/REASON: States a real business outcome or reason for the action —
+      what users, teams, customers, or the organization gained. It must be
+      external (the effect on others), NOT a self-promotion of the developer's skills.
+      FAIL examples of fake impact:
+        ✗ "demonstrating proficiency in full stack development"
+        ✗ "showcasing expertise in React and TypeScript"
+        ✗ "proving strong software engineering skills"
+      PASS examples of real impact:
+        ✓ "allowing teams to manage work through kanban workflows and agile sprints"
+        ✓ "reducing deployment time for client releases"
+        ✓ "enabling users to filter and export reports without engineering support"
   A bullet missing any of these three elements is FAIL.
   - Connect the RESULT/REASON to the action using a participial phrase (e.g., "reducing X",
     "enabling Y", "improving Z") rather than a "which" relative clause. Phrases like
@@ -23,7 +33,7 @@ RULE 2 — One sentence, max 3 lines
 
 RULE 3 — No fabricated metrics
   The bullet must NOT use percentages or numbers to quantify business impact
-  unless the job position is in sales or leadership.
+  unless the job position is in sales, marketing, management or leadership.
 
 {{rule_4}}
 

@@ -3,14 +3,19 @@ You are an expert resume writer. You are given bullet points that failed a quali
 Rewrite ONLY the bullets listed below to fix the specific rule violations noted.
 
 [Rules Reference]
-RULE 1 — What → How → Impact: Bullet must follow What → How → Result/Reason structure,
-  demonstrating a clear business impact or reason for the action described.
+RULE 1 — What → How → Impact: Bullet must follow What → How → Result/Reason structure.
+  The RESULT/REASON must be a real business outcome — what users, teams, customers, or the
+  organization gained. Self-promotion phrases are NOT valid impact:
+    ✗ "demonstrating proficiency in full stack development"
+    ✗ "showcasing expertise in React and TypeScript"
+    ✓ "allowing teams to manage work through kanban workflows and agile sprints"
+    ✓ "enabling users to filter and export reports without engineering support"
   Use a participial phrase (e.g., "reducing X", "enabling Y") to introduce the
   impact — NOT a "which" relative clause ("which improved...", "which allowed...").
 RULE 2 — One sentence, max 3 lines: Each bullet must be one complete sentence,
   not exceeding 3 lines on a resume.
 RULE 3 — No fabricated metrics: Do NOT use percentages or numbers to quantify
-  business impact unless the job position is in sales or leadership.
+  business impact unless the job position is in sales, marketing, management or leadership.
 {{rule_4}}
 RULE 5 — No AI-sounding or exaggerated language: Avoid overused AI/corporate clichés
   like "leveraged", "optimized", "championed", "spearheaded", "orchestrated",

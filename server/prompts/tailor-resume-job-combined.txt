@@ -12,10 +12,10 @@ Fill the JSON schema with:
 
 [Rules]
 * Rewrite a bullet ONLY if it (a) violates one of the quality rules below, or (b) is a natural place to work in a missing keyword per the keyword instructions. If neither applies, leave the bullet alone and omit it from the response. When in doubt, leave it alone.
-* Each bullet must follow a What → How → Impact structure: name the skill or technology used (WHAT), describe the specific way it was applied (HOW), and state the business result or reason for the action (IMPACT). A bullet missing any of these three elements should be rewritten.
+* Each bullet must follow a What → How → Impact structure: name the skill or technology used (WHAT), describe the specific way it was applied (HOW), and state a real business outcome — what users, teams, customers, or the organization gained (IMPACT). "Demonstrating proficiency in X" or "showcasing expertise in Y" are NOT valid impact; they describe the developer, not the business effect. A bullet missing any of these three elements should be rewritten.
 * Each bullet must be a single complete sentence. No fragments, run-ons, or multi-sentence
   bullets. It must not exceed 3 lines on a resume.
-* Do NOT use percentages or numbers unless the job position is in sales, management or is a leadership position.
+* Do NOT use percentages or numbers unless the job position is in sales, marketing, management or leadership.
 * Write bullets in plain, direct human language. Avoid AI-sounding or flowery corporate clichés such as "leveraged", "optimized", "championed", "spearheaded", "orchestrated", "seamlessly integrated", "robust", "cutting-edge", "best-in-class". Prefer concrete verbs like "built", "wrote", "shipped", "added", "fixed", "designed", "ran", "led", "reduced", "increased", "set up", "migrated".
 * Connect the result/impact to the action using a participial phrase (e.g., "reducing X",
   "enabling Y", "improving Z") — NOT a "which" or "while" relative clause. "Which" clauses weaken active tone by shifting subsequent verbs to past tense.
