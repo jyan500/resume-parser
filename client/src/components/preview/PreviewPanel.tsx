@@ -292,7 +292,7 @@ export const PreviewPanel: React.FC = () => {
                             <Checkbox 
                                 name={"template-order"}
                                 enabled={form.resetOrder}
-                                onToggle={(e) => {
+                                onClick={(e) => {
                                     e.preventDefault()
                                     setForm({
                                         ...form,
@@ -335,12 +335,11 @@ export const PreviewPanel: React.FC = () => {
                 {isFirstRendering && render.error && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 mt-6">
                         <p className="text-sm text-slate-500">Failed to generate PDF preview.</p>
-                        <button
+                        <Button
                             onClick={() => setRenderKey(k => k + 1)}
-                            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium transition-colors duration-150"
                         >
                             Retry
-                        </button>
+                        </Button>
                     </div>
                 )}
 

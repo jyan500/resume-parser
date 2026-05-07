@@ -14,7 +14,7 @@ export const MiniButton: React.FC<MiniButtonProps> = ({ label, onClick, icon, ac
         onClick={onClick}
         title={label}
         aria-label={label}
-        className={`flex items-center justify-center transition-colors duration-150 border rounded-md p-1.5 ${
+        className={`cursor-pointer flex items-center justify-center transition-colors duration-150 border rounded-md p-1.5 ${
             active
                 ? "bg-brand-accent border-brand-accent text-white"
                 : "bg-brand-subtle hover:bg-brand-border border-brand-border text-brand-accent hover:text-brand-medium"

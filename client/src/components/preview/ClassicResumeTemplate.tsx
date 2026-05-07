@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
     entryRow: {
         flexDirection: "row",
         justifyContent: "space-between",
+        gap: "8px",
         marginBottom: 4, 
     },
     // Entry label: bold + italic ("Bold this and nothing else" + "Italicize")
@@ -191,6 +192,12 @@ const styles = StyleSheet.create({
     },
 
     // ── Education / Certification bullet rows ─────────────────────────────────
+    eduCertHeader: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        gap: "8px"
+    },
     eduCertBulletRow: {
         marginLeft: 12,
         flexDirection: "row",
@@ -404,7 +411,7 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive, titl
                         <View key={edu.id} style={styles.eduCertBulletRow}>
                             <Text style={styles.eduCertBulletDot}>•</Text>
                             {/* justify-between: degree text left, date right */}
-                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                            <View style={styles.eduCertHeader}>
                                 {/* "Do NOT Bold" — plain eduCertText */}
                                 <Text style={styles.eduCertText}>
                                     {degreeText}
@@ -451,7 +458,7 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
                     return (
                         <View key={cert.id} style={styles.eduCertBulletRow}>
                             <Text style={styles.eduCertBulletDot}>•</Text>
-                            <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                            <View style={styles.eduCertHeader}>
                                 <Text style={styles.eduCertText}>{label}</Text>
                                 <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
                             </View>
