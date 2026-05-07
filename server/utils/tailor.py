@@ -61,7 +61,7 @@ class TailorResume:
         self._evaluate_template = Template(load_prompt("evaluate-bullets"))
         self._revise_template = Template(load_prompt("revise-bullets"))
         # Set to False to use a single-prompt mode (no evaluate/revise loop) for lower cost and latency
-        self.use_evaluation_loop: bool = False
+        self.use_evaluation_loop: bool = True
 
     def _generate(self, prompt: str, system_prompt: str = None) -> dict:
         schema_response = self.client.generate_response(

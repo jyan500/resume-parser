@@ -10,6 +10,11 @@ LITMUS TEST — Apply this before including any keyword:
   "Can I Google this exact term and land on an official product page, docs site, or Wikipedia page for a specific tool/technology?"
   - YES → Valid technical keyword (e.g., "React", "TypeScript", "Docker", "AWS Lambda")
   - NO  → Discard it entirely (e.g., "modern JavaScript frameworks", "frontend state management", "distributed systems")
+  "Does the job description list a range of similar technologies?"
+  (i.e Jest, Vitest, Testing Library, or similar)
+  - YES -> Only include one of the technologies if none of the technologies are present in the resume 
+  - NO -> Do not include (i.e if the resume includes Jest, don't include Vitest, Testing Library as keywords since we satisfy this requirement)
+
 
 TECHNICAL SKILLS — Must pass the litmus test AND be one of:
   - Programming language:     i.e Python, TypeScript, Go
@@ -23,7 +28,7 @@ HARD DISCARD — Never include these, even if they appear in the job description
   - Vague umbrella terms:            "modern build tools", "component libraries", "cloud-hosted platforms"
 
 SOFT SKILLS — Must be a single interpersonal attribute a recruiter would write on a job post:
-  - Valid:   "Leadership", "Mentorship", "Communication", "Collaboration"
+  - Valid:   "Leadership", "Mentorship", "0 to 1"
   - Invalid: "ownership mentality", "calm and methodical", "pragmatic problem solver", "learning-oriented"
   Rule: If the keyword is more than 2 words OR contains an adjective describing a personality trait, discard it.
 
