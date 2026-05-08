@@ -1,10 +1,10 @@
 import { useCallback } from "react"
-import logoDraftwise from "../../assets/logo-draftwise.svg";
-import { useLocation, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { persistor, useAppDispatch } from "../../store";
 import { resetResume } from "../../slices/resumeSlice";
 import { UPLOAD_PAGE, EDITOR_PAGE } from "../../helpers/routes"
 import { ArrowLeft } from "lucide-react"
+import { Logo } from "./Logo"
 
 export const Header = () => {
 
@@ -42,8 +42,9 @@ export const Header = () => {
                 </>
                 ) : null
             }
-            <img src={logoDraftwise} alt="Draftwise" className="h-7 w-auto" />
-            <p className="text-brand-dark font-semibold" style={{ fontSize: "15.6px", lineHeight: "1.4" }}>Draftwise</p>
+            <Link to={UPLOAD_PAGE} className = "flex flex-row gap-x-2 items-center">
+                <Logo/> 
+            </Link>
         </header>
     )
 }

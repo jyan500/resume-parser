@@ -24,7 +24,7 @@ const steps = [
 ];
 
 export const HowItWorks: React.FC = () => (
-    <section className="bg-white" style={{ paddingTop: 96, paddingBottom: 112 }}>
+    <section id="how-it-works" className="bg-white" style={{ paddingTop: 96, paddingBottom: 112 }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
             {/* Section heading */}
             <div className="flex flex-col items-center text-center" style={{ marginBottom: 64 }}>

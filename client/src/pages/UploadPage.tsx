@@ -7,6 +7,7 @@ import floatingRight from "../assets/floating-resume-right.svg";
 import { Header } from "../components/page-elements/Header";
 import { HowItWorks } from "../components/HowItWorks";
 import { FAQ } from "../components/FAQ";
+import { Footer } from "../components/page-elements/Footer";
 
 const trustItems = ["Private by default", "Never stored", "Parses in seconds"];
 
@@ -79,7 +80,7 @@ export const UploadPage: React.FC = () => {
                     </p>
 
                     {/* Upload card */}
-                    <div style={{ width: "100%", maxWidth: 480, marginTop: 4 }}>
+                    <div id="upload" style={{ width: "100%", maxWidth: 480, marginTop: 4 }}>
                         <UploadPanel />
                     </div>
 
@@ -103,6 +104,9 @@ export const UploadPage: React.FC = () => {
 
             {/* FAQ */}
             <FAQ />
+
+            {/* Footer */}
+            <Footer />
         </div>
     );
 };

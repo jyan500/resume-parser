@@ -58,7 +58,10 @@ const faqs = [
         answer:
             <div>
                 <p>
-                    Please contact us at draftwise@gmail.com
+                    Please contact us at {" "}
+                    <a href="mailto:jyan500@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+                        jyan500@gmail.com
+                    </a>
                 </p>
             </div>
     }
