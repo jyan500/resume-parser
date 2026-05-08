@@ -246,9 +246,10 @@ interface ExperienceSectionProps {
     enabledExperience: Array<ExperienceEntry>;
     interactive?: boolean;
     title: string;
+    isLast?: boolean;
 }
 
-const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, title }: ExperienceSectionProps) => {
+const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, title, isLast }: ExperienceSectionProps) => {
     if (!vis.experience || enabledExperience.length === 0) return null;
 
     const entry = (exp: ExperienceEntry) => (
@@ -269,10 +270,10 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
     );
 
     return (
-        <View style={styles.section}>
+        <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledExperience.map((exp) => (
-                <View key={exp.id} style={{ marginBottom: 6 }}>
+                <View key={exp.id} style={{ marginBottom: !isLast ? 6 : 0 }}>
                     {interactive ? (
                         <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
                             {entry(exp)}
@@ -290,9 +291,10 @@ interface ProjectsSectionProps {
     enabledProjects: Array<NonNullable<Resume["projects"]>[number]>;
     interactive?: boolean;
     title: string;
+    isLast?: boolean;
 }
 
-const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title }: ProjectsSectionProps) => {
+const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title, isLast }: ProjectsSectionProps) => {
     if (!vis.projects || enabledProjects.length === 0) return null;
 
     const projectHeader = (proj: NonNullable<Resume["projects"]>[number]) => (
@@ -312,10 +314,10 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title 
     );
 
     return (
-        <View style={styles.section}>
+        <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledProjects.map((proj) => (
-                <View key={proj.id} style={{ marginBottom: 6 }}>
+                <View key={proj.id} style={{ marginBottom: !isLast ? 6 : 0 }}>
                     {interactive ? (
                         <Link src={`http://r/#${proj.id}`} style={styles.bulletLinkContainer}>
                             {projectHeader(proj)}
@@ -333,9 +335,10 @@ interface EducationSectionProps {
     enabledEducation: Resume["education"];
     interactive?: boolean;
     title: string;
+    isLast?: boolean;
 }
 
-const EducationSection = ({ visibility: vis, enabledEducation, interactive, title }: EducationSectionProps) => {
+const EducationSection = ({ visibility: vis, enabledEducation, interactive, title, isLast }: EducationSectionProps) => {
     if (!vis.education || enabledEducation.length === 0) return null;
 
     const eduEntry = (edu: Resume["education"][number]) => (
@@ -361,7 +364,7 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive, titl
     );
 
     return (
-        <View style={styles.section}>
+        <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledEducation.map((edu) => (
                 interactive ? (
@@ -379,9 +382,10 @@ interface CertificationSectionProps {
     enabledCertifications: Resume["certifications"];
     interactive?: boolean;
     title: string;
+    isLast?: boolean;
 }
 
-const CertificationSection = ({ visibility: vis, enabledCertifications, interactive, title }: CertificationSectionProps) => {
+const CertificationSection = ({ visibility: vis, enabledCertifications, interactive, title, isLast }: CertificationSectionProps) => {
     if (!vis.certifications || enabledCertifications.length === 0) return null;
 
     const certEntry = (cert: Resume["certifications"][number]) => (
@@ -397,7 +401,7 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
     );
 
     return (
-        <View style={styles.section}>
+        <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledCertifications.map((cert) => (
                 interactive ? (
@@ -415,9 +419,10 @@ interface SkillsSectionProps {
     enabledSkills: Resume["skills"];
     interactive?: boolean;
     title: string;
+    isLast?: boolean;
 }
 
-const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title }: SkillsSectionProps) => {
+const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title, isLast }: SkillsSectionProps) => {
     if (!vis.skills || enabledSkills.length === 0) return null;
 
     const skillRow = (skill: Resume["skills"][number]) => (
@@ -428,7 +433,7 @@ const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title }: S
     );
 
     return (
-        <View style={styles.section}>
+        <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledSkills.map((skill) => (
                 interactive ? (
@@ -484,6 +489,21 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
     const enabledSkills = skills.filter((s) => s.enabled);
     const enabledProjects = projects?.filter((p) => p.enabled) ?? [];
 
+    // Trailing marginBottom on the last visible block can push @react-pdf's
+    // layout cursor past the page boundary, spawning a blank trailing page.
+    // Track the last visible block so it can render with marginBottom: 0.
+    const summaryVisible = !!(vis.summary && summary && summary.text !== "");
+    const sectionVisible: Record<OrderableSection, boolean> = {
+        experience:     vis.experience     && enabledExperience.length     > 0,
+        projects:       vis.projects       && enabledProjects.length       > 0,
+        education:      vis.education      && enabledEducation.length      > 0,
+        certifications: vis.certifications && enabledCertifications.length > 0,
+        skills:         vis.skills         && enabledSkills.length         > 0,
+    };
+    const visibleSectionsInOrder = order.filter((s) => sectionVisible[s]);
+    const lastSectionKey = visibleSectionsInOrder.at(-1);
+    const summaryIsLast = summaryVisible && !lastSectionKey;
+
     const sectionProps: SectionPropsByKey = {
         experience: { visibility: vis, enabledExperience, title: sectionTitles.experience },
         projects: { visibility: vis, enabledProjects, title: sectionTitles.projects },
@@ -527,7 +547,7 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
 
                 {/* ── Summary ── */}
                 {vis.summary && summary && summary.text !== "" && (
-                    <View style={styles.section}>
+                    <View style={summaryIsLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
                         <SectionHeader title={sectionTitles.summary} styles={sectionHeaderStyles} />
                         {
                             interactive ? 
@@ -541,17 +561,18 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
                 )}
 
                 {order.map((section) => {
+                    const isLast = section === lastSectionKey;
                     switch (section) {
                         case "experience":
-                            return <ExperienceSection interactive={interactive} key="resume-experience" {...sectionProps.experience} />;
+                            return <ExperienceSection interactive={interactive} isLast={isLast} key="resume-experience" {...sectionProps.experience} />;
                         case "projects":
-                            return <ProjectsSection interactive={interactive} key="resume-projects" {...sectionProps.projects} />;
+                            return <ProjectsSection interactive={interactive} isLast={isLast} key="resume-projects" {...sectionProps.projects} />;
                         case "education":
-                            return <EducationSection interactive={interactive} key="resume-education" {...sectionProps.education} />;
+                            return <EducationSection interactive={interactive} isLast={isLast} key="resume-education" {...sectionProps.education} />;
                         case "certifications":
-                            return <CertificationSection interactive={interactive} key="resume-certifications" {...sectionProps.certifications} />;
+                            return <CertificationSection interactive={interactive} isLast={isLast} key="resume-certifications" {...sectionProps.certifications} />;
                         case "skills":
-                            return <SkillsSection interactive={interactive} key="resume-skills" {...sectionProps.skills} />;
+                            return <SkillsSection interactive={interactive} isLast={isLast} key="resume-skills" {...sectionProps.skills} />;
                     }
                 })}
 
