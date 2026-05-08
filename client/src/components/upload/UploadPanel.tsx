@@ -1,15 +1,17 @@
 import React, { useRef, useCallback, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
 import { useParseResumeMutation } from "../../api/public/resume";
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { setResume, setParseStatus } from "../../slices/resumeSlice";
 import { ErrorDisplay } from "../page-elements/ErrorDisplay";
 import { LoadingSpinner } from "../page-elements/LoadingSpinner"
+import { EDITOR_PAGE } from "../../helpers/routes";
 
 export const UploadPanel: React.FC = () => {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const { parseStatus } = useAppSelector((state) => state.resume);
     const [parseResume, { isLoading, isError, error }] = useParseResumeMutation();
     const [isDragOver, setIsDragOver] = useState(false);
     const [fileName, setFileName] = useState<string | null>(null);
@@ -65,6 +67,21 @@ export const UploadPanel: React.FC = () => {
 
     return (
         <div className="w-full">
+
+            {/* Back to editor banner */}
+            {parseStatus === "success" && (
+                <div className="mb-4 rounded-xl bg-brand-bg border border-brand-border px-4 py-3 flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-brand-muted m-0">
+                        You already have a resume loaded.
+                    </p>
+                    <Link
+                        to={EDITOR_PAGE}
+                        className="text-sm font-medium text-brand-muted whitespace-nowrap"
+                    >
+                        Continue editing →
+                    </Link>
+                </div>
+            )}
 
             {/* Drop zone */}
             <label className="block cursor-pointer">

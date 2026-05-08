@@ -204,7 +204,7 @@ const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) =
                             key={value}
                             type="button"
                             onClick={() => setValue("leniency", value)}
-                            className={`flex flex-col items-center py-2 px-1 rounded-md text-center transition-colors ${
+                            className={`cursor-pointer flex flex-col items-center py-2 px-1 rounded-md text-center transition-colors ${
                                 leniency === value
                                     ? "bg-white shadow-sm border border-slate-200 text-slate-800"
                                     : "text-slate-400 hover:text-slate-600"

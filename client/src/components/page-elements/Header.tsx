@@ -33,7 +33,7 @@ export const Header = () => {
                 <>
                     <button
                         onClick={() => handleBackToUpload()}
-                        className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors duration-150"
+                        className="cursor-pointer flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors duration-150"
                     >
                         <ArrowLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
                         Upload new

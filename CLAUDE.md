@@ -73,6 +73,12 @@ Runs ESLint on TypeScript and TypeScript React files
 ### Styling
 - TailwindCSS v4 via `@tailwindcss/vite` plugin
 - Custom PDF styling in `src/styles/pdf-override.css`
+- Brand color palette is defined in `client/src/index.css` — prefer these over generic Tailwind colors when styling new elements:
+  - `bg-brand-bg` / `border-brand-border` — light green tints for backgrounds and borders
+  - `text-brand-subtle` — muted green for secondary text
+  - `text-brand-muted` — medium green for interactive/accent text
+  - `text-brand-accent` / `text-brand-medium` — stronger greens for highlights
+  - `bg-brand-dark` — dark green for footer and heavy backgrounds
 
 ### Key Dependencies
 - `@dnd-kit/*` - Drag and drop functionality for reordering resume sections

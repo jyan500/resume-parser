@@ -35,7 +35,7 @@ export const Button = ({
     return (
         <button
             disabled={disabled || isLoading}
-            className={`flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+            className={`cursor-pointer flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
             {...props}
         >
             {isLoading ? (

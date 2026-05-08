@@ -13,10 +13,7 @@ const trustItems = ["Private by default", "Never stored", "Parses in seconds"];
 
 export const UploadPage: React.FC = () => {
     return (
-        <div
-            className="flex flex-col"
-            style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}
-        >
+        <div className="flex flex-col">
             {/* Hero wrapper — keeps overflow-hidden scoped to this section */}
             <div id = "upload" className="min-h-screen flex flex-col relative overflow-hidden bg-brand-bg">
                 {/* Header */}

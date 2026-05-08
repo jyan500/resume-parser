@@ -1,24 +1,27 @@
 import React from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
+import { PublicLayout } from "./layouts/PublicLayout";
 import { UploadPage } from "./pages/UploadPage";
 import { EditorPage } from "./pages/EditorPage";
 import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
 import { TermsOfServicePage } from "./pages/TermsOfServicePage";
-import { RedirectIfLoaded } from "./components/page-elements/RedirectIfLoaded";
+import { UPLOAD_PAGE, EDITOR_PAGE, TERMS_OF_SERVICE_PAGE, PRIVACY_POLICY_PAGE } from "./helpers/routes"
 
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
             {
-                element: <RedirectIfLoaded />,
-                children: [{ path: "/", element: <UploadPage /> }],
+                element: <PublicLayout />,
+                children: [
+                    { path: UPLOAD_PAGE, element: <UploadPage /> },
+                    { path: PRIVACY_POLICY_PAGE, element: <PrivacyPolicyPage /> },
+                    { path: TERMS_OF_SERVICE_PAGE, element: <TermsOfServicePage /> },
+                ],
             },
-            { path: "/editor", element: <EditorPage /> },
-            { path: "/privacy-policy", element: <PrivacyPolicyPage /> },
-            { path: "/terms-of-service", element: <TermsOfServicePage /> },
-            { path: "*", element: <Navigate to="/" replace /> },
+            { path: EDITOR_PAGE, element: <EditorPage /> },
+            { path: "*", element: <Navigate to={UPLOAD_PAGE} replace /> },
         ],
     },
 ]);
