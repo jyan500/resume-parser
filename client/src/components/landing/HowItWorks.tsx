@@ -45,7 +45,7 @@ export const HowItWorks: React.FC = () => (
 
             {/* Steps — horizontal row on desktop, stacked on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: 32 }}>
-                {steps.map((step, index) => (
+                {steps.map((step, _) => (
                     <div key={step.title} className="flex flex-col" style={{ gap: 14 }}>
                         <h3
                             className="font-bold text-brand-dark"

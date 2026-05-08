@@ -1,7 +1,7 @@
 import logoDraftwise from "../../assets/logo-draftwise.svg";
 
 interface Props {
-	isFooter?: false
+	isFooter?: boolean
 }
 
 export const Logo = ({isFooter=false}: Props) => {
