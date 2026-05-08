@@ -18,7 +18,7 @@ export const UploadPage: React.FC = () => {
             style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}
         >
             {/* Hero wrapper — keeps overflow-hidden scoped to this section */}
-            <div className="min-h-screen flex flex-col relative overflow-hidden bg-brand-bg">
+            <div id = "upload" className="min-h-screen flex flex-col relative overflow-hidden bg-brand-bg">
                 {/* Header */}
                 <Header/>
 
@@ -80,7 +80,7 @@ export const UploadPage: React.FC = () => {
                     </p>
 
                     {/* Upload card */}
-                    <div id="upload" style={{ width: "100%", maxWidth: 480, marginTop: 4 }}>
+                    <div style={{ width: "100%", maxWidth: 480, marginTop: 4 }}>
                         <UploadPanel />
                     </div>
 

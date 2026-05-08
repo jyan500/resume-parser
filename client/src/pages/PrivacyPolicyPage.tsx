@@ -18,7 +18,6 @@ const sections: Section[] = [
                 <ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
                     <li>The resume file you upload for parsing and editing</li>
                     <li>Job descriptions or role text you paste for tailoring and matching</li>
-                    <li>Target job titles or keywords you supply to guide suggestions</li>
                 </ul>
                 <p>
                     We do not require account creation and do not collect personal identifiers such as your name,
@@ -37,8 +36,8 @@ const sections: Section[] = [
                 <ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
                     <li>Parse your uploaded resume and display it in an editable format</li>
                     <li>
-                        Send your resume content and job description to a third-party AI service for analysis,
-                        tailoring suggestions, and scoring (see <em>Third-Party AI Processing</em> below)
+                        Send your resume content and job description to a third-party AI service for analysis and
+                        tailoring suggestions (see <em>Third-Party AI Processing</em> below)
                     </li>
                     <li>Return the AI-generated output to you within your active session</li>
                 </ul>
@@ -64,7 +63,7 @@ const sections: Section[] = [
                     may temporarily retain submitted content in accordance with their data handling practices.
                 </p>
                 <p style={{ marginBottom: 12 }}>
-                    <strong>We strongly recommend that you do not include highly sensitive information in your
+                    <strong>Therefore, we strongly recommend that you do not include highly sensitive information in your
                     resume or job description text</strong>, such as:
                 </p>
                 <ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
@@ -86,7 +85,7 @@ const sections: Section[] = [
             <>
                 <p style={{ marginBottom: 12 }}>
                     <strong>Current implementation:</strong> Draftwise processes your resume in real time and
-                    stores your parsed resume data locally in your browser&apos;s sessionStorage for the duration
+                    stores your parsed resume data locally in your browser&apos;s session storage for the duration
                     of your session.
                 </p>
                 <p style={{ marginBottom: 12 }}>
@@ -95,7 +94,7 @@ const sections: Section[] = [
                 </p>
                 <p>
                     You can remove all locally stored resume data at any time by clicking &ldquo;Upload new&rdquo;
-                    in the editor header, or by closing your browser&apos;s tab, which will clear the sessionStorage.
+                    in the editor header, or by closing your browser&apos;s tab, which will clear the session storage.
                 </p>
             </>
         ),
@@ -131,28 +130,18 @@ const sections: Section[] = [
                 <ul className="list-disc pl-5" style={{ lineHeight: 1.8 }}>
                     <li>
                         <strong>Reset session:</strong> Click &ldquo;Upload new&rdquo; in the editor at any time
-                        to clear your current resume from both the application state and localStorage.
+                        to clear your current resume from both the application state and session storage.
                     </li>
                     <li>
-                        <strong>Clear browser storage:</strong> You can manually clear localStorage through your
+                        <strong>Clear browser storage:</strong> You can manually clear session storage through your
                         browser&apos;s developer tools or privacy settings to remove any cached resume data.
                     </li>
                     <li>
-                        <strong>Opt out:</strong> Simply do not use the service if you are not comfortable with
+                        <strong>Opt out:</strong> Please do not use our services if you are not comfortable with
                         your resume content being sent to third-party AI providers.
                     </li>
                 </ul>
             </>
-        ),
-    },
-    {
-        title: "Children's Privacy",
-        content: (
-            <p>
-                Draftwise is not directed at children under the age of 16. We do not knowingly collect or
-                process personal information from children. If you believe a child has submitted information
-                through our service, please contact us and we will take steps to remove it.
-            </p>
         ),
     },
     {
