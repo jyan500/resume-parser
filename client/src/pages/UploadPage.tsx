@@ -5,8 +5,8 @@ import { UploadPanel } from "../components/upload/UploadPanel";
 import floatingLeft from "../assets/floating-resume-left.svg";
 import floatingRight from "../assets/floating-resume-right.svg";
 import { Header } from "../components/page-elements/Header";
-import { HowItWorks } from "../components/HowItWorks";
-import { FAQ } from "../components/FAQ";
+import { HowItWorks } from "../components/landing/HowItWorks";
+import { FAQ } from "../components/landing/FAQ";
 import { Footer } from "../components/page-elements/Footer";
 
 const trustItems = ["Private by default", "Never stored", "Parses in seconds"];

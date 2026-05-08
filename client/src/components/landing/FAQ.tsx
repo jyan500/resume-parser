@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 const faqs = [
     {
         question: "What is Draftwise?",
-        answer: 
+        answer:
         <div>
             <p>Draftwise is an AI-powered resume optimization tool.</p>
             <ul className = "list-disc pl-5">
@@ -23,21 +23,21 @@ const faqs = [
     },
     {
         question: "What file formats do you support?",
-        answer: 
+        answer:
         <div>
             <p>We currently support both PDF and DOCX file uploads.</p>
         </div>,
     },
     {
         question: "Do I need an account to begin?",
-        answer: 
+        answer:
         <div>
             <p>No account is necessary! Just upload your resume to get started. </p>
         </div>,
     },
     {
         question: "Where is my information being sent?",
-        answer: 
+        answer:
             <ul className = "list-disc pl-5">
                 <li>During analysis, files are transmitted over encrypted connections and processed in real time by third‑party AI providers.</li>
                 <li>We <span className = "font-semibold">do not permanently store resume files</span>, but third parties may retain or use submitted data per their policies.</li>
@@ -59,8 +59,8 @@ const faqs = [
             <div>
                 <p>
                     Please contact us at {" "}
-                    <a href="mailto:jyan500@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
-                        jyan500@gmail.com
+                    <a href="mailto:draftwise.support@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+                        draftwise.support@gmail.com
                     </a>
                 </p>
             </div>

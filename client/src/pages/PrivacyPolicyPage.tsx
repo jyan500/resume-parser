@@ -165,8 +165,8 @@ const sections: Section[] = [
                 </p>
                 <p>
                     <strong>Email:</strong>{" "}
-                    <a href="mailto:jyan500@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
-                        jyan500@gmail.com
+                    <a href="mailto:draftwise.support@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+                        draftwise.support@gmail.com
                     </a>
                 </p>
             </>
