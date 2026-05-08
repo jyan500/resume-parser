@@ -1,23 +1,31 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { RootLayout } from "./layouts/RootLayout";
+import { PublicLayout } from "./layouts/PublicLayout";
 import { UploadPage } from "./pages/UploadPage";
 import { EditorPage } from "./pages/EditorPage";
-import { RedirectIfLoaded } from "./components/page-elements/RedirectIfLoaded"
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./pages/TermsOfServicePage";
+import { UPLOAD_PAGE, EDITOR_PAGE, TERMS_OF_SERVICE_PAGE, PRIVACY_POLICY_PAGE } from "./helpers/routes"
 
-const App: React.FC = () => {
-    return (
-        <BrowserRouter>
-            <Routes>
-                {/* Redirect to the editor page if a user still has a resume loaded in local storage */}
-                <Route element={<RedirectIfLoaded/>}>
-                    <Route path="/" element={<UploadPage />} />
-                </Route>
-                <Route path="/editor" element={<EditorPage />} />
-                {/* Catch-all — redirect unknown routes to upload */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </BrowserRouter>
-    );
-};
+const router = createBrowserRouter([
+    {
+        element: <RootLayout />,
+        children: [
+            {
+                element: <PublicLayout />,
+                children: [
+                    { path: UPLOAD_PAGE, element: <UploadPage /> },
+                    { path: PRIVACY_POLICY_PAGE, element: <PrivacyPolicyPage /> },
+                    { path: TERMS_OF_SERVICE_PAGE, element: <TermsOfServicePage /> },
+                ],
+            },
+            { path: EDITOR_PAGE, element: <EditorPage /> },
+            { path: "*", element: <Navigate to={UPLOAD_PAGE} replace /> },
+        ],
+    },
+]);
+
+const App: React.FC = () => <RouterProvider router={router} />;
 
 export default App;
