@@ -611,7 +611,7 @@ export const ClassicResumeTemplate: React.FC<ResumeDocumentClassicProps> = ({
 
     return (
         <Document>
-            <Page debug={true} size="LETTER" style={styles.page}>
+            <Page size="LETTER" style={styles.page}>
 
                 {/* ── Header ── */}
                 {interactive ? (
