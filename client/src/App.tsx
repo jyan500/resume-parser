@@ -2,10 +2,10 @@ import React from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { RootLayout } from "./layouts/RootLayout";
 import { PublicLayout } from "./layouts/PublicLayout";
-import { UploadPage } from "./page-views/UploadPage";
-import { EditorPage } from "./page-views/EditorPage";
-import { PrivacyPolicyPage } from "./page-views/PrivacyPolicyPage";
-import { TermsOfServicePage } from "./page-views/TermsOfServicePage";
+import { UploadPage } from "./pages/UploadPage";
+import { EditorPage } from "./pages/EditorPage";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsOfServicePage } from "./pages/TermsOfServicePage";
 import { UPLOAD_PAGE, EDITOR_PAGE, TERMS_OF_SERVICE_PAGE, PRIVACY_POLICY_PAGE } from "./helpers/routes"
 
 const router = createBrowserRouter([

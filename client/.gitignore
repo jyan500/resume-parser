@@ -16,10 +16,6 @@ dist
 dist-ssr
 *.local
 
-# Next.js
-.next/
-next-env.d.ts
-
 # Editor directories and files
 designs/*
 .vscode/*
