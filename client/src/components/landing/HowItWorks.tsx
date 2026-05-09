@@ -28,12 +28,12 @@ export const HowItWorks: React.FC = () => (
         <div style={{ maxWidth: 1100, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
             {/* Section heading */}
             <div className="flex flex-col items-center text-center" style={{ marginBottom: 64 }}>
-                <span
+                {/*<span
                     className="font-medium tracking-widest uppercase bg-brand-subtle text-brand-medium"
                     style={{ padding: "4px 10px", borderRadius: 999, fontSize: 11.5, marginBottom: 16 }}
                 >
                     The process
-                </span>
+                </span>*/}
                 <h2
                     className="font-bold text-brand-dark"
                     style={{ fontSize: 38, letterSpacing: "-0.025em", lineHeight: 1.1, margin: 0, maxWidth: 560 }}
