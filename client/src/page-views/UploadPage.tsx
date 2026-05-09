@@ -41,7 +41,7 @@ export const UploadPage: React.FC = () => {
                     style={{ zIndex: 1, paddingTop: 90, gap: 22 }}
                 >
                     {/* Badge */}
-                    <div
+                    {/*<div
                         className="font-medium tracking-widest uppercase bg-brand-subtle text-brand-medium"
                         style={{
                             padding: "4px 10px",
@@ -50,7 +50,7 @@ export const UploadPage: React.FC = () => {
                         }}
                     >
                         For job seekers
-                    </div>
+                    </div>*/}
 
                     {/* Headline */}
                     <h1
