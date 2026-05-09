@@ -186,6 +186,3 @@ Starts the Flask server at http://localhost:5000
 - When importing **only** types from a module, use `import type { Foo } from "..."`.
 - When importing both values and types from the same module, use inline `type` modifiers: `import { someValue, type SomeType } from "..."`.
 - Never mix plain type imports with value imports in a single `import` statement without the `type` keyword on each type.
-
-## Code Style
-- **Indentation: tabs.** Each indent level is a single tab character (rendered at 4-wide). Applies to `.ts`, `.tsx`, `.js`, `.mjs`, `.css`, `.json`, and any other source files generated or edited going forward. Do not mix spaces and tabs within a file.
