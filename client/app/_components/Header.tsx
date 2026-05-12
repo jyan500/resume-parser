@@ -5,18 +5,24 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { UPLOAD_PAGE, EDITOR_PAGE } from "../_lib/routes"
+import { persistor, useAppDispatch } from "../_lib/store"
+import { resetResume } from "../_lib/slices/resumeSlice"
 import { Logo } from "./Logo"
 
 export const Header = () => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const isEditorPage = pathname === EDITOR_PAGE
+	const dispatch = useAppDispatch()
 
-	// TODO(step-4): once Redux is wired up, dispatch(resetResume()) and
-	// await persistor.purge() before navigating, matching the Vite behavior.
-	const handleBackToUpload = useCallback(() => {
+	// Reset in-memory Redux state, flush & purge the persisted storage, then
+	// navigate. Awaiting purge ensures the key is removed before the upload
+	// page mounts and checks the store.
+	const handleBackToUpload = useCallback(async () => {
+		dispatch(resetResume())
+		await persistor.purge()
 		router.push(UPLOAD_PAGE)
-	}, [router])
+	}, [dispatch, router])
 
 	return (
 		<header

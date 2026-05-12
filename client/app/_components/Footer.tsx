@@ -1,7 +1,10 @@
+"use client"
+
 import React from "react"
 import Link from "next/link"
 import { Logo } from "./Logo"
-import { PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
+import { useAppSelector } from "../_lib/store"
+import { EDITOR_PAGE, PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
 
 const quickLinks = [
 	{ label: "Upload Resume", href: "/#upload" },
@@ -17,8 +20,7 @@ const supportLinks: SupportLink[] = [
 ]
 
 export const Footer: React.FC = () => {
-	// TODO(step-4): once Redux is wired up, read parseStatus and conditionally
-	// render the "Continue editing" link to /editor when parseStatus === "success".
+	const { parseStatus } = useAppSelector((state) => state.resume)
 
 	return (
 		<footer className="bg-brand-dark" style={{ paddingTop: 56, paddingBottom: 0 }}>
@@ -57,6 +59,17 @@ export const Footer: React.FC = () => {
 									</a>
 								</li>
 							))}
+							{parseStatus === "success" && (
+								<li>
+									<Link
+										href={EDITOR_PAGE}
+										style={{ fontSize: 13.5, textDecoration: "none" }}
+										className="text-brand-subtle"
+									>
+										Continue editing
+									</Link>
+								</li>
+							)}
 						</ul>
 					</div>
 
