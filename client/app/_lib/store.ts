@@ -11,8 +11,7 @@ import {
 	PURGE,
 	REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import storageSession from "redux-persist/lib/storage/session";
+import { localStorage as storage, sessionStorage as storageSession } from "./persistStorage";
 import resumeReducer from "./slices/resumeSlice";
 import turnstileReducer from "./slices/turnstileSlice";
 import { publicApi } from "./api/public";
