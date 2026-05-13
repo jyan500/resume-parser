@@ -12,7 +12,9 @@
         "start:next": "next start",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "test": "vitest",
-        "test:ui": "vitest --ui"
+        "test:ui": "vitest --ui",
+        "copy-pdf-worker": "node -e \"require('fs').copyFileSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs','public/pdf.worker.min.mjs')\"",
+        "postinstall": "npm run copy-pdf-worker"
     },
     "dependencies": {
         "@dnd-kit/core": "^6.3.1",
