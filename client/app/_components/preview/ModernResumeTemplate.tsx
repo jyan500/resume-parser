@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         fontFamily: FONT.bold,
         color: COLORS.black,
         letterSpacing: 1,
-        marginBottom: 4,
+        marginBottom: 16,
     },
     contactRow: {
         flexDirection: "row",
@@ -275,7 +275,7 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
         <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledExperience.map((exp) => (
-                <View key={exp.id} style={{ marginBottom: !isLast ? 6 : 0 }}>
+                <View key={exp.id} style={{ marginBottom: 6 }}>
                     {interactive ? (
                         <Link src={`http://r/#${exp.id}`} style={styles.bulletLinkContainer}>
                             {entry(exp)}
@@ -319,7 +319,7 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title,
         <View style={isLast ? [styles.section, { marginBottom: 0 }] : styles.section}>
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledProjects.map((proj) => (
-                <View key={proj.id} style={{ marginBottom: !isLast ? 6 : 0 }}>
+                <View key={proj.id} style={{ marginBottom: 6 }}>
                     {interactive ? (
                         <Link src={`http://r/#${proj.id}`} style={styles.bulletLinkContainer}>
                             {projectHeader(proj)}
@@ -439,7 +439,7 @@ const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title, isL
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledSkills.map((skill) => (
                 interactive ? (
-                    <Link key={skill.id} src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
+                    <Link key={`link-${skill.id}`} src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
                         {skillRow(skill)}
                     </Link>
                 ) : skillRow(skill)
@@ -517,21 +517,21 @@ export const ModernResumeTemplate: React.FC<ResumeDocumentProps> = ({
     const headerElement = (contactItems: Array<{value?: string; isLink?: boolean}>) => {
             return (
                 <View style={styles.header}>
-                <Text style={styles.name}>{header.name || "Your Name"}</Text>
-                <View style={styles.contactRow}>
-                    {contactItems
-                        .filter((item) => item.value !== "")
-                        .map((item, i) => (
-                            <ContactItem
-                                key={i}
-                                value={item.value}
-                                isLink={item.isLink}
-                                isFirst={i === 0}
-                                styles={contactStyles}
-                            />
-                        ))}
+                    <Text style={styles.name}>{header.name || "Your Name"}</Text>
+                    <View style={styles.contactRow}>
+                        {contactItems
+                            .filter((item) => item.value !== "")
+                            .map((item, i) => (
+                                <ContactItem
+                                    key={i}
+                                    value={item.value}
+                                    isLink={item.isLink}
+                                    isFirst={i === 0}
+                                    styles={contactStyles}
+                                />
+                            ))}
+                    </View>
                 </View>
-            </View>
         )
     }
 

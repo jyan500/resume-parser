@@ -21,7 +21,7 @@
         "@dnd-kit/sortable": "^10.0.0",
         "@dnd-kit/utilities": "^3.2.2",
         "@marsidev/react-turnstile": "^1.5.1",
-        "@react-pdf/renderer": "^3.4.4",
+        "@react-pdf/renderer": "^4.5.1",
         "@reduxjs/toolkit": "^2.2.6",
         "@tailwindcss/vite": "^4.2.1",
         "lucide-react": "^0.511.0",

@@ -38,12 +38,6 @@ import { HoverTooltip } from "../page-elements/HoverTooltip"
     since Next/Turbopack does not resolve module-relative URLs the same way.
 */
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-// pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   "pdfjs-dist/build/pdf.worker.min.mjs",
-//   import.meta.url
-// ).toString();
 
 export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -66,14 +60,6 @@ export const PreviewPanel: React.FC = () => {
         ]);
         return URL.createObjectURL(blob);
     }, [resume, visibility, order, template, sectionTitles, renderKey]);
-
-    // TEMP DIAGNOSTIC — useAsync swallows errors; surface them to the console
-    // so we can see why @react-pdf/renderer is failing under Next/Turbopack.
-    useEffect(() => {
-        if (render.error) {
-            console.error("[PreviewPanel] PDF render failed:", render.error);
-        }
-    }, [render.error]);
  
     // Revoke old blob URLs to prevent memory leaks.
     const previousBlobRef = useRef<string | null>(null);

@@ -322,8 +322,8 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
             {enabledExperience.map((exp, i) => (
                 <View
                     key={exp.id}
-                    // "Single Space Here" between entries; no top gap on first entry or the last entry of this section
-                    style={{ marginTop: i === 0 || isLast ? 0 : SINGLE_LINE_GAP }}
+                    // "Single Space Here" between entries; no top gap on first entry 
+                    style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}
                 >
                     {
                         interactive ? 
@@ -373,7 +373,7 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title,
             <SectionHeader title={title} styles={sectionHeaderStyles} />
             {enabledProjects.map((proj, i) => (
                 // "Single Space Here" between entries; no top gap on first entry or the last entry of this section
-                <View key={proj.id} style={{ marginTop: i === 0 || isLast ? 0 : SINGLE_LINE_GAP }}>
+                <View key={proj.id} style={{ marginTop: i === 0 ? 0 : SINGLE_LINE_GAP }}>
                     {
                         interactive ? 
                         <Link src={`http://r/#${proj.id}`} style={styles.bulletLinkContainer}>
@@ -511,7 +511,7 @@ const SkillsSection = ({ visibility: vis, enabledSkills, interactive, title, isL
                 }
                 if (interactive){
                     return (
-                        <Link src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
+                        <Link key={`link-${skill.id}`} src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
                             {skillRow(skill)}
                         </Link>
                     )
