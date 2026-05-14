@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
 					{/* Brand column */}
 					<div className="flex flex-col" style={{ gap: 14, gridColumn: "span 1" }}>
 						<div className="flex items-center" style={{ gap: 8 }}>
-							<Link href={UPLOAD_PAGE} className="flex flex-row gap-x-2 items-center">
+							<Link href={UPLOAD_PAGE} className="flex flex-row gap-x-1 items-center">
 								<Logo isFooter={true} />
 							</Link>
 						</div>
