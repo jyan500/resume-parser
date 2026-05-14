@@ -306,7 +306,7 @@ export const PreviewPanel: React.FC = () => {
                             <Checkbox
                                 name={"template-order"}
                                 enabled={form.resetOrder}
-                                onToggle={(e) => {
+                                onChecked={(e) => {
                                     e.preventDefault()
                                     setForm({
                                         ...form,
