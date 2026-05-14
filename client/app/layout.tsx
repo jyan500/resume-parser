@@ -11,7 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-	title: "Draftwise",
+	title: "CVSquared",
 	icons: { icon: "/logo-draftwise-transparent.png" },
 }
 

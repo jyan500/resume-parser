@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
 							className="text-brand-subtle"
 							style={{ fontSize: 13.5, lineHeight: 1.65, margin: 0, maxWidth: 260 }}
 						>
-							AI-powered resume parsing and tailoring. Turn any resume into an ATS-friendly draft in seconds.
+							AI-powered resume parsing and tailoring. Double the impact of any resume in seconds.
 						</p>
 					</div>
 
@@ -112,7 +112,7 @@ export const Footer: React.FC = () => {
 					style={{ borderColor: "#1e5c38", paddingTop: 20, paddingBottom: 20 }}
 				>
 					<p className="text-brand-subtle" style={{ fontSize: 12.5, margin: 0 }}>
-						© {hydrated && new Date().getFullYear()} Draftwise. All rights reserved.
+						© {hydrated && new Date().getFullYear()} CVSquared. All rights reserved.
 					</p>
 				</div>
 			</div>

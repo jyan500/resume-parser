@@ -4,9 +4,9 @@ import type { Metadata } from "next"
 import { PRIVACY_POLICY_PAGE } from "../../_lib/routes"
 
 export const metadata: Metadata = {
-	title: "Terms of Service | Draftwise",
+	title: "Terms of Service | CVSquared",
 	description:
-		"The terms governing your use of Draftwise's resume parsing and AI tailoring service.",
+		"The terms governing your use of CVSquared's resume parsing and AI tailoring service.",
 }
 
 type Section = {
@@ -20,7 +20,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					By accessing or using Draftwise, including uploading resume content, running analyses, or using
+					By accessing or using CVSquared, including uploading resume content, running analyses, or using
 					any of the tools on this site, you agree to be bound by these Terms of Service and our{" "}
 					<Link href={PRIVACY_POLICY_PAGE} className="text-brand-accent" style={{ textDecoration: "none" }}>
 						Privacy Policy
@@ -28,13 +28,13 @@ const sections: Section[] = [
 					. Please read them carefully before using the service.
 				</p>
 				<p style={{ marginBottom: 12 }}>
-					Draftwise is primarily available without mandatory user accounts; most functionality is
+					CVSquared is primarily available without mandatory user accounts; most functionality is
 					session-based and can be used anonymously unless you provide contact information for optional
 					features.
 				</p>
 				<p>
 					We may update these Terms from time to time. We will update the &ldquo;Last Updated&rdquo; date
-					at the top of this page when changes are made. Continued use of Draftwise after any update
+					at the top of this page when changes are made. Continued use of CVSquared after any update
 					constitutes your acceptance of the revised Terms.
 				</p>
 			</>
@@ -45,7 +45,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					Draftwise provides AI-powered resume optimization services, including:
+					CVSquared provides AI-powered resume optimization services, including:
 				</p>
 				<ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
 					<li>Resume and job description matching</li>
@@ -54,7 +54,7 @@ const sections: Section[] = [
 				</ul>
 				<p>
 					Our service is provided &ldquo;as is.&rdquo; We make no guarantees about job placement,
-					interview invitations, or employment outcomes. Draftwise is a tool to assist in resume
+					interview invitations, or employment outcomes. CVSquared is a tool to assist in resume
 					preparation, not a guarantee of employment success.
 				</p>
 			</>
@@ -98,15 +98,15 @@ const sections: Section[] = [
 				</p>
 				<p style={{ marginBottom: 16 }}>
 					You retain all rights to the content you upload, including your resume. By using our service,
-					you grant Draftwise a limited license to process, analyze, and optimize your content solely for
+					you grant CVSquared a limited license to process, analyze, and optimize your content solely for
 					the purpose of providing our services to you.
 				</p>
 				<p style={{ marginBottom: 8 }}>
 					<strong>Our Platform:</strong>
 				</p>
 				<p style={{ marginBottom: 16 }}>
-					All rights, title, and interest in Draftwise, including software, algorithms, design,
-					trademarks, and content, are owned by Draftwise and protected by copyright and other
+					All rights, title, and interest in CVSquared, including software, algorithms, design,
+					trademarks, and content, are owned by CVSquared and protected by copyright and other
 					intellectual property laws.
 				</p>
 				<p style={{ marginBottom: 8 }}>
@@ -124,7 +124,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					TO THE MAXIMUM EXTENT PERMITTED BY LAW, DRAFTWISE AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR:
+					TO THE MAXIMUM EXTENT PERMITTED BY LAW, CVSQUARED AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR:
 				</p>
 				<ul className="list-disc pl-5" style={{ lineHeight: 1.8 }}>
 					<li>Any indirect, incidental, special, consequential, or punitive damages</li>
@@ -142,7 +142,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					DRAFTWISE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES
+					CVSQUARED IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES
 					OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
 				</p>
 				<ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
@@ -163,7 +163,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					You agree to indemnify, defend, and hold harmless Draftwise and its developers from any claims,
+					You agree to indemnify, defend, and hold harmless CVSquared and its developers from any claims,
 					damages, losses, liabilities, and expenses (including legal fees) arising from:
 				</p>
 				<ul className="list-disc pl-5" style={{ lineHeight: 1.8 }}>
@@ -184,7 +184,7 @@ const sections: Section[] = [
 					United States, without regard to conflict of law provisions.
 				</p>
 				<p>
-					Any disputes arising from these Terms or your use of Draftwise shall be resolved through binding
+					Any disputes arising from these Terms or your use of CVSquared shall be resolved through binding
 					arbitration, except where prohibited by law. You agree to waive any right to a jury trial or to
 					participate in a class action.
 				</p>
@@ -209,7 +209,7 @@ const sections: Section[] = [
 				<Link href={PRIVACY_POLICY_PAGE} className="text-brand-accent" style={{ textDecoration: "none" }}>
 					Privacy Policy
 				</Link>
-				, constitute the entire agreement between you and Draftwise regarding your use of our service,
+				, constitute the entire agreement between you and CVSquared regarding your use of our service,
 				superseding any prior agreements.
 			</p>
 		),
@@ -223,8 +223,8 @@ const sections: Section[] = [
 				</p>
 				<p>
 					<strong>Email:</strong>{" "}
-					<a href="mailto:draftwise.support@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
-						draftwise.support@gmail.com
+					<a href="mailto:jysoftware.strategies@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+						jysoftware.strategies@gmail.com
 					</a>
 				</p>
 			</>
@@ -251,7 +251,7 @@ export default function TermsOfServicePage() {
 
 				{/* Intro */}
 				<p className="text-slate-600" style={{ fontSize: 15, lineHeight: 1.75, marginBottom: 40 }}>
-					Welcome to Draftwise. By accessing or using our platform, you agree to be bound by these Terms
+					Welcome to CVSquared. By accessing or using our platform, you agree to be bound by these Terms
 					of Service. Please read them carefully before using any part of the service.
 				</p>
 
