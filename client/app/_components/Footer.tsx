@@ -4,6 +4,7 @@ import React from "react"
 import Link from "next/link"
 import { Logo } from "./Logo"
 import { useAppSelector } from "../_lib/store"
+import { useIsHydrated } from "../_lib/hooks/useIsHydrated"
 import { EDITOR_PAGE, PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
 
 const quickLinks = [
@@ -21,6 +22,7 @@ const supportLinks: SupportLink[] = [
 
 export const Footer: React.FC = () => {
 	const { parseStatus } = useAppSelector((state) => state.resume)
+	const hydrated = useIsHydrated()
 
 	return (
 		<footer className="bg-brand-dark" style={{ paddingTop: 56, paddingBottom: 0 }}>
@@ -59,7 +61,7 @@ export const Footer: React.FC = () => {
 									</a>
 								</li>
 							))}
-							{parseStatus === "success" && (
+							{hydrated && parseStatus === "success" && (
 								<li>
 									<Link
 										href={EDITOR_PAGE}
@@ -110,7 +112,7 @@ export const Footer: React.FC = () => {
 					style={{ borderColor: "#1e5c38", paddingTop: 20, paddingBottom: 20 }}
 				>
 					<p className="text-brand-subtle" style={{ fontSize: 12.5, margin: 0 }}>
-						© {new Date().getFullYear()} Draftwise. All rights reserved.
+						© {hydrated && new Date().getFullYear()} Draftwise. All rights reserved.
 					</p>
 				</div>
 			</div>
