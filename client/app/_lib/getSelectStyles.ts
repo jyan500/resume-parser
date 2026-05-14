@@ -62,6 +62,7 @@ export const getSelectStyles = ({
 					? (state.isFocused ? '#374151' : '#1f2937')
 					: (state.isFocused ? '#f3f4f6' : 'white'),
 				cursor: 'pointer',
+				fontSize: ".8rem",
 			}),
 			singleValue: (base) => ({
 				...base,

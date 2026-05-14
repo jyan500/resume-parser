@@ -3,15 +3,15 @@
 import React from "react"
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    onToggle: (e: React.MouseEvent) => void
+    onChecked: (e: React.MouseEvent<HTMLButtonElement>) => void
     enabled: boolean
 }
 
-export const Checkbox = React.forwardRef<HTMLButtonElement, Props>(({onToggle, enabled, className, ...props}, _ref) => {
+export const Checkbox = React.forwardRef<HTMLButtonElement, Props>(({onChecked, enabled, className, ...props}, _ref) => {
     return (
         <button
             {...props}
-            onClick={onToggle}
+            onClick={onChecked}
             className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${
                 enabled
                     ? "bg-brand-accent border-brand-accent"
