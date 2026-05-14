@@ -74,8 +74,3 @@ Run the backend tests:
 ```bash
 venv\Scripts\pytest tests/ -v
 ```
-
-### API Endpoints
-- `POST /parse-resume` - upload and parse a resume file
-- `POST /missing-keywords` - compares resume to job description and identifies missing keywords
-- `POST /tailor-resume` - tailor a resume to a job description or job title based on the response of the `missing-keywords` endpoint
