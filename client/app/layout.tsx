@@ -12,7 +12,6 @@ const inter = Inter({
 
 export const metadata: Metadata = {
 	title: "CVSquared",
-	icons: { icon: "/logo-draftwise-transparent.png" },
 }
 
 export default function RootLayout({
