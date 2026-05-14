@@ -7,6 +7,7 @@ import { Check, ArrowDownToLine, AlertTriangle } from "lucide-react";
 import { useParseResumeMutation } from "../_lib/api/resume";
 import { useAppDispatch, useAppSelector } from "../_lib/store";
 import { setResume, setParseStatus } from "../_lib/slices/resumeSlice";
+import { useIsHydrated } from "../_lib/hooks/useIsHydrated";
 import { ErrorDisplay } from "./ErrorDisplay";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { EDITOR_PAGE } from "../_lib/routes";
@@ -15,6 +16,7 @@ export const UploadPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 	const { parseStatus } = useAppSelector((state) => state.resume);
+	const hydrated = useIsHydrated();
 	const [parseResume, { isLoading, isError, error }] = useParseResumeMutation();
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [fileName, setFileName] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export const UploadPanel: React.FC = () => {
 		<div className="w-full">
 
 			{/* Back to editor banner */}
-			{parseStatus === "success" && (
+			{hydrated && parseStatus === "success" && (
 				<div className="mb-4 rounded-xl bg-brand-bg border border-brand-border px-4 py-3 flex items-center justify-between gap-3">
 					<p className="text-sm font-medium text-brand-muted m-0">
 						You already have a resume loaded.

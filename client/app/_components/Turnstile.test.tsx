@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest"
 import { forwardRef, useImperativeHandle } from "react"
 import { render, act } from "@testing-library/react"
 import { Provider } from "react-redux"
-import { store } from "../../store"
+import { store } from "../_lib/store"
 import {
     clearTurnstileToken,
     setDevBypass,
     requestRefresh,
-} from "../../slices/turnstileSlice"
+} from "../_lib/slices/turnstileSlice"
 
 // ─── Mock @marsidev/react-turnstile ───────────────────────────────────────────
 // The mock exposes hooks for tests to drive the widget's reset() method and to
@@ -33,7 +33,7 @@ beforeEach(() => {
     lastOnSuccess = null
     store.dispatch(clearTurnstileToken())
     store.dispatch(setDevBypass(false))
-    vi.stubEnv("VITE_TURNSTILE_SITE_KEY", "test-site-key")
+    vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "test-site-key")
 })
 
 function renderProvider() {
@@ -67,7 +67,7 @@ describe("Turnstile component", () => {
     })
 
     it("dev bypass: when site key is unset, dispatches setDevBypass(true) and dev-bypass token on mount", () => {
-        vi.stubEnv("VITE_TURNSTILE_SITE_KEY", "")
+        vi.stubEnv("NEXT_PUBLIC_TURNSTILE_SITE_KEY", "")
         renderProvider()
         const state = store.getState().turnstile
         expect(state.devBypass).toBe(true)
