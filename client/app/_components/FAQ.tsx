@@ -5,10 +5,10 @@ import { ChevronDown } from "lucide-react";
 
 const faqs = [
 	{
-		question: "What is Draftwise?",
+		question: "What is CVSquared?",
 		answer:
 			<div>
-				<p>Draftwise is an AI-powered resume optimization tool.</p>
+				<p>CVSquared is an AI-powered resume optimization tool.</p>
 				<ul className="list-disc pl-5">
 					<li>Offers an editable PDF preview with live updates, such as changing text, section ordering and showing/hiding sections.</li>
 					<li>Analyzes your resume against a job description and returns concise, actionable suggestions.</li>
@@ -17,9 +17,9 @@ const faqs = [
 			</div>,
 	},
 	{
-		question: "What makes Draftwise unique from other AI resume writing tools?",
+		question: "What makes CVSquared unique from other AI resume writing tools?",
 		answer: <ul className="list-disc pl-5">
-			<li>Draftwise's AI processing is trained to provide tailored feedback that uses natural-sounding language, emphasizes business impact and is accurate to your own experience.</li>
+			<li>CVSquared's AI processing is trained to provide tailored feedback that uses natural-sounding language, emphasizes business impact and is accurate to your own experience.</li>
 			<li>Our editable PDF preview allows users to accept suggestions and re-word them to their preference if needed before they export it.</li>
 		</ul>
 	},
@@ -61,8 +61,8 @@ const faqs = [
 			<div>
 				<p>
 					Please contact us at {" "}
-					<a href="mailto:draftwise.support@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
-						draftwise.support@gmail.com
+					<a href="mailto:jysoftware.strategies@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+						jysoftware.strategies@gmail.com
 					</a>
 				</p>
 			</div>

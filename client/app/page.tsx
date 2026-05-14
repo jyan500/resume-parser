@@ -48,7 +48,7 @@ export default function Page() {
 						}}
 					>
 						Turn any resume into an{" "}
-						<span className="text-brand-accent">editable draft</span>.
+						<span className="text-brand-accent">interview-ready</span> version.
 					</h1>
 
 					{/* Description */}
@@ -56,8 +56,8 @@ export default function Page() {
 						className="text-center text-brand-muted"
 						style={{ margin: 0, fontSize: 16, fontWeight: 400, maxWidth: 520, lineHeight: 1.55 }}
 					>
-						We handle PDF and DOCX files, pull every section into structured fields, and hand you a
-						clean editor to tailor it to any job.
+						We handle PDF and DOCX files, pull every section into structured fields, and help you
+						tailor it to any job in minutes.
 					</p>
 
 					{/* Upload card */}

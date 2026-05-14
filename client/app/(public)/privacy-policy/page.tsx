@@ -2,9 +2,9 @@ import React from "react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-	title: "Privacy Policy | Draftwise",
+	title: "Privacy Policy | CVSquared",
 	description:
-		"How Draftwise handles your resume data: what we collect, how third-party AI processing works, and the choices you have.",
+		"How CVSquared handles your resume data: what we collect, how third-party AI processing works, and the choices you have.",
 }
 
 type Section = {
@@ -18,7 +18,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					When you use Draftwise, we collect only the information you explicitly provide during your session:
+					When you use CVSquared, we collect only the information you explicitly provide during your session:
 				</p>
 				<ul className="list-disc pl-5" style={{ marginBottom: 12, lineHeight: 1.8 }}>
 					<li>The resume file you upload for parsing and editing</li>
@@ -58,7 +58,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					<strong>Important:</strong> To generate tailored resume suggestions and analysis, Draftwise
+					<strong>Important:</strong> To generate tailored resume suggestions and analysis, CVSquared
 					transmits your resume text and any job description you provide to third-party large language
 					model (LLM) providers, which may include Google Gemini or OpenAI.
 				</p>
@@ -78,7 +78,7 @@ const sections: Section[] = [
 					<li>Medical or health information beyond what is professionally relevant</li>
 				</ul>
 				<p>
-					By using Draftwise, you acknowledge and consent to your provided content being transmitted
+					By using CVSquared, you acknowledge and consent to your provided content being transmitted
 					to these third-party AI services for processing.
 				</p>
 			</>
@@ -89,7 +89,7 @@ const sections: Section[] = [
 		content: (
 			<>
 				<p style={{ marginBottom: 12 }}>
-					<strong>Current implementation:</strong> Draftwise processes your resume in real time and
+					<strong>Current implementation:</strong> CVSquared processes your resume in real time and
 					stores your parsed resume data locally in your browser&apos;s session storage for the duration
 					of your session.
 				</p>
@@ -155,7 +155,7 @@ const sections: Section[] = [
 			<p>
 				We may update this Privacy Policy from time to time as our service evolves. When we make
 				material changes, we will update the &ldquo;Last Updated&rdquo; date at the top of this page.
-				We encourage you to review this policy periodically. Continued use of Draftwise after any
+				We encourage you to review this policy periodically. Continued use of CVSquared after any
 				changes constitutes your acceptance of the updated policy.
 			</p>
 		),
@@ -170,8 +170,8 @@ const sections: Section[] = [
 				</p>
 				<p>
 					<strong>Email:</strong>{" "}
-					<a href="mailto:draftwise.support@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
-						draftwise.support@gmail.com
+					<a href="mailto:jysoftware.strategies@gmail.com" className="text-brand-accent" style={{ textDecoration: "none" }}>
+						jysoftware.strategies@gmail.com
 					</a>
 				</p>
 			</>
@@ -198,7 +198,7 @@ export default function PrivacyPolicyPage() {
 
 				{/* Intro */}
 				<p className="text-slate-600" style={{ fontSize: 15, lineHeight: 1.75, marginBottom: 40 }}>
-					At Draftwise, your privacy matters. This Privacy Policy describes what information we collect
+					At CVSquared, your privacy matters. This Privacy Policy describes what information we collect
 					when you use our resume parsing and tailoring service, how we use it, and the choices you have
 					regarding your data. Please read this policy carefully before submitting your resume.
 				</p>

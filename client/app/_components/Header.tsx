@@ -45,7 +45,7 @@ export const Header = () => {
 					<span className="text-slate-200">|</span>
 				</>
 			) : null}
-			<Link href={UPLOAD_PAGE} className="flex flex-row gap-x-2 items-center">
+			<Link href={UPLOAD_PAGE} className="flex flex-row gap-x-1 items-center">
 				<Logo />
 			</Link>
 		</header>

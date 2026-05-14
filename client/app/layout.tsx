@@ -11,8 +11,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-	title: "Draftwise",
-	icons: { icon: "/logo-draftwise-transparent.png" },
+	title: "CVSquared",
 }
 
 export default function RootLayout({
