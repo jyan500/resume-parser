@@ -67,13 +67,13 @@ export default function Page() {
 
 					{/* Trust row */}
 					<div
-						className="flex flex-wrap justify-center"
+						className="flex flex-wrap justify-center items-center"
 						style={{ gap: 28, fontSize: 12.5, color: "#4b6b55", letterSpacing: "0.01em" }}
 					>
 						{trustItems.map((item) => (
 							<div key={item} className="flex items-center" style={{ gap: 7 }}>
 								<CircleCheck size={15} className="text-brand-accent" strokeWidth={1.5} />
-								<span className="text-brand-muted">{item}</span>
+								<span className="mt-0.5 font-normal text-brand-muted">{item}</span>
 							</div>
 						))}
 					</div>
