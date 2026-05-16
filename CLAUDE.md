@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
-Resume-parser is a React/Vite/TypeScript application for parsing and editing resumes. Users can upload resumes, edit them in a WYSIWYG editor, and generate formatted PDF outputs.
+Resume-parser is a Next.js (App Router) / React / TypeScript application for parsing and editing resumes. Users can upload resumes, edit them in a WYSIWYG editor, and generate formatted PDF outputs. The frontend lives in `client/` and is deployed to Cloudflare Pages via `@cloudflare/next-on-pages`.
 
 ## Development Commands
 
@@ -16,46 +16,48 @@ npm install
 ```bash
 npm run dev
 ```
-Starts the Vite development server at http://localhost:5173
+Starts the Next.js development server at http://localhost:3000
 
 ### Production Build
 ```bash
 npm run build
 ```
-Compiles TypeScript and builds the application for production
+Runs `next build` to compile and build the application for production
 
-### Preview Production Build
+### Cloudflare Pages Build & Preview
 ```bash
-npm run preview
+npm run pages:build      # build with @cloudflare/next-on-pages
+npm run pages:preview    # preview the Cloudflare Pages output locally via wrangler
 ```
-Locally preview the production build
 
 ### Linting
 ```bash
 npm run lint
 ```
-Runs ESLint on TypeScript and TypeScript React files
+Runs ESLint (`eslint-config-next`) on TypeScript and TypeScript React files
 
 ## Code Architecture
 
 ### File Structure
-- `client/src/` - Main application source
-  - `components/` - Reusable UI components
+- `client/app/` - Next.js App Router source
+  - `layout.tsx` - Root layout (metadata, fonts, Providers)
+  - `page.tsx` - Home / resume upload route (`/`)
+  - `editor/page.tsx` - Resume editing route (`/editor`)
+  - `(public)/` - Route group for static pages (`privacy-policy`, `terms-of-service`)
+  - `sitemap.ts` / `robots.ts` - Generate `/sitemap.xml` and `/robots.txt`
+  - `globals.css` - Global styles, Tailwind import, brand color tokens
+  - `_components/` - Reusable UI components (underscore = private, not routable)
     - `editor/` - Resume editing components (sections, fields, etc.)
     - `page-elements/` - Shared UI elements (buttons, inputs, selects)
     - `preview/` - Resume preview components
-    - `upload/` - Upload panel components
     - `target-job/` - Target job panel components
-  - `pages/` - Page-level components
-    - `UploadPage.tsx` - Resume upload interface
-    - `EditorPage.tsx` - Resume editing interface
-  - `hooks/` - Custom React hooks
-  - `store.ts` - Redux store configuration with persistence
-  - `slices/resumeSlice.ts` - Redux slice for resume state management
-  - `api/` - API service definitions (RTK Query)
-  - `types/` - TypeScript type definitions
-  - `helpers/` - Utility functions and constants
-  - `styles/` - CSS overrides (mainly for PDF generation)
+  - `_lib/` - Non-component application code
+    - `store.ts` - Redux store configuration with persistence
+    - `slices/resumeSlice.ts` - Redux slice for resume state management
+    - `api/` - API service definitions (RTK Query)
+    - `hooks/` - Custom React hooks
+    - `types/` - TypeScript type definitions
+    - `functions.ts` / `constants.ts` - Utility functions and constants
 
 ### State Management
 - Uses Redux Toolkit with `redux-persist` for persisting resume data to localStorage
@@ -65,15 +67,15 @@ Runs ESLint on TypeScript and TypeScript React files
 - Additional UI state: visibility toggles, active section, parse status, dirty flag
 
 ### Routing
-- Uses `react-router-dom` with two main routes:
-  - `/` - UploadPage (resume upload)
-  - `/editor` - EditorPage (resume editing)
-  - Catch-all redirects unknown routes to home
+- Uses the Next.js App Router (file-system based routing under `client/app/`):
+  - `/` - `app/page.tsx` (resume upload)
+  - `/editor` - `app/editor/page.tsx` (resume editing)
+  - `/privacy-policy`, `/terms-of-service` - static pages in the `(public)` route group
+- Components are marked `"use client"` where they rely on client-only APIs (Redux, hooks, browser APIs)
 
 ### Styling
-- TailwindCSS v4 via `@tailwindcss/vite` plugin
-- Custom PDF styling in `src/styles/pdf-override.css`
-- Brand color palette is defined in `client/src/index.css` — prefer these over generic Tailwind colors when styling new elements:
+- TailwindCSS v4 via `@tailwindcss/postcss` (configured in `client/postcss.config.mjs`)
+- Brand color palette is defined in `client/app/globals.css` — prefer these over generic Tailwind colors when styling new elements:
   - `bg-brand-bg` / `border-brand-border` — light green tints for backgrounds and borders
   - `text-brand-subtle` — muted green for secondary text
   - `text-brand-muted` — medium green for interactive/accent text
@@ -91,23 +93,23 @@ Runs ESLint on TypeScript and TypeScript React files
 ## Common Development Tasks
 
 ### Adding a New Resume Section
-1. Create component in `src/components/editor/` (e.g., `NewSection.tsx`)
-2. Add section type to `src/types/resume.ts`
-3. Add reducer cases in `src/slices/resumeSlice.ts`
-4. Import and use in `src/components/editor/EditorPanel.tsx`
-5. Add preview component in `src/components/preview/` if needed
-6. Update types in `src/types/api.ts` if API interaction needed
+1. Create component in `app/_components/editor/` (e.g., `NewSection.tsx`)
+2. Add section type to `app/_lib/types/resume.ts`
+3. Add reducer cases in `app/_lib/slices/resumeSlice.ts`
+4. Import and use in `app/_components/editor/EditorPanel.tsx`
+5. Add preview component in `app/_components/preview/` if needed
+6. Update types in `app/_lib/types/api.ts` if API interaction needed
 
 ### Modifying Styling
 - Use Tailwind utility classes directly in JSX
 - For component-specific styles, consider creating CSS modules or using style props
-- PDF-specific overrides go in `src/styles/pdf-override.css`
+- Global styles and brand tokens live in `app/globals.css`
 
 ### API Integration
-- API services are defined in `src/api/` using RTK Query
-- Base query configuration in `src/api/baseQuery.ts`
-- Endpoints defined in feature-specific files (e.g., `src/api/public/resume.ts`)
-- Store integration happens automatically in `store.ts`
+- API services are defined in `app/_lib/api/` using RTK Query
+- Base query configuration in `app/_lib/api/baseQuery.ts`
+- Endpoints defined in feature-specific files (e.g., `app/_lib/api/resume.ts`)
+- Store integration happens automatically in `app/_lib/store.ts`
 
 ### Testing
 - Vitest + React Testing Library is configured in `client/`
@@ -174,9 +176,9 @@ Starts the Flask server at http://localhost:5000
 - `GET /job-titles` - Search job titles (paginated)
 
 ## Best Practices
-- Follow existing TypeScript interfaces in `src/types/`
+- Follow existing TypeScript interfaces in `app/_lib/types/`
 - Keep components small and focused
-- Use custom hooks for reusable logic (see `src/hooks/`)
+- Use custom hooks for reusable logic (see `app/_lib/hooks/`)
 - Leverage Redux Toolkit's createSlice for state management
 - Use RTK Query for data fetching and caching
 - Maintain accessibility standards in UI components
