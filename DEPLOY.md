@@ -27,6 +27,7 @@ Production frontend: `https://cvsquared.pages.dev`.
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
 | `NEXT_PUBLIC_API_URL`             | Railway backend URL, e.g. `https://resume-parser-production-eed3.up.railway.app`                 |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`  | Cloudflare Turnstile site key. If unset, the frontend uses a `"dev-bypass"` token (dev only).    |
+| `NEXT_PUBLIC_SITE_URL`            | Canonical apex (non-www) site origin, no trailing `/`. Drives `metadataBase`, `<link rel="canonical">`, `sitemap.xml`, and `robots.txt`. |
 
 `NEXT_PUBLIC_*` are **inlined at build time**, so changing them requires a fresh Pages build — restarting the deploy is not enough.
 
@@ -38,6 +39,33 @@ Production frontend: `https://cvsquared.pages.dev`.
 - The Railway backend origin
 
 If the Railway URL changes, update `connect-src` in `_headers`.
+
+---
+
+## URL canonicalization
+
+The canonical URL is the **apex (non-www)** form of `NEXT_PUBLIC_SITE_URL`. Each
+indexable page emits a `<link rel="canonical">` resolved against `metadataBase`
+(`client/app/layout.tsx`), and `sitemap.ts` / `robots.ts` build their URLs from the same
+env var. `NEXT_PUBLIC_*` vars are inlined at build time, so changing the site URL
+requires a fresh Pages build.
+
+On the `*.pages.dev` domain there is nothing to redirect — `www.cvsquared.pages.dev` is
+not routed to the Pages project, so the canonical tags alone are the fix.
+
+When moving to a custom domain:
+
+1. Set `NEXT_PUBLIC_SITE_URL` to the apex custom domain (e.g. `https://cvsquared.com`)
+   and trigger a fresh Pages build.
+2. Add **both** `cvsquared.com` and `www.cvsquared.com` as custom domains on the Pages
+   project so requests to either host reach the project.
+3. Add a `client/public/_redirects` file to 301 www → apex:
+
+   ```
+   https://www.cvsquared.com/* https://cvsquared.com/:splat 301!
+   ```
+
+   (No `_redirects` file exists today — on `pages.dev` it would be inert.)
 
 ---
 
@@ -77,10 +105,12 @@ A hostname mismatch causes a **400 from `challenges.cloudflare.com/cdn-cgi/chall
 
 1. Add the new host to **Turnstile → Domains**.
 2. Add the new origin to Railway **`ALLOWED_ORIGINS`**.
-3. If the backend URL also changed:
+3. Update `NEXT_PUBLIC_SITE_URL` on Pages to the new canonical apex origin (see
+   [URL canonicalization](#url-canonicalization)).
+4. If the backend URL also changed:
    - Update `NEXT_PUBLIC_API_URL` on Pages.
    - Update the `connect-src` entry in `client/public/_headers`.
-4. Trigger a fresh Pages build (env-var change alone won't rebuild the bundle).
+5. Trigger a fresh Pages build (env-var change alone won't rebuild the bundle).
 
 ---
 

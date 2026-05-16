@@ -5,6 +5,7 @@ export const metadata: Metadata = {
 	title: "Privacy Policy | CVSquared",
 	description:
 		"How CVSquared handles your resume data: what we collect, how third-party AI processing works, and the choices you have.",
+	alternates: { canonical: "/privacy-policy" },
 }
 
 type Section = {

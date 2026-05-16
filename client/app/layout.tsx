@@ -11,7 +11,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-	title: "CVSquared",
+	metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+		? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+		: undefined,
+	title: "CVSquared - Free Resume Parser & Job Tailoring Tool",
+	description:
+		"Upload a PDF or DOCX resume, edit every section in a structured editor, and tailor it to any job description in minutes. Private by default, never stored.",
 }
 
 export default function RootLayout({

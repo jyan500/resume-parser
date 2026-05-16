@@ -7,6 +7,7 @@ export const metadata: Metadata = {
 	title: "Terms of Service | CVSquared",
 	description:
 		"The terms governing your use of CVSquared's resume parsing and AI tailoring service.",
+	alternates: { canonical: "/terms-of-service" },
 }
 
 type Section = {
