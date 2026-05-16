@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { CircleCheck } from "lucide-react";
 import { Header } from "./_components/Header";
 import { Footer } from "./_components/Footer";
 import { UploadPanel } from "./_components/UploadPanel";
 import { HowItWorks } from "./_components/HowItWorks";
 import { FAQ } from "./_components/FAQ";
+
+export const metadata: Metadata = {
+	alternates: { canonical: "/" },
+};
 
 const trustItems = ["Private by default", "Never stored", "Parses in seconds"];
 
