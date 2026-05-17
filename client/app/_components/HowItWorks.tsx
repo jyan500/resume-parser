@@ -56,6 +56,10 @@ export const HowItWorks: React.FC = () => (
 					</div>
 				))}
 			</div>
+
+			{/* Demo Images */}
+			<img width={"100%"} height={"100%"} src={"step1-export.png"} alt={"step 1 - parse resume"}/>	
+			<img width={"100%"} height={"100%"} src={"step2-export.png"} alt={"step 2 - tailor resume"}/>	
 		</div>
 	</section>
 );
