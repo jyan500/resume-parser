@@ -23,6 +23,19 @@ const steps = [
 	},
 ];
 
+const demos = [
+	{
+		src: "/step1-export.png",
+		alt: "Before and after view of a resume parsed into an ATS-friendly layout",
+		caption: "Parsed and reformatted into a clean, ATS-friendly layout.",
+	},
+	{
+		src: "/step2-export.png",
+		alt: "The CVSquared editor with live preview and AI tailoring suggestions",
+		caption: "Edit every section and apply AI tailoring suggestions in the live editor.",
+	},
+];
+
 export const HowItWorks: React.FC = () => (
 	<section id="how-it-works" className="bg-white" style={{ paddingTop: 96, paddingBottom: 112 }}>
 		<div style={{ maxWidth: 1100, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }}>
@@ -54,6 +67,29 @@ export const HowItWorks: React.FC = () => (
 							{step.description}
 						</p>
 					</div>
+				))}
+			</div>
+
+			{/* Demo screenshots */}
+			<div className="flex flex-col gap-8 mt-16">
+				{demos.map((demo) => (
+					<figure
+						key={demo.src}
+						className="bg-white border border-brand-border rounded-xl p-3 m-0"
+						style={{ boxShadow: "0 4px 16px rgba(0,0,0,0.05)" }}
+					>
+						<img
+							src={demo.src}
+							alt={demo.alt}
+							className="block w-full h-auto rounded-lg"
+						/>
+						<figcaption
+							className="text-brand-muted text-center leading-normal mt-3"
+							style={{ fontSize: 13.5 }}
+						>
+							{demo.caption}
+						</figcaption>
+					</figure>
 				))}
 			</div>
 		</div>
