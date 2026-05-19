@@ -6,7 +6,6 @@ import { Logo } from "./Logo"
 import { useAppSelector } from "../_lib/store"
 import { useIsHydrated } from "../_lib/hooks/useIsHydrated"
 import { EDITOR_PAGE, PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
-import { AdUnit } from "./AdUnit"
 
 const quickLinks = [
 	{ label: "Upload Resume", href: "/#upload" },
