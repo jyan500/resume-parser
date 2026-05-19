@@ -105,7 +105,6 @@ export const Footer: React.FC = () => {
 						</ul>
 					</div>
 				</div>
-
 				{/* Bottom bar */}
 				<div
 					className="flex items-center border-t"
