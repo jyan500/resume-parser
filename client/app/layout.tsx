@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { Providers } from "./_components/Providers"
+import { ADSENSE_CLIENT } from "./_lib/constants"
 
 const inter = Inter({
 	subsets: ["latin"],
@@ -17,6 +18,9 @@ export const metadata: Metadata = {
 	title: "CVSquared - Free Resume Parser & Job Tailoring Tool",
 	description:
 		"Upload a PDF or DOCX resume, edit every section in a structured editor, and tailor it to any job description in minutes. Private by default, never stored.",
+	other: {
+		"google-adsense-account": ADSENSE_CLIENT,
+	},
 }
 
 export default function RootLayout({
