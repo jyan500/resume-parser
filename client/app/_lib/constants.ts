@@ -16,5 +16,3 @@ export const XL_BREAKPOINT = 1280
 
 // letter at 96 dpi — never changes, so Page never re-renders on resize
 export const FIXED_PDF_WIDTH = 816;
-
-export const ADSENSE_CLIENT = "ca-pub-7297638935649896"
