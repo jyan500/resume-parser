@@ -86,60 +86,6 @@ const sections: Section[] = [
 		),
 	},
 	{
-		title: "Advertising",
-		content: (
-			<>
-				<p style={{ marginBottom: 12 }}>
-					CVSquared uses Google AdSense, a third-party advertising service, to display ads that help
-					keep the service free to use. To serve these ads, Google and its advertising partners may
-					place and read cookies on your device.
-				</p>
-				<p style={{ marginBottom: 12 }}>
-					These advertising cookies allow Google and other third-party vendors to serve ads based on
-					your prior visits to CVSquared and other websites. Google&apos;s use of advertising cookies
-					is governed by its own privacy policy and terms of service.
-				</p>
-				<p style={{ marginBottom: 12 }}>
-					<strong>To be clear:</strong> the advertising cookies described here are entirely separate
-					from the resume processing described in the sections above. Your uploaded resume content and
-					job description text are never shared with advertisers or used to personalize the ads you see.
-				</p>
-				<p style={{ marginBottom: 12 }}>You have the following choices regarding advertising cookies:</p>
-				<ul className="list-disc pl-5" style={{ lineHeight: 1.8 }}>
-					<li>
-						Opt out of personalized advertising by visiting your{" "}
-						<a
-							href="https://www.google.com/settings/ads"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-brand-accent"
-							style={{ textDecoration: "none" }}
-						>
-							Google Ads Settings
-						</a>
-						.
-					</li>
-					<li>
-						Opt out of cookies used by other third-party vendors at{" "}
-						<a
-							href="https://www.aboutads.info/choices/"
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-brand-accent"
-							style={{ textDecoration: "none" }}
-						>
-							aboutads.info
-						</a>
-						.
-					</li>
-					<li>
-						Manage or block cookies at any time through your browser&apos;s privacy settings.
-					</li>
-				</ul>
-			</>
-		),
-	},
-	{
 		title: "Data Storage and Retention",
 		content: (
 			<>
@@ -247,7 +193,7 @@ export default function PrivacyPolicyPage() {
 						Privacy Policy
 					</h1>
 					<p className="text-slate-500" style={{ fontSize: 13.5 }}>
-						Last Updated: May 18, 2026
+						Last Updated: May 25, 2026
 					</p>
 				</div>
 
