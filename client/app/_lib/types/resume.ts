@@ -140,7 +140,7 @@ export interface ResumeSuggestion {
 	numSuggestions: number
 }
 
-export type ResumeTemplate = "modern" | "classic"
+export type ResumeTemplate = "modern" | "classic" | "twoColumn"
 
 // ─── UI / Editor State ────────────────────────────────────────────────────────
 export type ActiveSection =

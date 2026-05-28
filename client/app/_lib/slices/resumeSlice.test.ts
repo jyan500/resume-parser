@@ -14,6 +14,9 @@ import reducer, {
     toggleExperience,
     toggleSectionVisibility,
     updateHeader,
+    setTemplate,
+    setLeftPaneMode,
+    ORDERS,
     type ResumeState,
 } from './resumeSlice'
 import type { Resume } from '../types/resume'
@@ -334,6 +337,39 @@ describe('updateHeader', () => {
         const before = reducer(freshState(), setResume(RESUME))
         const state = reducer(before, updateHeader({ name: 'John' }))
         expect(state.isDirty).toBe(true)
+    })
+})
+
+// ─── setTemplate ──────────────────────────────────────────────────────────────
+
+describe('setTemplate', () => {
+    it('sets template to twoColumn without changing order when resetOrder is false', () => {
+        const start = { ...freshState(), order: ORDERS.modern }
+        const state = reducer(start, setTemplate({ template: 'twoColumn', resetOrder: false }))
+        expect(state.template).toBe('twoColumn')
+        expect(state.order).toEqual(ORDERS.modern)
+    })
+
+    it('replaces order with the twoColumn ordering when resetOrder is true', () => {
+        const start = { ...freshState(), order: ORDERS.modern }
+        const state = reducer(start, setTemplate({ template: 'twoColumn', resetOrder: true }))
+        expect(state.template).toBe('twoColumn')
+        expect(state.order).toEqual(ORDERS.twoColumn)
+    })
+})
+
+// ─── setLeftPaneMode ──────────────────────────────────────────────────────────
+
+describe('setLeftPaneMode', () => {
+    it('defaults to "editor"', () => {
+        expect(freshState().leftPaneMode).toBe('editor')
+    })
+
+    it('switches to templates and back', () => {
+        const toTemplates = reducer(freshState(), setLeftPaneMode('templates'))
+        expect(toTemplates.leftPaneMode).toBe('templates')
+        const back = reducer(toTemplates, setLeftPaneMode('editor'))
+        expect(back.leftPaneMode).toBe('editor')
     })
 })
 

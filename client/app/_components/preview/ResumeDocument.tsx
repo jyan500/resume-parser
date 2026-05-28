@@ -33,7 +33,8 @@ export const ResumeDocument = ({
             />
         )
     }
-    else if (template === "classic"){
+    // twoColumn falls through to Classic until its own layout is built.
+    else if (template === "classic" || template === "twoColumn"){
         return (
             <ClassicResumeTemplate
                 resume={resume}
