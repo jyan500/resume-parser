@@ -276,7 +276,7 @@ export const PreviewPanel: React.FC = () => {
                                 : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
                         }`}
                     >
-                        <LayoutDashboard className="w-3.5 h-3.5" strokeWidth={2} />
+                        <LayoutDashboard className="w-3.5 h-3.5 text-slate-500" />
                         <span>Templates</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                             isTemplatesPaneActive ? "bg-brand-subtle text-brand-medium" : "bg-slate-100 text-slate-600"
