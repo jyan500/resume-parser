@@ -6,6 +6,7 @@ import { Group, Panel } from "react-resizable-panels";
 import { PreviewPanel } from "./preview/PreviewPanel";
 import { useAppSelector, selectParseStatus } from "../_lib/store";
 import { EditorPanel } from "./editor/EditorPanel";
+import { TemplatesPanel } from "./editor/TemplatesPanel";
 import { TargetJobPanel } from "./target-job/TargetJobPanel";
 import { XL_BREAKPOINT } from "../_lib/constants"
 import { ResizeHandle } from "./page-elements/ResizeHandle"
@@ -17,6 +18,8 @@ import { UPLOAD_PAGE } from "../_lib/routes"
 export const EditorView: React.FC = () => {
 	const router = useRouter();
 	const parseStatus = useAppSelector(selectParseStatus);
+	const leftPaneMode = useAppSelector((state) => state.resume.leftPaneMode);
+	const isTemplatesMode = leftPaneMode === "templates";
 	const { width } = useWindowSize();
 	const isMobile = width < XL_BREAKPOINT;
 	const [activePane, setActivePane] = useState<MobilePane>("editor");
@@ -69,7 +72,7 @@ export const EditorView: React.FC = () => {
 							<div className="flex flex-col h-full bg-white overflow-hidden">
 								<div className="flex-1 overflow-y-auto px-5 py-4">
 									<div className="px-4 py-4">
-										<EditorPanel />
+										{isTemplatesMode ? <TemplatesPanel /> : <EditorPanel />}
 									</div>
 								</div>
 							</div>
@@ -97,12 +100,12 @@ export const EditorView: React.FC = () => {
 					<Panel defaultSize={"30%"} minSize={"25%"} maxSize={"36%"} className="flex flex-col bg-white overflow-hidden">
 						<div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
 							<h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-								Editor
+								{isTemplatesMode ? "Templates" : "Editor"}
 							</h2>
 						</div>
 						<div className="flex-1 overflow-y-auto px-5 py-4">
 							<div className="px-4 py-4">
-								<EditorPanel/>
+								{isTemplatesMode ? <TemplatesPanel /> : <EditorPanel />}
 							</div>
 						</div>
 					</Panel>

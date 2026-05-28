@@ -25,10 +25,12 @@ import type {
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
 type TargetJobViewMode = "form" | "suggestions"
+export type LeftPaneMode = "editor" | "templates"
 export type TailorLeniency = "strict" | "variants" | "full"
 export const ORDERS = {
 	"modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
 	"classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
+	"twoColumn": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
 }
 
 export type RegionToSection = {
@@ -118,6 +120,7 @@ export interface ResumeState {
 	hoveredBulletId: string | null;
 	targetJobViewMode: TargetJobViewMode
 	isDarkMode: boolean
+	leftPaneMode: LeftPaneMode
 }
 
 const defaultState: ResumeState = {
@@ -139,6 +142,7 @@ const defaultState: ResumeState = {
 	hoveredBulletId: null,
 	targetJobViewMode: "form",
 	isDarkMode: false,
+	leftPaneMode: "editor",
 }
 
 export const initialState: ResumeState = {
@@ -235,6 +239,10 @@ export const resumeSlice = createSlice({
 			if (resetOrder){
 				state.order = ORDERS[template as ResumeTemplate]
 			}
+		},
+
+		setLeftPaneMode(state, action: PayloadAction<LeftPaneMode>){
+			state.leftPaneMode = action.payload
 		},
 
 		setSuggestions(state, action: PayloadAction<ResumeSuggestion>){
@@ -760,6 +768,7 @@ export const {
 	setSubToggleVisibility,
 	toggleAllSectionCollapse,
 	updateSectionTitle,
+	setLeftPaneMode,
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;

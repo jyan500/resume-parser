@@ -17,14 +17,12 @@ import "../../_lib/styles/pdf-override.css"
 import { ResumeDocument } from "./ResumeDocument";
 import { useAppSelector, useAppDispatch } from "../../_lib/store";
 import { useAsync } from "react-use"
-import { ORDERS, setTemplate, setFocusedRegionId, toggleSectionCollapseVisibility, setSubToggleVisibility } from "../../_lib/slices/resumeSlice"
-import type { ResumeTemplate, ToggleVisibility } from "../../_lib/types/resume";
-import type { OptionType } from "../../_lib/types/api"
+import { setTemplate, setFocusedRegionId, setLeftPaneMode, toggleSectionCollapseVisibility, setSubToggleVisibility } from "../../_lib/slices/resumeSlice"
+import type { ToggleVisibility } from "../../_lib/types/resume";
 import { Button } from "../page-elements/Button";
 import { Checkbox } from "../page-elements/Checkbox";
-import { Select } from "../page-elements/Select"
 import { LoadingSpinner } from "../LoadingSpinner";
-import { CircleHelp, Download } from "lucide-react";
+import { CircleHelp, Download, LayoutDashboard } from "lucide-react";
 import { FIXED_PDF_WIDTH } from "../../_lib/constants"
 import { HoverTooltip } from "../page-elements/HoverTooltip"
 
@@ -43,12 +41,9 @@ export const PreviewPanel: React.FC = () => {
     const dispatch = useAppDispatch()
     const [ downloadLoading, setDownloadLoading ] = useState(false)
     const [ renderKey, setRenderKey ] = useState(0)
-    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles, suggestions} = useAppSelector((state) => state.resume)
+    const {resume, subRegionToRegion, subToggleVisibility, regionToSection, visibility, order, template, hoveredBulletId, sectionTitles, suggestions, leftPaneMode} = useAppSelector((state) => state.resume)
     const suggestedBullets = suggestions.suggestedBullets
-    const [ form, setForm ] = useState({
-        template: template,
-        resetOrder: false,
-    })
+    const [ resetOrder, setResetOrder ] = useState(false)
 
     const resumePdfDocument = <ResumeDocument interactive={true} template={template} order={order} resume={resume} visibility={visibility} sectionTitles={sectionTitles} />;
     const render = useAsync(async () => {
@@ -259,8 +254,11 @@ export const PreviewPanel: React.FC = () => {
     }, []);
 
     const displayTemplate = (label: string) => {
+        if (label === "twoColumn") return "Two-Column"
         return label[0].toUpperCase() + label.slice(1)
     }
+
+    const isTemplatesPaneActive = leftPaneMode === "templates"
 
     return (
         <div className="flex flex-col h-full">
@@ -268,58 +266,49 @@ export const PreviewPanel: React.FC = () => {
             {/* Toolbar */}
             <div className="flex-none flex items-center justify-between gap-2 px-4 py-2.5 bg-white border-b border-slate-200" data-theme="light">
                 <div className = "flex flex-row gap-x-4 items-center">
-                    <form className="flex flex-row gap-x-4 items-center">
-                        <div className="flex flex-row gap-x-2 items-center">
-                            <label htmlFor={"template-select"} className="text-xs font-medium text-slate-500">Switch Templates:</label>
-                            <Select
-                                id="template-select"
-                                menuInPortal={true}
-                                className="w-32 text-xs"
-                                defaultValue={{ value: form.template, label: displayTemplate(form.template) }}
-                                options={Object.keys(ORDERS).map((key) => ({
-                                    value: key,
-                                    label: displayTemplate(key),
-                                }))}
-                                clearable={false}
-                                onSelect={(selected: OptionType | null) => {
-                                    if (selected) {
-                                        setForm((prev) => ({ ...prev, template: selected.value as ResumeTemplate }))
-                                        dispatch(setTemplate({
-                                            template: selected.value as ResumeTemplate,
-                                            resetOrder: form.resetOrder,
-                                        }))
-                                    }
-                                }}
+                    <button
+                        type="button"
+                        onClick={() => dispatch(setLeftPaneMode(isTemplatesPaneActive ? "editor" : "templates"))}
+                        aria-pressed={isTemplatesPaneActive}
+                        className={`cursor-pointer flex items-center gap-x-2 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors duration-150 ${
+                            isTemplatesPaneActive
+                                ? "border-brand-accent bg-brand-bg text-brand-medium"
+                                : "border-slate-200 hover:border-slate-300 text-slate-700 bg-white"
+                        }`}
+                    >
+                        <LayoutDashboard className="w-3.5 h-3.5" strokeWidth={2} />
+                        <span>Templates</span>
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            isTemplatesPaneActive ? "bg-brand-subtle text-brand-medium" : "bg-slate-100 text-slate-600"
+                        }`}>
+                            {displayTemplate(template)}
+                        </span>
+                    </button>
+                    <div className="flex flex-row gap-x-2 items-center">
+                        <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>
+                        <div className="relative group">
+                            <CircleHelp className="w-3.5 h-3.5 text-slate-400 cursor-help" />
+                            <HoverTooltip
+                                direction={"bottom"}
+                                text={
+                                    "checking this off will reset the section ordering when switching templates"
+                                }
                             />
                         </div>
-                        <div className="flex flex-row gap-x-2 items-center">
-                            <label htmlFor={"template-order"} className="text-xs font-medium text-slate-500">Reset Order</label>
-                            <div className="relative group">
-                                <CircleHelp className="w-3.5 h-3.5 text-slate-400 cursor-help" />
-                                <HoverTooltip 
-                                    direction={"bottom"}
-                                    text={
-                                        "checking this off will reset the section ordering when switching templates"
-                                    }
-                                />
-                            </div>
-                            <Checkbox
-                                name={"template-order"}
-                                enabled={form.resetOrder}
-                                onChecked={(e) => {
-                                    e.preventDefault()
-                                    setForm({
-                                        ...form,
-                                        resetOrder: !form.resetOrder
-                                    })
-                                    dispatch(setTemplate({
-                                        template: form.template,
-                                        resetOrder: !form.resetOrder
-                                    }))
-                                }}
-                            />
-                        </div>
-                    </form>
+                        <Checkbox
+                            name={"template-order"}
+                            enabled={resetOrder}
+                            onChecked={(e) => {
+                                e.preventDefault()
+                                const next = !resetOrder
+                                setResetOrder(next)
+                                dispatch(setTemplate({
+                                    template,
+                                    resetOrder: next,
+                                }))
+                            }}
+                        />
+                    </div>
                 </div>
                 <Button
                     onClick={async () => {
