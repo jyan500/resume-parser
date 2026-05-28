@@ -115,7 +115,7 @@ class _ResumeJobBase(BaseModel):
         if not v:
             return v
         word_count = len(v.split())
-        if len(v) < 150 or word_count < 50:
+        if len(v) < 120 or word_count < 30:
             raise ValueError(
                 "Job description is too short. Please paste the full job description "
                 "including the requirements or qualifications section."

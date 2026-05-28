@@ -182,6 +182,7 @@ const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) =
             {/* Job Description */}
             <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-slate-600">Job Description</label>
+                <small className="text-xs text-slate-400">Please paste in the full job description</small>
                 <TextArea
                     placeholder="Paste the job description here to get tailored suggestions..."
                     rows={10}
@@ -230,6 +231,11 @@ const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) =
             >
                 Get Feedback
             </Button>
+            {
+                isLoading ? (
+                    <p className = "text-xs text-slate-600">Takes about 10-20 seconds...</p>
+                ) : null
+            }
             <ErrorDisplay error={error} />
         </form>
     )

@@ -73,8 +73,9 @@ export const UploadPanel: React.FC = () => {
 	return (
 		<div className="w-full">
 
-			{/* Back to editor banner */}
-			{hydrated && parseStatus === "success" && (
+			{/* Back to editor banner — hidden during/after a fresh upload to avoid
+			    flashing before the redirect to /editor completes. */}
+			{hydrated && parseStatus === "success" && !fileName && (
 				<div className="mb-4 rounded-xl bg-brand-bg border border-brand-border px-4 py-3 flex items-center justify-between gap-3">
 					<p className="text-sm font-medium text-brand-muted m-0">
 						You already have a resume loaded.
