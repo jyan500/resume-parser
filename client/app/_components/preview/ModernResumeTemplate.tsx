@@ -262,7 +262,7 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
             </View>
             <View style={{ alignItems: "flex-end" }}>
                 <Text style={styles.entryDate}>
-                    {exp.startDate} – {exp.endDate}
+                    {exp.startDate} {exp.startDate !== "" ? `- ${exp.endDate}` : exp.endDate}
                 </Text>
                 {exp.location && (
                     <Text style={styles.entryLocation}>{exp.location}</Text>
