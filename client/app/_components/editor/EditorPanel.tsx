@@ -13,7 +13,7 @@ import { DndSortableWrapper } from "../page-elements/DndSortableWrapper";
 import { DndSortableWrapperPreview } from "../page-elements/DndSortableWrapperPreview";
 import { Button } from "../page-elements/Button";
 import { updateOrder, toggleAllSectionCollapse } from "../../_lib/slices/resumeSlice";
-import type { OrderableSection } from "../../_lib/slices/resumeSlice";
+import type { OrderableSection, OrderColumn } from "../../_lib/slices/resumeSlice";
 
 // ─── Section map ──────────────────────────────────────────────────────────────
 // Maps each orderable section key to its component. Every component in this
@@ -53,12 +53,41 @@ const SectionShell: React.FC<SectionShellProps> = ({ sectionKey, dragHandleProps
 
 // ─── EditorPanel ─────────────────────────────────────────────────────────────
 
+// ─── SectionDropZone ─────────────────────────────────────────────────────────
+// One drag-and-drop list bound to a single column of the `order` state.
+// Reused for both the single-column-template case (one zone on `right`) and
+// the two-column case (separate `left` and `right` zones).
+
+interface SectionDropZoneProps {
+    column: OrderColumn;
+    sections: OrderableSection[];
+}
+
+const SectionDropZone: React.FC<SectionDropZoneProps> = ({ column, sections }) => {
+    const dispatch = useAppDispatch();
+    const orderItems = sections.map((key) => ({ id: key }));
+    return (
+        <DndSortableWrapper<{ id: string }>
+            elements={orderItems}
+            dragEndAction={(fromIndex: number, toIndex: number) => {
+                dispatch(updateOrder({ column, fromIndex, toIndex }));
+            }}
+        >
+            {orderItems.map((item) => (
+                <DndSortableWrapperPreview<{ sectionKey: OrderableSection }>
+                    key={item.id}
+                    elementId={item.id}
+                    childComponent={SectionShell}
+                    childProps={{ sectionKey: item.id as OrderableSection }}
+                />
+            ))}
+        </DndSortableWrapper>
+    );
+};
+
 export const EditorPanel: React.FC = () => {
     const dispatch = useAppDispatch();
-    const { order, toggleVisibility } = useAppSelector((state) => state.resume)
-
-    // DndSortableWrapper requires items with an `id` field.
-    const orderItems = order.map((key) => ({ id: key }));
+    const { order, template, toggleVisibility } = useAppSelector((state) => state.resume)
 
     const isAllCollapsed = useMemo(() => {
         return Object.values(toggleVisibility).every((val: boolean) => !val)
@@ -71,22 +100,23 @@ export const EditorPanel: React.FC = () => {
             <HeaderSection />
             <SummarySection />
 
-            {/* The remaining 5 sections are freely reorderable. */}
-            <DndSortableWrapper<{ id: string }>
-                elements={orderItems}
-                dragEndAction={(fromIndex: number, toIndex: number) => {
-                    dispatch(updateOrder({ fromIndex, toIndex }));
-                }}
-            >
-                {orderItems.map((item) => (
-                    <DndSortableWrapperPreview<{ sectionKey: OrderableSection }>
-                        key={item.id}
-                        elementId={item.id}
-                        childComponent={SectionShell}
-                        childProps={{ sectionKey: item.id as OrderableSection }}
-                    />
-                ))}
-            </DndSortableWrapper>
+            {template === "twoColumn" ? (
+                <>
+                    <div className="bg-brand-bg border border-brand-border rounded-md px-3 py-2 text-xs font-medium text-slate-600">
+                        The two-column template splits sections into a left sidebar and a right main column. Drag to reorder within a column — sections cannot move between columns.
+                    </div>
+                    <div className="flex flex-col gap-y-2">
+                        <div className="text-xs font-medium uppercase tracking-wide text-brand-muted">Left column</div>
+                        <SectionDropZone column="left" sections={order.left} />
+                    </div>
+                    <div className="flex flex-col gap-y-2">
+                        <div className="text-xs font-medium uppercase tracking-wide text-brand-muted">Right column</div>
+                        <SectionDropZone column="right" sections={order.right} />
+                    </div>
+                </>
+            ) : (
+                <SectionDropZone column="right" sections={order.right} />
+            )}
         </div>
     );
 };

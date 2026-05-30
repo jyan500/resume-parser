@@ -302,7 +302,7 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
 			</View>
 			<View style={{ alignItems: "flex-end" }}>
 				<Text style={styles.entryDate}>
-                    {exp.startDate} {exp.startDate !== "" && exp.endDate !== "" ? `-` : ""} ${exp.endDate}
+                    {exp.startDate} {exp.startDate !== "" && exp.endDate !== "" ? `-` : ""} {exp.endDate}
 				</Text>
 				{exp.location && (
 					<Text style={styles.entryLocation}>{exp.location}</Text>
@@ -438,7 +438,8 @@ const StringBulletList: React.FC<StringBulletListProps> = ({ items }) => (
 
 // ─── Main Document ────────────────────────────────────────────────────────────
 
-type RightSection = Extract<OrderableSection, "experience" | "projects" | "education">;
+type RightSection = "experience" | "projects" | "education";
+type LeftSection  = "skills" | "certifications";
 
 type SectionPropsByKey = {
 	experience: ExperienceSectionProps;
@@ -449,7 +450,8 @@ type SectionPropsByKey = {
 interface ResumeDocumentProps {
 	resume: Resume;
 	visibility: ResumeVisibility;
-	order: Array<OrderableSection>;
+	leftOrder: Array<OrderableSection>;
+	rightOrder: Array<OrderableSection>;
 	interactive?: boolean;
 	sectionTitles: SectionTitles;
 }
@@ -457,7 +459,8 @@ interface ResumeDocumentProps {
 export const TwoColumnResumeTemplate: React.FC<ResumeDocumentProps> = ({
 	resume,
 	visibility,
-	order,
+	leftOrder,
+	rightOrder,
 	interactive,
 	sectionTitles,
 }) => {
@@ -482,15 +485,18 @@ export const TwoColumnResumeTemplate: React.FC<ResumeDocumentProps> = ({
 	// Trailing marginBottom on the last visible right-column block can push
 	// the layout cursor past the page boundary and spawn a blank page.
 	const summaryVisible = !!(vis.summary && summary && summary.text !== "");
-	const rightOrder: RightSection[] = order.filter(
+	const rightSections: RightSection[] = rightOrder.filter(
 		(s): s is RightSection => s === "experience" || s === "projects" || s === "education"
+	);
+	const leftSections: LeftSection[] = leftOrder.filter(
+		(s): s is LeftSection => s === "skills" || s === "certifications"
 	);
 	const sectionVisible: Record<RightSection, boolean> = {
 		experience: vis.experience && enabledExperience.length > 0,
 		projects:   vis.projects   && enabledProjects.length   > 0,
 		education:  vis.education  && enabledEducation.length  > 0,
 	};
-	const visibleSectionsInOrder = rightOrder.filter((s) => sectionVisible[s]);
+	const visibleSectionsInOrder = rightSections.filter((s) => sectionVisible[s]);
 	const lastSectionKey = visibleSectionsInOrder.at(-1);
 	const summaryIsLast = summaryVisible && !lastSectionKey;
 
@@ -498,6 +504,62 @@ export const TwoColumnResumeTemplate: React.FC<ResumeDocumentProps> = ({
 		experience: { visibility: vis, enabledExperience, title: sectionTitles.experience },
 		projects: { visibility: vis, enabledProjects, title: sectionTitles.projects },
 		education: { visibility: vis, enabledEducation, title: sectionTitles.education },
+	};
+
+	const skillsBlock = vis.skills && enabledSkills.length > 0 ? (
+		<View key="left-skills" style={styles.leftSection}>
+			<SectionHeader title={sectionTitles.skills} styles={leftSectionHeaderStyles} />
+			{enabledSkills.map((skill, idx) => {
+				const block = (
+					<>
+						<Text style={idx === 0 ? styles.leftSkillCategoryFirst : styles.leftSkillCategory}>
+							{skill.category}
+						</Text>
+						<StringBulletList items={skill.items} />
+					</>
+				);
+				return interactive ? (
+					<Link key={skill.id} src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
+						{block}
+					</Link>
+				) : (
+					<View key={skill.id}>{block}</View>
+				);
+			})}
+		</View>
+	) : null;
+
+	const certificationsBlock = vis.certifications && enabledCertifications.length > 0 ? (
+		<View key="left-certifications" style={styles.leftSection}>
+			<SectionHeader title={sectionTitles.certifications} styles={leftSectionHeaderStyles} />
+			{enabledCertifications.map((cert) => {
+				const block = (
+					<View style={styles.leftCertRow} wrap={false}>
+						<Text style={styles.leftBulletDot}>•</Text>
+						<View style={{ flex: 1 }}>
+							<Text style={styles.leftCertName}>{cert.name}</Text>
+							{(cert.organization || cert.date) && (
+								<Text style={styles.leftCertMeta}>
+									{cert.organization}{cert.organization && cert.date ? " · " : ""}{cert.date}
+								</Text>
+							)}
+						</View>
+					</View>
+				);
+				return interactive ? (
+					<Link key={cert.id} src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
+						{block}
+					</Link>
+				) : (
+					<View key={cert.id}>{block}</View>
+				);
+			})}
+		</View>
+	) : null;
+
+	const leftSectionBlocks: Record<LeftSection, React.ReactNode> = {
+		skills: skillsBlock,
+		certifications: certificationsBlock,
 	};
 
 	const leftColumn = (
@@ -528,56 +590,7 @@ export const TwoColumnResumeTemplate: React.FC<ResumeDocumentProps> = ({
 				</View>
 			)}
 
-			{vis.skills && enabledSkills.length > 0 && (
-				<View style={styles.leftSection}>
-					<SectionHeader title={sectionTitles.skills} styles={leftSectionHeaderStyles} />
-					{enabledSkills.map((skill, idx) => {
-						const block = (
-							<>
-								<Text style={idx === 0 ? styles.leftSkillCategoryFirst : styles.leftSkillCategory}>
-									{skill.category}
-								</Text>
-								<StringBulletList items={skill.items} />
-							</>
-						);
-						return interactive ? (
-							<Link key={skill.id} src={`http://r/#${skill.id}`} style={styles.bulletLinkContainer}>
-								{block}
-							</Link>
-						) : (
-							<View key={skill.id}>{block}</View>
-						);
-					})}
-				</View>
-			)}
-
-			{vis.certifications && enabledCertifications.length > 0 && (
-				<View style={styles.leftSection}>
-					<SectionHeader title={sectionTitles.certifications} styles={leftSectionHeaderStyles} />
-					{enabledCertifications.map((cert) => {
-						const block = (
-							<View style={styles.leftCertRow} wrap={false}>
-								<Text style={styles.leftBulletDot}>•</Text>
-								<View style={{ flex: 1 }}>
-									<Text style={styles.leftCertName}>{cert.name}</Text>
-									{(cert.organization || cert.date) && (
-										<Text style={styles.leftCertMeta}>
-											{cert.organization}{cert.organization && cert.date ? " · " : ""}{cert.date}
-										</Text>
-									)}
-								</View>
-							</View>
-						);
-						return interactive ? (
-							<Link key={cert.id} src={`http://r/#${cert.id}`} style={styles.bulletLinkContainer}>
-								{block}
-							</Link>
-						) : (
-							<View key={cert.id}>{block}</View>
-						);
-					})}
-				</View>
-			)}
+			{leftSections.map((section) => leftSectionBlocks[section])}
 		</View>
 	);
 
@@ -606,7 +619,7 @@ export const TwoColumnResumeTemplate: React.FC<ResumeDocumentProps> = ({
 				)}
 
 				{/* ── Right column: ordered sections (skills & certifications skipped — left column) ── */}
-				{rightOrder.map((section) => {
+				{rightSections.map((section) => {
 					const isLast = section === lastSectionKey;
 					switch (section) {
 						case "experience":

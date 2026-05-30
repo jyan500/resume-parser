@@ -24,13 +24,20 @@ import type {
 
 export type ContainsBullets = "projects" | "experience"
 export type OrderableSection = "experience" | "projects" | "education" | "certifications" | "skills";
+export type OrderColumn = "left" | "right"
+export interface SectionOrder {
+	left: Array<OrderableSection>;
+	right: Array<OrderableSection>;
+}
 type TargetJobViewMode = "form" | "suggestions"
 export type LeftPaneMode = "editor" | "templates"
 export type TailorLeniency = "strict" | "variants" | "full"
-export const ORDERS = {
-	"modern": ["experience", "projects", "education", "certifications", "skills"] as Array<OrderableSection>,
-	"classic": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
-	"twoColumn": ["education", "certifications", "experience", "projects", "skills"] as Array<OrderableSection>,
+// `left` is only populated for templates that render a sidebar (twoColumn).
+// Single-column templates put everything in `right` and leave `left` empty.
+export const ORDERS: Record<ResumeTemplate, SectionOrder> = {
+	"modern":    { left: [], right: ["experience", "projects", "education", "certifications", "skills"] },
+	"classic":   { left: [], right: ["education", "certifications", "experience", "projects", "skills"] },
+	"twoColumn": { left: ["skills", "certifications"], right: ["experience", "projects", "education"] },
 }
 
 export type RegionToSection = {
@@ -111,7 +118,7 @@ export interface ResumeState {
 	subToggleVisibility: SubToggleVisibility;
 	template: ResumeTemplate;
 	suggestions: ResumeSuggestion;
-	order: Array<OrderableSection>;
+	order: SectionOrder;
 	activeSection: ActiveSection;
 	parseStatus: ParseStatus;
 	parseError: string | null;
@@ -235,9 +242,17 @@ export const resumeSlice = createSlice({
 
 		setTemplate(state, action: PayloadAction<{template: ResumeTemplate, resetOrder: boolean}>){
 			const {template, resetOrder} = action.payload
+			const previous = state.template
 			state.template = template
-			if (resetOrder){
-				state.order = ORDERS[template as ResumeTemplate]
+			// Crossing into or out of twoColumn always snaps to the target
+			// template's default — single-column and two-column orderings
+			// have incompatible shapes (flat vs split) and no meaningful
+			// preservation across the boundary.
+			const enteringTwoColumn = template === "twoColumn" && previous !== "twoColumn"
+			const leavingTwoColumn  = template !== "twoColumn" && previous === "twoColumn"
+			const crossesTwoColumnBoundary = enteringTwoColumn || leavingTwoColumn
+			if (resetOrder || crossesTwoColumnBoundary){
+				state.order = ORDERS[template]
 			}
 		},
 
@@ -264,19 +279,19 @@ export const resumeSlice = createSlice({
 		},
 
 		/*
-			Reorders the section order array.
+			Reorders the section order array within a single column.
 			Same splice pattern as reorderExperience / reorderProjects:
 			remove the item at fromIndex, then insert it at toIndex.
 		*/
 		updateOrder(
 			state,
-			action: PayloadAction<{ fromIndex: number; toIndex: number }>
+			action: PayloadAction<{ column: OrderColumn; fromIndex: number; toIndex: number }>
 		) {
-			const { fromIndex, toIndex } = action.payload;
-			const temp = [...state.order];
+			const { column, fromIndex, toIndex } = action.payload;
+			const temp = [...state.order[column]];
 			const [moved] = temp.splice(fromIndex, 1);
 			temp.splice(toIndex, 0, moved);
-			state.order = temp;
+			state.order[column] = temp;
 			state.isDirty = true;
 		},
 
