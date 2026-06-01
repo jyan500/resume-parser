@@ -277,7 +277,7 @@ export const PreviewPanel: React.FC = () => {
                         }`}
                     >
                         <LayoutDashboard className={`mb-0.5 w-3.5 h-3.5 ${isTemplatesPaneActive ? "text-brand-medium" : "text-slate-500"}`} />
-                        <span>Templates</span>
+                        <span>Change Template</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                             isTemplatesPaneActive ? "bg-brand-subtle text-brand-medium" : "bg-slate-100 text-slate-600"
                         }`}>
