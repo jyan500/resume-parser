@@ -48,14 +48,7 @@ export const TemplatesPanel: React.FC = () => {
 
 	return (
 		<div className="flex flex-col gap-y-3">
-			<button
-				type="button"
-				onClick={() => dispatch(setLeftPaneMode("editor"))}
-				className="self-start flex items-center gap-x-1 text-xs font-medium text-brand-medium hover:text-brand-dark cursor-pointer"
-			>
-				<ArrowLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
-				Back to Editor
-			</button>
+
 			<p className="text-xs text-slate-500 leading-relaxed">
 				Choose a layout. Your content stays the same, only the look changes.
 			</p>
