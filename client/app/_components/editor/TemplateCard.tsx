@@ -18,6 +18,7 @@ export interface TemplateCardProps {
 const badgeToneClasses: Record<TemplateBadgeTone, string> = {
 	muted: "bg-slate-100 text-slate-600",
 	accent: "bg-brand-subtle text-brand-medium",
+	amber: "bg-amber-100 text-amber-700",
 }
 
 export const TemplateCard = ({

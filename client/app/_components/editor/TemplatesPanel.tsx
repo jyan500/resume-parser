@@ -26,14 +26,13 @@ const TEMPLATES: TemplateOption[] = [
 	{
 		value: "modern",
 		label: "Modern",
-		badge: { text: "Space-saving", tone: "accent" },
+		badge: { text: "Space-saving", tone: "amber" },
 		description: "Section dividers and tighter spacing, optimized to fit on one page.",
 		image: "/modern-preview.png",
 	},
 	{
 		value: "twoColumn",
 		label: "Two-Column",
-		badge: { text: "New", tone: "accent" },
 		description: "Sidebar layout that splits contact and skills from your experience.",
 		image: "/twocolumn-preview.png",
 	},
