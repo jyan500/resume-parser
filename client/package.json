@@ -35,7 +35,7 @@
         "react-use": "^17.6.0",
         "redux-persist": "^6.0.0",
         "tailwindcss": "^4.2.1",
-        "uuid": "^10.0.0",
+        "uuid": "^10.0.0"
     },
     "devDependencies": {
         "@cloudflare/next-on-pages": "^1.13.16",
