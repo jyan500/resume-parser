@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react"
 import type { ResumeTemplate } from "../../_lib/types/resume"
 
-export type TemplateBadgeTone = "muted" | "accent"
+export type TemplateBadgeTone = "muted" | "accent" | "amber"
 
 export interface TemplateCardProps {
 	template: ResumeTemplate
