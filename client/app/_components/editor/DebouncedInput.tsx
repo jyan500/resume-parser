@@ -26,7 +26,7 @@ export const  DebouncedInput = ({
     const { onBlur: callerOnBlur, ...restInputProps } = inputProps;
     return (
         <input
-            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-colors"
+            className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-colors"
             {...restInputProps}
             type={type}
             value={local}
