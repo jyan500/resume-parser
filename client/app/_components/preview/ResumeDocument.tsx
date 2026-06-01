@@ -1,14 +1,15 @@
 "use client"
 
 import type { ResumeTemplate, Resume, ResumeVisibility, SectionTitles } from "../../_lib/types/resume";
-import type { OrderableSection } from "../../_lib/slices/resumeSlice";
+import type { SectionOrder } from "../../_lib/slices/resumeSlice";
 import { ModernResumeTemplate } from "./ModernResumeTemplate";
 import { ClassicResumeTemplate } from "./ClassicResumeTemplate";
+import { TwoColumnResumeTemplate } from "./TwoColumnResumeTemplate";
 
 interface ResumeDocumentProps {
     resume: Resume;
     visibility: ResumeVisibility;
-    order: Array<OrderableSection>
+    order: SectionOrder
     template: ResumeTemplate
     interactive?: boolean
     sectionTitles: SectionTitles
@@ -28,19 +29,30 @@ export const ResumeDocument = ({
                 resume={resume}
                 interactive={interactive}
                 visibility={visibility}
-                order={order}
+                order={order.right}
                 sectionTitles={sectionTitles}
             />
         )
     }
-    // twoColumn falls through to Classic until its own layout is built.
-    else if (template === "classic" || template === "twoColumn"){
+    else if (template === "classic"){
         return (
             <ClassicResumeTemplate
                 resume={resume}
                 interactive={interactive}
                 visibility={visibility}
-                order={order}
+                order={order.right}
+                sectionTitles={sectionTitles}
+            />
+        )
+    }
+    else if (template === "twoColumn"){
+        return (
+            <TwoColumnResumeTemplate
+                resume={resume}
+                interactive={interactive}
+                visibility={visibility}
+                leftOrder={order.left}
+                rightOrder={order.right}
                 sectionTitles={sectionTitles}
             />
         )

@@ -233,7 +233,9 @@ const FormView: React.FC<FormViewProps> = ({ onFormSubmit, isLoading, error }) =
             </Button>
             {
                 isLoading ? (
-                    <p className = "text-xs text-slate-600">Takes about 10-20 seconds...</p>
+                    <div className="bg-brand-bg border border-brand-border rounded-md px-3 py-2 text-xs font-medium text-slate-600">
+                        Takes about 10-20 seconds...
+                    </div>
                 ) : null
             }
             <ErrorDisplay error={error} />

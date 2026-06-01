@@ -66,6 +66,11 @@ Runs ESLint (`eslint-config-next`) on TypeScript and TypeScript React files
 - Resume state includes sections: header, summary, experience, education, certifications, skills, projects
 - Additional UI state: visibility toggles, active section, parse status, dirty flag
 
+### Redux-persist migrations
+- Persisted shape migrations live in `resumeMigrations` inside `app/_lib/store.ts`
+- **Whenever a new migration entry is added (e.g. a new `3:` key), the `version` field in `resumePersistConfig` must be bumped to match the new highest key.** redux-persist only runs migrations whose key is strictly greater than the stored version, up to the configured `version`. If the keys and `version` drift, users will silently skip or replay migrations and land in a broken state.
+- Never edit or re-number a shipped migration — anyone whose stored state predates the change won't re-run it. Always add a new key with the next integer.
+
 ### Routing
 - Uses the Next.js App Router (file-system based routing under `client/app/`):
   - `/` - `app/page.tsx` (resume upload)

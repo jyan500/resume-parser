@@ -26,14 +26,13 @@ const TEMPLATES: TemplateOption[] = [
 	{
 		value: "modern",
 		label: "Modern",
-		badge: { text: "Space-saving", tone: "accent" },
+		badge: { text: "Space-saving", tone: "amber" },
 		description: "Section dividers and tighter spacing, optimized to fit on one page.",
 		image: "/modern-preview.png",
 	},
 	{
 		value: "twoColumn",
 		label: "Two-Column",
-		badge: { text: "New", tone: "accent" },
 		description: "Sidebar layout that splits contact and skills from your experience.",
 		image: "/twocolumn-preview.png",
 	},
@@ -58,7 +57,7 @@ export const TemplatesPanel: React.FC = () => {
 				Back to Editor
 			</button>
 			<p className="text-xs text-slate-500 leading-relaxed">
-				Choose a layout. Your content stays the same — only the look changes.
+				Choose a layout. Your content stays the same, only the look changes.
 			</p>
 			<div className="flex flex-col gap-y-3 mt-1">
 				{TEMPLATES.map((tpl) => (

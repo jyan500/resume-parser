@@ -235,16 +235,25 @@ describe('reorderBullets', () => {
 // ─── updateOrder ──────────────────────────────────────────────────────────────
 
 describe('updateOrder', () => {
-    it('moves a section from index 0 to index 2', () => {
-        const state = reducer(freshState(), updateOrder({ fromIndex: 0, toIndex: 2 }))
-        // default classic order: education, certifications, experience, projects, skills
+    it('moves a section within the right column from index 0 to index 2', () => {
+        const state = reducer(freshState(), updateOrder({ column: 'right', fromIndex: 0, toIndex: 2 }))
+        // default classic right order: education, certifications, experience, projects, skills
         // after moving index 0 (education) to index 2: certifications, experience, education, projects, skills
-        expect(state.order[2]).toBe('education')
-        expect(state.order[0]).toBe('certifications')
+        expect(state.order.right[2]).toBe('education')
+        expect(state.order.right[0]).toBe('certifications')
+    })
+
+    it('moves a section within the left column for the twoColumn template', () => {
+        const start = { ...freshState(), order: ORDERS.twoColumn }
+        // default twoColumn left: ["skills", "certifications"] → swap to ["certifications", "skills"]
+        const state = reducer(start, updateOrder({ column: 'left', fromIndex: 0, toIndex: 1 }))
+        expect(state.order.left).toEqual(['certifications', 'skills'])
+        // right column untouched
+        expect(state.order.right).toEqual(ORDERS.twoColumn.right)
     })
 
     it('sets isDirty', () => {
-        const state = reducer(freshState(), updateOrder({ fromIndex: 0, toIndex: 1 }))
+        const state = reducer(freshState(), updateOrder({ column: 'right', fromIndex: 0, toIndex: 1 }))
         expect(state.isDirty).toBe(true)
     })
 })
@@ -343,18 +352,35 @@ describe('updateHeader', () => {
 // ─── setTemplate ──────────────────────────────────────────────────────────────
 
 describe('setTemplate', () => {
-    it('sets template to twoColumn without changing order when resetOrder is false', () => {
-        const start = { ...freshState(), order: ORDERS.modern }
+    it('snaps to twoColumn default order when entering twoColumn, even with resetOrder=false', () => {
+        // The flat (single-column) order has no equivalent in the split twoColumn
+        // shape, so crossing the boundary always resets to the target template default.
+        const start = { ...freshState(), template: 'modern' as const, order: ORDERS.modern }
         const state = reducer(start, setTemplate({ template: 'twoColumn', resetOrder: false }))
         expect(state.template).toBe('twoColumn')
-        expect(state.order).toEqual(ORDERS.modern)
+        expect(state.order).toEqual(ORDERS.twoColumn)
     })
 
     it('replaces order with the twoColumn ordering when resetOrder is true', () => {
-        const start = { ...freshState(), order: ORDERS.modern }
+        const start = { ...freshState(), template: 'modern' as const, order: ORDERS.modern }
         const state = reducer(start, setTemplate({ template: 'twoColumn', resetOrder: true }))
         expect(state.template).toBe('twoColumn')
         expect(state.order).toEqual(ORDERS.twoColumn)
+    })
+
+    it('snaps to the target default when leaving twoColumn, even with resetOrder=false', () => {
+        const start = { ...freshState(), template: 'twoColumn' as const, order: ORDERS.twoColumn }
+        const state = reducer(start, setTemplate({ template: 'modern', resetOrder: false }))
+        expect(state.template).toBe('modern')
+        expect(state.order).toEqual(ORDERS.modern)
+    })
+
+    it('preserves the user order when switching between two single-column templates with resetOrder=false', () => {
+        const customOrder = { left: [] as Array<'skills'>, right: ['skills', 'experience', 'projects', 'education', 'certifications'] as Array<'skills' | 'experience' | 'projects' | 'education' | 'certifications'> }
+        const start = { ...freshState(), template: 'modern' as const, order: customOrder }
+        const state = reducer(start, setTemplate({ template: 'classic', resetOrder: false }))
+        expect(state.template).toBe('classic')
+        expect(state.order).toEqual(customOrder)
     })
 })
 
