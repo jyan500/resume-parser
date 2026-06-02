@@ -381,7 +381,7 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title,
                         </Link> :
                         projectHeader(proj)
                     }
-                    <BulletList interactive={interactive} bullets={proj.bullets} styles={bulletStyles} bulletChar="•" />
+                    <BulletList interactive={interactive} bullets={proj.bullets} styles={bulletStyles} bulletChar="●" />
                 </View>
             ))}
         </View>
@@ -415,7 +415,7 @@ const EducationSection = ({ visibility: vis, enabledEducation, interactive, titl
                 const eduCertRow = (edu: EducationEntry) => {
                     return (
                         <View key={edu.id} style={styles.eduCertBulletRow}>
-                            <Text style={styles.eduCertBulletDot}>•</Text>
+                            <Text style={styles.eduCertBulletDot}>●</Text>
                             {/* justify-between: degree text left, date right */}
                             <View style={styles.eduCertHeader}>
                                 {/* "Do NOT Bold" — plain eduCertText */}
@@ -464,7 +464,7 @@ const CertificationSection = ({ visibility: vis, enabledCertifications, interact
                 const certRow = (cert: CertificationEntry) => {
                     return (
                         <View key={cert.id} style={styles.eduCertBulletRow}>
-                            <Text style={styles.eduCertBulletDot}>•</Text>
+                            <Text style={styles.eduCertBulletDot}>●</Text>
                             <View style={styles.eduCertHeader}>
                                 <Text style={styles.eduCertText}>{label}</Text>
                                 <Text style={styles.entryDate}>{cert.date ? `  ${cert.date}` : ""}</Text>
