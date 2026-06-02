@@ -333,7 +333,7 @@ const ExperienceSection = ({ visibility: vis, enabledExperience, interactive, ti
                         : entry(exp)
                     }
                     {/* marginTop: 0 on bulletList = "No Space Here" */}
-                    <BulletList interactive={interactive} bullets={exp.bullets} styles={bulletStyles} bulletChar="•" />
+                    <BulletList interactive={interactive} bullets={exp.bullets} styles={bulletStyles} bulletChar="●" />
                 </View>
             ))}
         </View>
