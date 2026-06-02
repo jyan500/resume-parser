@@ -2,7 +2,7 @@
 
 import React from "react"
 import { useAppDispatch, useAppSelector } from "../../_lib/store"
-import { setLeftPaneMode, setTemplate } from "../../_lib/slices/resumeSlice"
+import { setTemplate } from "../../_lib/slices/resumeSlice"
 import type { ResumeTemplate } from "../../_lib/types/resume"
 import { TemplateCard, type TemplateBadgeTone } from "./TemplateCard"
 
