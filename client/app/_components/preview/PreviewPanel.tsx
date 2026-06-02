@@ -202,7 +202,11 @@ export const PreviewPanel: React.FC = () => {
 
     const shouldShowTextLoader = isFirstRendering && isBusy;
     // Also keep the previous document visible (as a stable fallback) when a re-render fails.
-    const shouldShowPreviousDocument = !isFirstRendering && (isBusy || !!render.error);
+    // Guard against `previousRenderUrl === render.value`: useAsync preserves the prior value
+    // while loading, so during a re-render both slots would otherwise mount the same blob URL
+    // and React would warn about duplicate keys. In that case the incoming slot already holds
+    // the correct (cached) content, so we just skip the previous slot entirely.
+    const shouldShowPreviousDocument = !isFirstRendering && (isBusy || !!render.error) && previousRenderUrl !== render.value;
     
     /* 
       Resize without re-rendering: the PDF canvas is fixed at FIXED_PDF_WIDTH (816px)
@@ -277,7 +281,7 @@ export const PreviewPanel: React.FC = () => {
                         }`}
                     >
                         <LayoutDashboard className={`mb-0.5 w-3.5 h-3.5 ${isTemplatesPaneActive ? "text-brand-medium" : "text-slate-500"}`} />
-                        <span>Templates</span>
+                        <span>Change Template</span>
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                             isTemplatesPaneActive ? "bg-brand-subtle text-brand-medium" : "bg-slate-100 text-slate-600"
                         }`}>
@@ -393,7 +397,7 @@ export const PreviewPanel: React.FC = () => {
                                 loading={null}
                                 onLoadSuccess={({ numPages }) => setNumPages(numPages)}
                                 className={`flex flex-col items-center gap-4 ${
-                                    isBusy || shouldShowPreviousDocument
+                                    shouldShowPreviousDocument
                                         ? "absolute top-6 opacity-0 pointer-events-none"
                                         : ""
                                 }`}

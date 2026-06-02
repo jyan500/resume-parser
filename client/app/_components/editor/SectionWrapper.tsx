@@ -90,7 +90,7 @@ export const SectionWrapper = forwardRef<HTMLDivElement, SectionWrapperProps>(({
                                 onBlur={handleBlur}
                                 onKeyDown={handleKeyDown}
                                 onClick={(e) => e.stopPropagation()}
-                                className="text-sm font-semibold text-slate-800 bg-transparent border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent w-48"
+                                className="text-xs font-semibold text-slate-800 bg-transparent border border-slate-300 rounded px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent w-48"
                             />
                             {defaultTitle && (
                                 <button

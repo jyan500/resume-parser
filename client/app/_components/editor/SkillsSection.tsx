@@ -114,7 +114,7 @@ const SkillCategoryRow: React.FC<SkillCategoryRowProps> = ({ skill, onUpdate, on
                     value={skill.category}
                     onChange={(e) => onUpdate({ category: e.target.value })}
                     placeholder="Category Name"
-                    className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-colors"
+                    className="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-accent/40 focus:border-brand-accent transition-colors"
                 />
                 <button
                     onClick={onRemove}

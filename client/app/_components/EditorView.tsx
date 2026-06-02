@@ -4,19 +4,22 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Group, Panel } from "react-resizable-panels";
 import { PreviewPanel } from "./preview/PreviewPanel";
-import { useAppSelector, selectParseStatus } from "../_lib/store";
+import { useAppDispatch, useAppSelector, selectParseStatus } from "../_lib/store";
 import { EditorPanel } from "./editor/EditorPanel";
 import { TemplatesPanel } from "./editor/TemplatesPanel";
 import { TargetJobPanel } from "./target-job/TargetJobPanel";
+import { setLeftPaneMode } from "../_lib/slices/resumeSlice"
 import { XL_BREAKPOINT } from "../_lib/constants"
 import { ResizeHandle } from "./page-elements/ResizeHandle"
 import { useWindowSize } from "../_lib/hooks/useWindowSize";
 import type { MobilePane } from "../_lib/types/resume";
 import { Header } from "./Header"
 import { UPLOAD_PAGE } from "../_lib/routes"
+import { ArrowLeft } from "lucide-react"
 
 export const EditorView: React.FC = () => {
 	const router = useRouter();
+	const dispatch = useAppDispatch()
 	const parseStatus = useAppSelector(selectParseStatus);
 	const leftPaneMode = useAppSelector((state) => state.resume.leftPaneMode);
 	const isTemplatesMode = leftPaneMode === "templates";
@@ -98,10 +101,22 @@ export const EditorView: React.FC = () => {
 
 					{/* Left — editor panel */}
 					<Panel defaultSize={"30%"} minSize={"25%"} maxSize={"36%"} className="flex flex-col bg-white overflow-hidden">
-						<div className="flex-none flex items-center px-5 py-3.5 border-b border-slate-100">
+						<div className="flex-none flex items-center gap-x-4 px-5 py-3.5 border-b border-slate-100">
 							<h2 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
 								{isTemplatesMode ? "Templates" : "Editor"}
 							</h2>
+							{
+								isTemplatesMode ? 
+									<button
+										type="button"
+										onClick={() => dispatch(setLeftPaneMode("editor"))}
+										className="self-start flex items-center gap-x-1 text-xs font-medium text-brand-medium hover:text-brand-dark cursor-pointer"
+									>
+										<ArrowLeft className="w-3.5 h-3.5" strokeWidth={2.5} />
+										Back to Editor
+									</button>
+								: null
+							}
 						</div>
 						<div className="flex-1 overflow-y-auto px-5 py-4">
 							<div className="px-4 py-4">
