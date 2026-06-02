@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Logo } from "./Logo"
 import { useAppSelector } from "../_lib/store"
 import { useIsHydrated } from "../_lib/hooks/useIsHydrated"
-import { EDITOR_PAGE, PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
+import { CONTACT_US_PAGE, EDITOR_PAGE, PRIVACY_POLICY_PAGE, TERMS_OF_SERVICE_PAGE, UPLOAD_PAGE } from "../_lib/routes"
 
 const quickLinks = [
 	{ label: "Upload Resume", href: "/#upload" },
@@ -16,6 +16,7 @@ const quickLinks = [
 type SupportLink = { label: string; href: string; internal?: boolean }
 
 const supportLinks: SupportLink[] = [
+	{ label: "Contact Us", href: CONTACT_US_PAGE, internal: true },
 	{ label: "Privacy Policy", href: PRIVACY_POLICY_PAGE, internal: true },
 	{ label: "Terms of Service", href: TERMS_OF_SERVICE_PAGE, internal: true },
 ]
