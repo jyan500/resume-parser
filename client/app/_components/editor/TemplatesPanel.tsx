@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { ArrowLeft } from "lucide-react"
 import { useAppDispatch, useAppSelector } from "../../_lib/store"
 import { setLeftPaneMode, setTemplate } from "../../_lib/slices/resumeSlice"
 import type { ResumeTemplate } from "../../_lib/types/resume"
