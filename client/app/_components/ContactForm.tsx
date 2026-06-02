@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
 import { useForm, FormProvider } from "react-hook-form"
 import { Input } from "./page-elements/Input"
 import { TextArea } from "./page-elements/TextArea"
