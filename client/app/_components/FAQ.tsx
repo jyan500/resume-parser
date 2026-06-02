@@ -19,7 +19,7 @@ const faqs = [
 	{
 		question: "What makes CVSquared unique from other AI resume writing tools?",
 		answer: <ul className="list-disc pl-5">
-			<li>CVSquared's AI processing is trained to provide tailored feedback that uses natural-sounding language, emphasizes business impact and is accurate to your own experience.</li>
+			<li>CVSquared's AI processing is trained to provide tailored feedback that uses natural-sounding language, emphasizes business impact and is accurate to your own experience, all of which are important to make your resume stand out and land interviews.</li>
 			<li>Our editable PDF preview allows users to accept suggestions and re-word them to their preference if needed before they export it.</li>
 		</ul>
 	},
