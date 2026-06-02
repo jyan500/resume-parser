@@ -1,4 +1,3 @@
-import React from "react"
 import type { Metadata } from "next"
 import { Mail } from "lucide-react"
 import { ContactForm } from "../../_components/ContactForm"
