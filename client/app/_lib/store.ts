@@ -17,6 +17,7 @@ import { localStorage as storage, sessionStorage as storageSession } from "./per
 import resumeReducer from "./slices/resumeSlice";
 import turnstileReducer from "./slices/turnstileSlice";
 import { publicApi } from "./api/public";
+import { externalApi } from "./api/external";
 import { listenerMiddleware } from "./listenerMiddleware";
 
 // ─── Persist Config ───────────────────────────────────────────────────────────
@@ -57,6 +58,7 @@ const rootReducer = combineReducers({
 	resume: persistedResumeReducer,
 	turnstile: turnstileReducer,
 	[publicApi.reducerPath]: publicApi.reducer,
+	[externalApi.reducerPath]: externalApi.reducer,
 });
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -74,7 +76,8 @@ export const store = configureStore({
 		})
 			// prepend so listeners observe actions before publicApi.middleware processes them
 			.prepend(listenerMiddleware.middleware)
-			.concat(publicApi.middleware),
+			.concat(publicApi.middleware)
+			.concat(externalApi.middleware),
 });
 
 export const persistor = persistStore(store);
