@@ -30,7 +30,12 @@ import { listenerMiddleware } from "./listenerMiddleware";
 // v1 → v2: `order` changed from a flat OrderableSection[] to
 // { left: OrderableSection[]; right: OrderableSection[] }. Legacy state goes
 // into `right` (preserves the user's previous flat order); `left` starts empty.
+// v2 → v3: `technologies` removed from ProjectEntry. Strip the field from any
+// persisted projects so stored state matches the current type.
 type LegacyResumeStateV1 = PersistedState & { order?: unknown };
+type LegacyResumeStateV2 = PersistedState & {
+	resume?: { projects?: Array<Record<string, unknown>> };
+};
 
 const resumeMigrations = {
 	2: (state: PersistedState) => {
@@ -41,11 +46,26 @@ const resumeMigrations = {
 		}
 		return state;
 	},
+	3: (state: PersistedState) => {
+		if (!state) return state;
+		const legacy = state as LegacyResumeStateV2;
+		const projects = legacy.resume?.projects;
+		if (!Array.isArray(projects)) return state;
+		const stripped = projects.map((p) => {
+			const { technologies, ...rest } = p as { technologies?: unknown };
+			void technologies;
+			return rest;
+		});
+		return {
+			...legacy,
+			resume: { ...legacy.resume, projects: stripped },
+		} as PersistedState;
+	},
 };
 
 const resumePersistConfig = {
 	key: "resume",
-	version: 2,
+	version: 3,
 	storage: process.env.NODE_ENV === "development" ? storage : storageSession,
 	migrate: createMigrate(resumeMigrations, { debug: false }),
 };

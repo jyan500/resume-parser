@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import { GripVertical, Check, Sparkle, X, ChevronDown, Plus } from "lucide-react";
 import { useAppSelector, useAppDispatch, selectResume, selectVisibility } from "../../_lib/store";
 import {
@@ -120,29 +120,11 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
     const dispatch = useAppDispatch();
     // const [expanded, setExpanded] = useState(true);
     const { subToggleVisibility } = useAppSelector((state) => state.resume)
-    const [techInput, setTechInput] = useState("");
-    const techInputRef = useRef<HTMLInputElement>(null);
     const rootRef = useRef<HTMLDivElement>(null)
 
     const pendingCount = project.bullets.filter((b) => suggestionsMap.has(b.id)).length;
 
     useScrollToFocusedRegion(rootRef, project.id)
-
-    const addTech = (raw: string) => {
-        const trimmed = raw.trim();
-        if (!trimmed) return;
-        const items = trimmed.split(",").map((s) => s.trim()).filter(Boolean);
-        const next = [
-            ...(project.technologies ?? []),
-            ...items.filter((s) => !(project.technologies ?? []).includes(s)),
-        ];
-        onUpdate({ technologies: next });
-        setTechInput("");
-    };
-
-    const removeTech = (tech: string) => {
-        onUpdate({ technologies: (project.technologies ?? []).filter((t) => t !== tech) });
-    };
 
     return (
         <div ref={rootRef} className={`rounded-xl border transition-colors duration-150 ${project.enabled ? "border-slate-200 bg-white" : "border-slate-100 bg-slate-50 opacity-60"}`}>
@@ -171,9 +153,6 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         <p className="text-sm font-medium text-slate-800 truncate">
                             {project.name || <span className="text-slate-400 font-normal italic">Untitled project</span>}
                         </p>
-                        {(project.technologies ?? []).length > 0 && (
-                            <p className="text-xs text-slate-500 truncate">{project.technologies!.join(", ")}</p>
-                        )}
                     </div>
 
                     {/* Pending suggestions pill — only when collapsed */}
@@ -207,42 +186,6 @@ const ProjectRow: React.FC<ProjectRowProps> = ({
                         </div>
                         <div className="col-span-2">
                             <Field label="URL" value={project.url ?? ""} onChange={(v) => onUpdate({ url: v })} placeholder="https://github.com/you/project" />
-                        </div>
-                    </div>
-
-                    {/* Technologies */}
-                    <div className="mt-3">
-                        <label className="text-xs font-medium text-slate-500 mb-1.5 block">Technologies</label>
-                        <div
-                            className="min-h-[38px] flex flex-wrap gap-1.5 p-2 rounded-lg border border-slate-200 bg-slate-50 cursor-text"
-                            onClick={() => techInputRef.current?.focus()}
-                        >
-                            {(project.technologies ?? []).map((tech) => (
-                                <span key={tech} className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full">
-                                    {tech}
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); removeTech(tech); }}
-                                        className="text-emerald-500 hover:text-emerald-800 transition-colors"
-                                    >
-                                        <X className="w-2.5 h-2.5" strokeWidth={3} />
-                                    </button>
-                                </span>
-                            ))}
-                            <input
-                                ref={techInputRef}
-                                type="text"
-                                value={techInput}
-                                onChange={(e) => setTechInput(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTech(techInput); }
-                                    else if (e.key === "Backspace" && techInput === "" && (project.technologies ?? []).length > 0) {
-                                        removeTech(project.technologies![project.technologies!.length - 1]);
-                                    }
-                                }}
-                                onBlur={() => { if (techInput.trim()) addTech(techInput); }}
-                                placeholder={(project.technologies ?? []).length === 0 ? "React, TypeScript, Node.js…" : ""}
-                                className="flex-1 min-w-[120px] bg-transparent text-xs text-slate-700 placeholder-slate-400 focus:outline-none"
-                            />
                         </div>
                     </div>
 

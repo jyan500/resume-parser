@@ -353,18 +353,13 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title,
 
     const projectHeader = (proj: ProjectEntry) => {
         return (
-            <View style={styles.entryRow}>
-                <View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
+            <View>
+                <View style={styles.entryRow}>
                     <Text style={styles.entryInlineLabel}>{proj.name}</Text>
                     {proj.url && (
-                        <Link style={styles.contactLink} src={proj.url}>↗</Link>
+                        <Link style={styles.contactLink} src={proj.url}>{proj.url}</Link>
                     )}
                 </View>
-                {proj.technologies && proj.technologies.length > 0 && (
-                    <Text style={styles.entryDate}>
-                        {proj.technologies.join(", ")}
-                    </Text>
-                )}
             </View>
         )
     }

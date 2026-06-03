@@ -609,7 +609,6 @@ export const resumeSlice = createSlice({
 				name: "",
 				description: "",
 				url: "",
-				technologies: [],
 				bullets: [],
 				enabled: true,
 			});
