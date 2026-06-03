@@ -113,7 +113,7 @@ export const HeaderSection: React.FC = () => {
                                     updated[i] = v
                                     patch({urls: updated})
                                 }}
-                                placeholder="URL"
+                                placeholder="URL (https://, www.)"
                             />
                             <button
                                 onClick={() => {

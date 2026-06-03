@@ -49,7 +49,6 @@ export interface ProjectEntry {
 	name: string;
 	description: string;
 	url?: string;
-	technologies?: string[];
 	bullets: Bullet[];
 	enabled: boolean;
 }

@@ -334,17 +334,12 @@ const ProjectsSection = ({ visibility: vis, enabledProjects, interactive, title,
 	if (!vis.projects || enabledProjects.length === 0) return null;
 
 	const projectHeader = (proj: NonNullable<Resume["projects"]>[number]) => (
-		<View style={styles.entryRow}>
-			<View style={{ flex: 1, flexDirection: "row", gap: 4 }}>
+		<View>
+			<View style={styles.entryRow}>
 				<Text style={styles.entryTitle}>{proj.name}</Text>
-				{proj.url && (
-					<Link style={styles.leftContactLink} src={proj.url}>↗</Link>
-				)}
 			</View>
-			{proj.technologies && proj.technologies.length > 0 && (
-				<Text style={styles.entryDate}>
-					{proj.technologies.join(", ")}
-				</Text>
+			{proj.url && (
+				<Link style={styles.leftContactLink} src={proj.url}>{proj.url}</Link>
 			)}
 		</View>
 	);

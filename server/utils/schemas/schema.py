@@ -30,6 +30,7 @@ class Experience(BaseModel):
 
 class Project(BaseModel):
     title: Optional[str] = ""
+    url: Optional[str] = ""
     bullets: List[str]
 
 class Skill(BaseModel):

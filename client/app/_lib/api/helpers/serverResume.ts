@@ -129,7 +129,6 @@ export function mapServerResumeToClient(server: ServerResumeSchema): Resume {
 			name: proj.title ?? "",
 			description: "",
 			url: "",
-			technologies: [],
 			bullets: mapBulletsToClientBullets(proj.bullets ?? []),
 			enabled: true,
 		})) ?? [];
