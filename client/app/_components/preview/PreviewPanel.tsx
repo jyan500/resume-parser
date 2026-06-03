@@ -74,8 +74,12 @@ export const PreviewPanel: React.FC = () => {
     }, []);
  
     // Mirrors `previousRenderValue` from the original repo.
-    const [previousRenderUrl, setPreviousRenderUrl] = useState<string | null>(null);
- 
+    // Page count is paired with the URL so the fallback <Document> never asks for a
+    // page index that belongs to the *incoming* document. Without pairing, a shared
+    // numPages state causes "Invalid page request" when the new PDF has a different
+    // page count than the previous one still being shown as a fallback.
+    const [previousRender, setPreviousRender] = useState<{ url: string; numPages: number } | null>(null);
+
     const [numPages, setNumPages] = useState(1);
     const hasInitialized = useRef(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -195,18 +199,18 @@ export const PreviewPanel: React.FC = () => {
         });
     }, [suggestedBullets]);
 
-    const isFirstRendering = previousRenderUrl === null;
-    const isLatestValueRendered = previousRenderUrl === render.value;
+    const isFirstRendering = previousRender === null;
+    const isLatestValueRendered = previousRender?.url === render.value;
     // Exclude error state so a failed render doesn't permanently lock isBusy=true.
     const isBusy = (render.loading || !isLatestValueRendered) && !render.error;
 
     const shouldShowTextLoader = isFirstRendering && isBusy;
     // Also keep the previous document visible (as a stable fallback) when a re-render fails.
-    // Guard against `previousRenderUrl === render.value`: useAsync preserves the prior value
+    // Guard against `previousRender.url === render.value`: useAsync preserves the prior value
     // while loading, so during a re-render both slots would otherwise mount the same blob URL
     // and React would warn about duplicate keys. In that case the incoming slot already holds
     // the correct (cached) content, so we just skip the previous slot entirely.
-    const shouldShowPreviousDocument = !isFirstRendering && (isBusy || !!render.error) && previousRenderUrl !== render.value;
+    const shouldShowPreviousDocument = !isFirstRendering && (isBusy || !!render.error) && previousRender.url !== render.value;
     
     /* 
       Resize without re-rendering: the PDF canvas is fixed at FIXED_PDF_WIDTH (816px)
@@ -362,14 +366,14 @@ export const PreviewPanel: React.FC = () => {
                             Previous document — stays fully visible while the next
                             render is in flight. Fades slightly to hint at the update.
                         */}
-                        {shouldShowPreviousDocument && previousRenderUrl && (
+                        {shouldShowPreviousDocument && previousRender && (
                             <Document
-                                key={previousRenderUrl}
-                                file={previousRenderUrl}
+                                key={previousRender.url}
+                                file={previousRender.url}
                                 loading={null}
                                 className="flex flex-col items-center gap-4"
                             >
-                                {Array.from({ length: numPages }, (_, i) => (
+                                {Array.from({ length: previousRender.numPages }, (_, i) => (
                                     <Page
                                         key={i + 1}
                                         pageNumber={i + 1}
@@ -417,7 +421,7 @@ export const PreviewPanel: React.FC = () => {
                                             // Only the last page firing promotes the URL,
                                             // so multi-page resumes don't swap mid-render.
                                             i + 1 === numPages
-                                                ? () => setPreviousRenderUrl(render.value ?? null)
+                                                ? () => render.value && setPreviousRender({ url: render.value, numPages })
                                                 : undefined
                                         }
                                     />
