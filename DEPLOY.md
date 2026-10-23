@@ -25,7 +25,7 @@ Production frontend: `https://cvsquared.pages.dev`.
 
 | Variable                          | Purpose                                                                                          |
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_API_URL`             | Render backend URL, e.g. `https://resume-parser-api.onrender.com`                                |
+| `NEXT_PUBLIC_API_URL`             | Render backend URL, e.g. `https://resume-parser-jmwf.onrender.com`                               |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`  | Cloudflare Turnstile site key. If unset, the frontend uses a `"dev-bypass"` token (dev only).    |
 | `NEXT_PUBLIC_SITE_URL`            | Canonical apex (non-www) site origin, no trailing `/`. Drives `metadataBase`, `<link rel="canonical">`, `sitemap.xml`, and `robots.txt`. |
 
