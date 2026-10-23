@@ -49,7 +49,6 @@ class KeywordExtractor:
         system_prompt, user_prompt = split_prompt(rendered)
         result = self.client.generate_response(
             user_prompt,
-            "KeywordListSchema",
             KeywordListSchema,
             model=GEMINI_FLASH_LITE_MODEL,
             system_prompt=system_prompt,

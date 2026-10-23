@@ -7,8 +7,6 @@ from pathlib import Path
 os.environ.setdefault("GOOGLE_API_KEY", "fake-key-for-testing")
 os.environ.setdefault("GEMINI_API_KEY", "fake-key-for-testing")
 os.environ.setdefault("OPENAI_API_KEY", "fake-key-for-testing")
-os.environ.setdefault("OPENROUTER_API_KEY", "fake-key-for-testing")
-os.environ.setdefault("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 os.environ.setdefault("SECRET_KEY", "test-secret-key")
 
 import pytest

@@ -1,0 +1,25 @@
+# Render Blueprint for the Flask backend (server/).
+# Create the service via Render Dashboard → New → Blueprint, pointing at this repo.
+# Env vars marked `sync: false` are prompted for during the initial Blueprint setup.
+services:
+  - type: web
+    name: resume-parser-api
+    runtime: python
+    rootDir: server
+    # Free instances spin down after 15 min idle (~1 min cold start); use starter or above for always-on.
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false

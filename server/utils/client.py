@@ -5,19 +5,12 @@ import os
 from utils.constants import ( 
     GEMINI_FLASH_MODEL, 
     GEMINI_FLASH_LITE_MODEL, 
-    OPENAI_GPT_OSS_120B_MODEL, 
     OPENAI_GPT4O_MINI_MODEL,
     OPENAI_GPT4_1_MINI_MODEL,
     OPENAI_GPT_5_MINI_MODEL,
 )
 from pydantic import BaseModel
 import traceback
-import json
-
-SYSTEM_PROMPT_FOR_OPENROUTER = """
-    You must respond with valid JSON only - no markdown fences, 
-    "no extra text. Follow this schema exactly: \n
-"""
 
 class LLMClient:
     def __init__(self, mode):
@@ -29,14 +22,10 @@ class LLMClient:
             self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
             self.openai_compat_model = OPENAI_GPT4_1_MINI_MODEL
         else:
-            self.client = OpenAI(
-                api_key=os.environ.get("OPENROUTER_API_KEY"),
-                base_url=os.environ.get("OPENROUTER_BASE_URL"),
-            )
-            self.openai_compat_model = OPENAI_GPT_OSS_120B_MODEL
+            raise ValueError(f"Unsupported LLM mode: {mode}")
         self.mode = mode
-    
-    def generate_response(self, prompt: str, schema_name: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0, file=None, filepath: str = None) -> BaseModel:
+
+    def generate_response(self, prompt: str, schema: BaseModel, model: str = None, system_prompt: str = None, temperature: float = 1.0, file=None, filepath: str = None) -> BaseModel:
         if self.mode == "gemini":
             try:
                 return self._gemini_structured_response(prompt, schema, model, system_prompt=system_prompt, temperature=temperature, file=file)
@@ -50,10 +39,7 @@ class LLMClient:
                         return self._openai_parse_structured_response(prompt, schema, self._openai_fallback, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
                 traceback.print_exc()
                 raise Exception("Something went wrong")
-        if self.mode == "openai":
-            return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
-        # openrouter
-        return self._openai_compat_structured_response(prompt, schema_name, schema, system_prompt=system_prompt, temperature=temperature)
+        return self._openai_parse_structured_response(prompt, schema, self.client, self.openai_compat_model, system_prompt=system_prompt, temperature=temperature)
 
     def upload_file(self, filepath: str):
         """Upload a file to the Gemini Files API. Gemini mode only."""
@@ -142,58 +128,3 @@ class LLMClient:
                     client.files.delete(uploaded_file.id)
                 except Exception:
                     pass
-
-    def _openai_compat_structured_response(self, prompt: str, schema_name: str, schema: BaseModel, system_prompt: str = None, temperature: float = 1.0) -> dict:
-        """
-        Call OpenRouter with a JSON schema enforced via response_format.
-        Falls back to extracting JSON from the raw text if the model
-        does not support the structured-output parameter.
-        """
-        response = None
-        try:
-            messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
-            messages.append({"role": "user", "content": prompt})
-            response = self.client.chat.completions.create(
-                model=self.openai_compat_model,
-                messages=messages,
-                temperature=temperature,
-                response_format={
-                    "type": "json_schema",
-                    "json_schema": {
-                        "name":  schema_name,
-                        "strict": True,
-                        "schema": schema.model_json_schema(),
-                    }
-                }
-            )
-        except Exception:
-            try:
-                schema_system_content = (
-                    SYSTEM_PROMPT_FOR_OPENROUTER
-                    + json.dumps(schema.model_json_schema(), indent=2)
-                )
-                if system_prompt:
-                    schema_system_content = system_prompt + "\n\n" + schema_system_content
-                response = self.client.chat.completions.create(
-                    model=self.openai_compat_model,
-                    temperature=temperature,
-                    messages=[
-                        {"role": "system", "content": schema_system_content},
-                        {"role": "user", "content": prompt},
-                    ]
-                )
-            except Exception as e:
-                traceback.print_exc()
-                raise Exception("Something went wrong")
-        
-        if response and response.choices and len(response.choices) > 0:
-            raw_text = response.choices[0].message.content
-            if not raw_text:
-                raise Exception("Model returned an empty response")
-            validated_schema = schema.model_validate_json(raw_text)
-            return validated_schema
-
-        raise Exception("No valid response from model")
-        

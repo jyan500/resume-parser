@@ -3,7 +3,7 @@
 Two-tier deploy:
 
 - **Frontend** — Next.js app under `client/`, deployed to **Cloudflare Pages** via `@cloudflare/next-on-pages`.
-- **Backend** — Flask app under `server/`, deployed to **Railway**.
+- **Backend** — Flask app under `server/`, deployed to **Render** (Blueprint in `render.yaml`).
 
 Production frontend: `https://cvsquared.pages.dev`.
 
@@ -25,7 +25,7 @@ Production frontend: `https://cvsquared.pages.dev`.
 
 | Variable                          | Purpose                                                                                          |
 | --------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `NEXT_PUBLIC_API_URL`             | Railway backend URL, e.g. `https://resume-parser-production-eed3.up.railway.app`                 |
+| `NEXT_PUBLIC_API_URL`             | Render backend URL, e.g. `https://resume-parser-api.onrender.com`                                |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY`  | Cloudflare Turnstile site key. If unset, the frontend uses a `"dev-bypass"` token (dev only).    |
 | `NEXT_PUBLIC_SITE_URL`            | Canonical apex (non-www) site origin, no trailing `/`. Drives `metadataBase`, `<link rel="canonical">`, `sitemap.xml`, and `robots.txt`. |
 
@@ -36,9 +36,9 @@ Production frontend: `https://cvsquared.pages.dev`.
 `client/public/_headers` sets the CSP. The `connect-src` and `frame-src` directives must include:
 
 - `https://challenges.cloudflare.com` (Turnstile)
-- The Railway backend origin
+- The Render backend origin
 
-If the Railway URL changes, update `connect-src` in `_headers`.
+If the Render URL changes, update `connect-src` in `_headers`.
 
 ---
 
@@ -69,7 +69,23 @@ When moving to a custom domain:
 
 ---
 
-## Backend (Railway)
+## Backend (Render)
+
+### Service setup
+
+The service is defined as a Render Blueprint in `render.yaml` at the repo root
+(Dashboard → **New → Blueprint** → select this repo). Key settings:
+
+| Setting          | Value                                                  |
+| ---------------- | ------------------------------------------------------ |
+| Root directory   | `server`                                               |
+| Runtime          | Python, pinned to 3.11.9 via `server/.python-version`  |
+| Build command    | `pip install -r requirements.txt`                      |
+| Start command    | `gunicorn app:app --bind 0.0.0.0:$PORT`                |
+| Health check     | `/health`                                              |
+
+Free instances spin down after 15 minutes idle and take ~1 minute to cold start.
+Change `plan` in `render.yaml` to `starter` (or higher) for an always-on backend.
 
 ### Environment variables
 
@@ -79,12 +95,10 @@ When moving to a custom domain:
 | `TURNSTILE_SECRET_KEY`  | Paired with the frontend site key. If unset, Turnstile verification is bypassed (dev only).          |
 | `SECRET_KEY`            | Flask session secret.                                                                                |
 | `GEMINI_API_KEY`        | Gemini LLM key (primary tailoring path).                                                             |
-| `OPENROUTER_API_KEY`    | OpenRouter key (fallback).                                                                           |
-| `OPENROUTER_BASE_URL`   | e.g. `https://openrouter.ai/api/v1`.                                                                 |
-| `OPENAI_API_KEY`        | Used by the OpenAI-compatible client path in `utils/client.py`.                                      |
-| `PORT`                  | Set by Railway automatically.                                                                        |
+| `OPENAI_API_KEY`        | OpenAI key (tailoring, and fallback when Gemini returns 503).                                        |
+| `PORT`                  | Set by Render automatically.                                                                         |
 
-`ALLOWED_ORIGINS` defaults to `http://localhost:3000` when unset (see `server/app.py:28`).
+`ALLOWED_ORIGINS` defaults to `http://localhost:3000` when unset (see `server/app.py:26`).
 
 ---
 
@@ -104,7 +118,7 @@ A hostname mismatch causes a **400 from `challenges.cloudflare.com/cdn-cgi/chall
 ## Checklist: changing the deploy URL
 
 1. Add the new host to **Turnstile → Domains**.
-2. Add the new origin to Railway **`ALLOWED_ORIGINS`**.
+2. Add the new origin to Render **`ALLOWED_ORIGINS`**.
 3. Update `NEXT_PUBLIC_SITE_URL` on Pages to the new canonical apex origin (see
    [URL canonicalization](#url-canonicalization)).
 4. If the backend URL also changed:
@@ -119,6 +133,6 @@ A hostname mismatch causes a **400 from `challenges.cloudflare.com/cdn-cgi/chall
 | Symptom                                                                                          | Likely cause                                                                  |
 | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
 | Upload hangs, backend logs show nothing, console: `challenges.cloudflare.com … 400` and `'about:blank' … sandboxed` warnings | Turnstile domain mismatch — current host not in the site key's allowed Domains. |
-| Upload reaches backend, then fails with a CORS error                                             | Current frontend origin missing from `ALLOWED_ORIGINS` on Railway.            |
+| Upload reaches backend, then fails with a CORS error                                             | Current frontend origin missing from `ALLOWED_ORIGINS` on Render.             |
 | Updated a `NEXT_PUBLIC_*` env var on Pages but the new value isn't taking effect                 | Inlined at build time — must redeploy, not just restart.                      |
-| Backend rejects every request with a Turnstile failure                                           | `TURNSTILE_SECRET_KEY` on Railway doesn't match the site key used by the frontend. |
+| Backend rejects every request with a Turnstile failure                                           | `TURNSTILE_SECRET_KEY` on Render doesn't match the site key used by the frontend. |

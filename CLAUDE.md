@@ -161,7 +161,7 @@ Starts the Flask server at http://localhost:5000
 - `app.py` - Main Flask application with routes for parsing, tailoring, and job titles
 - `db/models.py` - SQLAlchemy models (JobTitle)
 - `utils/parser.py` - Resume parsing logic (PDF/DOCX extraction)
-- `utils/tailor.py` - Resume tailoring using LLM (Gemini/OpenRouter)
+- `utils/tailor.py` - Resume tailoring using LLM (Gemini/OpenAI)
 - `utils/routes.py` - Route URL constants
 - `utils/validation.py` - Request validation
 - `utils/functions.py` - Utility functions
